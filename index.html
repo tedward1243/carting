@@ -857,6 +857,15 @@ function drawTrackPreview(canvas, track, color) {
   ctx.restore();
 }
 
+/* Races target ~5 minutes: the faster the series and the shorter the track, the more laps. */
+const RACE_TARGET_SECONDS = 300;
+function raceLaps(trackOrName, tier) {
+  const tr = typeof trackOrName === 'string' ? buildTrack(trackOrName, tier) : trackOrName;
+  const avgSpeed = tier.baseSpeed * (tier.vehicle === 'kart' ? 0.9 : 1.0); // measured average lap pace
+  const lapTime = tr.L / avgSpeed;
+  return Math.max(3, Math.round(RACE_TARGET_SECONDS / lapTime));
+}
+
 </script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script>
@@ -3345,7 +3354,7 @@ function tabHome() {
       <h2>${esc(track)}</h2>
       <div class="next-race-body">
         <div>
-          <div class="race-meta"><span><b>${T.laps}</b> laps</span><span><b>${T.field}</b> drivers</span><span>${T.cls}</span><span>${items ? '🎁 Items on' : '⚡ ERS + slipstream'}</span></div>
+          <div class="race-meta"><span><b>${raceLaps(track, T)}</b> laps (~5 min)</span><span><b>${T.field}</b> drivers</span><span>${T.cls}</span><span>${items ? '🎁 Items on' : '⚡ ERS + slipstream'}</span></div>
           <div class="race-meta"><span>Championship <b>P${me.pos}</b> (${me.pts} pts)</span><span>Race-day form <b class="${perf >= 98 ? 'good' : perf < 95 ? 'bad' : ''}">${perf}%</b></span></div>
           ${buffs.concat(flags).length ? `<div class="race-meta">${buffs.concat(flags).map(x => `<span>${x}</span>`).join('')}</div>` : ''}
           ${ev ? `<p class="gold small" style="margin:0 0 10px">Make a decision on this week's event before you race.</p>` : ''}
@@ -3628,7 +3637,7 @@ function launchRace(cfg) {
   startTilt();
   const track = buildTrack(cfg.trackName, cfg.tier);
   UI.engine = new RaceEngine($('#race-canvas'), {
-    tier: cfg.tier, track, laps: cfg.laps,
+    tier: cfg.tier, track, laps: raceLaps(track, cfg.tier),
     racers: cfg.racers.map(r => Object.assign({}, r)),
     items: cfg.items, ers: cfg.tier.vehicle === 'formula', difficulty: cfg.difficulty, sound: cfg.sound, tilt: TILT,
     view: getViewPref(), onView: m => { try { localStorage.setItem('k2c.view', m); } catch (e) { } },
@@ -3871,7 +3880,7 @@ function renderQuick() {
     <label class="f">Difficulty</label>
     <select data-qfield="difficulty">${['easy', 'normal', 'hard'].map(d => `<option ${d === q.difficulty ? 'selected' : ''} value="${d}">${d[0].toUpperCase() + d.slice(1)}</option>`).join('')}</select>
     <canvas class="track-preview" style="margin-top:14px" data-track="${esc(trackName)}" data-tier="${q.tier}"></canvas>
-    <p class="muted small">${T.laps} laps • ${T.field} drivers • ${T.items ? 'Item boxes + drift boosts' : 'ERS + slipstream'} • Your driver is rated at the series average.</p>
+    <p class="muted small">${raceLaps(trackName, T)} laps (~5 min) • ${T.field} drivers • ${T.items ? 'Item boxes + drift boosts' : 'ERS + slipstream'} • Your driver is rated at the series average.</p>
     <button class="btn primary big" style="width:100%" data-act="quick-go">Start race</button>
   </div></div>`;
   drawPreviews();
