@@ -369,6 +369,57 @@ html.touch .hand-left .tc-steer { right: calc(16px + env(safe-area-inset-right))
 /* the header scrolls away on phones (the tabs live at the bottom); no backdrop-filter so the fixed tab bar is not trapped inside it */
 html.touch .topbar { position: relative; backdrop-filter: none; -webkit-backdrop-filter: none; background: var(--bg); }
 
+/* ---------- phone as a controller ---------- */
+.remote-cta { margin: 16px auto 0; display: block; }
+.remote-badge { position: fixed; right: 14px; bottom: 14px; z-index: 80; padding: 8px 14px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.2); background: rgba(11,15,26,0.9); color: var(--muted); font-family: var(--head); font-weight: 700; font-size: 14px; cursor: pointer; }
+.remote-badge.on { color: #0b0f1a; background: var(--good); border-color: var(--good); }
+.remote-badge.hidden { display: none; }
+#race-screen:not(.hidden) ~ .remote-badge { bottom: auto; top: 14px; right: 50%; transform: translateX(50%); opacity: 0.8; }
+.remote-modal { text-align: center; }
+.remote-modal h2 { text-align: center; }
+.remote-qr-wrap { display: flex; justify-content: center; margin: 14px 0; }
+.remote-qr { background: #fff; padding: 12px; border-radius: 12px; min-width: 224px; min-height: 224px; display: grid; place-items: center; }
+.remote-code { font-family: var(--head); font-weight: 700; font-size: 40px; letter-spacing: .3em; color: var(--accent2); margin: 4px 0; }
+.remote-status { color: var(--muted); font-weight: 600; }
+.remote-status.good { color: var(--good); }
+/* the phone pad */
+html.pad-mode, html.pad-mode body { background: #070a12; overflow: hidden; height: 100%; }
+.pad { position: fixed; inset: 0; display: flex; flex-direction: column; color: #fff; padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); touch-action: none; user-select: none; -webkit-user-select: none; }
+.pad-top { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.pad-status { font-family: var(--head); font-weight: 700; color: var(--accent2); cursor: pointer; }
+.pad-status.good { color: var(--good); }
+.pad-hud { flex: 1; text-align: center; font-family: var(--head); font-weight: 700; font-size: 16px; }
+.pad-mini { background: rgba(255,255,255,0.08); color: #fff; border: 1px solid rgba(255,255,255,0.2); border-radius: 10px; padding: 8px 10px; font-family: var(--head); font-weight: 700; font-size: 13px; }
+.pad-menu { flex: 1; overflow-y: auto; padding: 12px; touch-action: pan-y; }
+.pad-menu.hidden, .pad-drive.hidden, .pad-overlay.hidden, .pad-steer.hidden, .pad-tilt.hidden { display: none !important; }
+.pad-title { font-family: var(--head); font-weight: 700; font-size: 22px; margin: 0 0 10px; }
+.pad-wait { color: var(--muted); text-align: center; padding: 40px 10px; }
+.pad-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.pad-b { min-height: 52px; padding: 10px; border-radius: 12px; border: 2px solid var(--c, rgba(255,255,255,0.18)); background: rgba(255,255,255,0.06); color: #fff; font-family: var(--head); font-weight: 700; font-size: 16px; }
+.pad-b.on { border-color: var(--accent2); background: rgba(255,209,102,0.15); }
+.pad-b.pr { background: linear-gradient(90deg, #ff3b5c, #ff7a3d); border-color: transparent; }
+.pad-drive { position: relative; flex: 1; }
+.pad-btns { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; }
+.pad-btns button, .pad-steer button { background: rgba(255,255,255,0.1); color: #fff; border: 2px solid rgba(255,255,255,0.25); border-radius: 14px; min-width: 64px; height: 52px; font-family: var(--head); font-weight: 700; font-size: 16px; }
+.pad-btns .pad-pit { background: rgba(255,159,28,0.35); }
+.pad-btns .pad-pit.on { background: #ffd166; color: #111; }
+.pad-drive.quali .pad-pit { display: none; }
+.pad .tc-pedal { position: absolute; bottom: 14px; width: 120px; height: auto; top: 76px; min-height: 160px; border-radius: 60px; }
+.pad .tc-knob { width: 92px; height: 92px; margin: -46px 0 0 -46px; }
+.pad.hand-right .tc-pedal { right: 14px; left: auto; }
+.pad.hand-left .tc-pedal { left: 14px; right: auto; }
+.pad-steer { position: absolute; bottom: 20px; display: flex; gap: 14px; }
+.pad.hand-right .pad-steer { left: 14px; } .pad.hand-left .pad-steer { right: 14px; }
+.pad-steer button { width: 96px; height: 96px; border-radius: 50%; font-size: 28px; }
+.pad-steer button.active { background: rgba(255,255,255,0.35); }
+.pad-tilt { position: absolute; left: 50%; bottom: 26px; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 12px; color: var(--muted); font-size: 13px; }
+.pad .pad-meter { position: relative; left: auto; bottom: auto; transform: none; width: 220px; height: 10px; border-radius: 99px; background: rgba(255,255,255,0.15); display: block; }
+.pad .pad-meter i { position: absolute; top: -5px; left: 50%; width: 20px; height: 20px; margin-left: -10px; border-radius: 50%; background: #4cc9f0; }
+.pad-overlay { position: absolute; inset: 70px 150px 10px 150px; background: rgba(10,14,24,0.95); border: 1px solid rgba(255,255,255,0.15); border-radius: 16px; padding: 12px; overflow-y: auto; z-index: 3; }
+.pad-ov-title { font-family: var(--head); font-weight: 700; font-size: 18px; text-align: center; margin-bottom: 8px; color: var(--accent2); }
+.pad-ov-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; }
+@media (orientation: portrait) { .pad-overlay { inset: 70px 10px 40% 10px; } }
+
 </style>
 </head>
 <body>
@@ -2255,7 +2306,7 @@ class RaceEngine {
     window.addEventListener('keyup', this.onKeyUp);
     window.addEventListener('resize', this.onResize);
   }
-  buzz(p) { try { if (this.o.haptics && navigator.vibrate) navigator.vibrate(p); } catch (e) { } }
+  buzz(p) { try { if (this.o.haptics && navigator.vibrate) navigator.vibrate(p); if (this.o.onBuzz) this.o.onBuzz(p); } catch (e) { } }
   setPedal(v) {
     if (v > 0.08 && !(this.touch.pedal > 0.08)) this.throttlePressAt = this.clock;
     this.touch.pedal = v;
@@ -2272,6 +2323,9 @@ class RaceEngine {
     if (k.ArrowLeft || k.KeyA || t.left) steer -= 1;
     if (k.ArrowRight || k.KeyD || t.right) steer += 1;
     if (steer === 0 && this.tilt && this.tilt.on) steer = this.tilt.steer; // analog phone tilt
+    // a phone connected as a controller (stale input = let go)
+    if (this.remoteAt && performance.now() - this.remoteAt > 600) { this.remoteAt = 0; this.remoteSteer = 0; this.touch.pedal = 0; }
+    if (steer === 0 && this.remoteSteer) steer = this.remoteSteer;
     const pd = t.pedal || 0, keyThr = !!(k.ArrowUp || k.KeyW || t.thr), keyBrk = !!(k.ArrowDown || k.KeyS || t.brk);
     return {
       thr: keyThr || pd > 0.08,
@@ -4353,8 +4407,10 @@ function renderTitle() {
       <button class="btn" data-act="hof">Hall of Fame</button>
       <button class="btn ghost" data-act="help">How to play</button>
     </div>
-    ${IS_TOUCH ? `<div class="phone-pitch"><span>📱 Tilt to steer</span><span>👍 Thumb slider</span><span>📳 Feel every bump</span></div>`
-      : `<div class="phone-pitch desk"><span>📱 Best on your phone: open this page on your phone, turn it sideways and tilt to steer.</span></div>`}
+    ${IS_TOUCH ? `<div class="phone-pitch"><span>📱 Tilt to steer</span><span>👍 Thumb slider</span><span>📳 Feel every bump</span></div>
+      <button class="btn ghost remote-cta" data-act="remote-join">🖥️ Control a computer with this phone</button>`
+      : `<button class="btn remote-cta" data-act="remote-host">📱 Use my phone as the controller</button>
+      <div class="phone-pitch desk"><span>Race on this screen and drive with your phone: tilt to steer, thumb slider for gas and brake.</span></div>`}
     <div class="ladder-mini">${TIERS.map(t => `<span>${t.name}</span>`).join('')}</div>
     <div class="checker bottom"></div>
   </div>`;
@@ -4774,6 +4830,8 @@ function tabSettings() {
     <h3>Settings</h3>
     <div class="toggle"><div><b>Difficulty</b><div class="muted small">How fast the AI drives.</div></div>
       <div class="seg">${['easy', 'normal', 'hard'].map(d => `<button class="${s.difficulty === d ? 'on' : ''}" data-act="set" data-arg="difficulty:${d}">${d[0].toUpperCase() + d.slice(1)}</button>`).join('')}</div></div>
+    ${IS_TOUCH ? '' : `<div class="toggle"><div><b>Phone controller</b><div class="muted small">Drive with your phone, race on this screen.</div></div>
+      <button class="btn sm" data-act="remote-host">📱 Connect phone</button></div>`}
     <div class="toggle"><div><b>Pedal slider side</b><div class="muted small">Put gas / brake under your dominant hand.</div></div>
       <div class="seg"><button class="${getHand() === 'left' ? 'on' : ''}" data-act="set" data-arg="hand:left">Left</button><button class="${getHand() !== 'left' ? 'on' : ''}" data-act="set" data-arg="hand:right">Right</button></div></div>
     ${IS_TOUCH ? `<div class="toggle"><div><b>Vibration</b><div class="muted small">Buzz on the start lights, contact and the finish.</div></div>
@@ -4868,7 +4926,8 @@ function startSession(kind) {
       else if (cmd === 'on' || cmd === 'off') document.querySelectorAll('[data-act="pit-open"]').forEach(b => b.classList.toggle('on', cmd === 'on'));
       else { m.classList.add('hidden'); m.classList.remove('choosing'); document.querySelectorAll('[data-act="pit-open"]').forEach(b => b.classList.remove('on')); }
     },
-    racers, items: false, ers: false, hand: IS_TOUCH ? hand : 'right', haptics: IS_TOUCH && (!S || S.settings.haptics !== false), difficulty: cfg.difficulty, sound: cfg.sound, tilt: TILT,
+    racers, items: false, ers: false, hand: IS_TOUCH ? hand : 'right', haptics: IS_TOUCH && (!S || S.settings.haptics !== false),
+    onBuzz: p => { if (typeof remoteSend === 'function') remoteSend({ t: 'buzz', p }); }, difficulty: cfg.difficulty, sound: cfg.sound, tilt: TILT,
     view: getViewPref(), onView: m => { try { localStorage.setItem('k2c.view', m); } catch (e) { } },
     onPause: p => $('#pause-menu').classList.toggle('hidden', !p),
     onEnd: out => {
@@ -4981,8 +5040,7 @@ function onOrientation(e) {
   let d = TILT.raw - TILT.zero;
   if (Math.abs(d) < TILT_DEAD) d = 0; else d -= Math.sign(d) * TILT_DEAD;
   TILT.steer = clamp(d / (TILT_RANGE - TILT_DEAD), -1, 1);
-  const dot = document.querySelector('.tc-tilt-meter i');
-  if (dot) dot.style.left = (50 + TILT.steer * 45) + '%';
+  document.querySelectorAll('.tc-tilt-meter i').forEach(dot => { dot.style.left = (50 + TILT.steer * 45) + '%'; });
 }
 function setTiltUI() { $('#touch-controls').classList.toggle('tilt-on', TILT.on); }
 // Must be called straight from a tap (iPhone only shows the motion prompt for a tap).
@@ -5029,8 +5087,8 @@ if (IS_TOUCH) document.addEventListener('click', function first() {
 window.addEventListener('orientationchange', () => setTimeout(() => { TILT.zero = TILT.raw; }, 400));
 
 // gas / brake slider: the bottom zone is brake, anything above it is gas (more the higher you go), let go to coast
-{
-  const pad = $('#tc-pedal'), knob = pad.querySelector('.tc-knob');
+function bindPedal(pad, onValue) {
+  const knob = pad.querySelector('.tc-knob');
   const BRAKE_ZONE = 0.28; // bottom share of the slider that brakes
   let id = null;
   const setY = y => { // y: 0 = bottom, 1 = top, null = released
@@ -5042,16 +5100,19 @@ window.addEventListener('orientationchange', () => setTimeout(() => { TILT.zero 
     if (y != null && y < BRAKE_ZONE) pd = -(0.08 + 0.8 * (0.6 + 0.4 * (1 - y / BRAKE_ZONE)));
     else if (y != null) pd = 0.08 + 0.8 * clamp(0.55 + 0.45 * (y - BRAKE_ZONE) / 0.45, 0, 1);
     pad.classList.toggle('gas', pd > 0); pad.classList.toggle('brk', pd < 0);
-    if (UI.engine) UI.engine.setPedal(pd);
+    onValue(pd);
   };
   const fromEvent = e => { const r = pad.getBoundingClientRect(); return clamp((r.bottom - 38 - e.clientY) / (r.height - 76), 0, 1); };
-  UI.resetPedal = () => { id = null; pad.classList.remove('active'); setY(null); };
+  const reset = () => { id = null; pad.classList.remove('active'); setY(null); };
   window.addEventListener('resize', () => { if (id == null) setY(null); });
+  requestAnimationFrame(() => setY(null));
   pad.addEventListener('pointerdown', e => { e.preventDefault(); id = e.pointerId; try { pad.setPointerCapture(id); } catch (x) { } pad.classList.add('active'); setY(fromEvent(e)); });
   pad.addEventListener('pointermove', e => { if (e.pointerId === id) { e.preventDefault(); setY(fromEvent(e)); } });
   const end = e => { if (e.pointerId !== id) return; id = null; pad.classList.remove('active'); setY(null); };
   pad.addEventListener('pointerup', end); pad.addEventListener('pointercancel', end);
+  return reset;
 }
+UI.resetPedal = bindPedal($('#tc-pedal'), pd => { if (UI.engine) UI.engine.setPedal(pd); });
 // touch controls
 document.querySelectorAll('[data-touch]').forEach(b => {
   const key = b.dataset.touch;
@@ -5266,6 +5327,303 @@ function showHelp(welcome) {
 
 /* ---------- boot ---------- */
 renderTitle();
+
+</script>
+  <script>
+/* ============================================================
+   Phone as a controller: race on the computer, drive with the phone.
+   The computer shows a QR code; the phone connects peer-to-peer (WebRTC via PeerJS)
+   and sends tilt steering, the gas/brake slider and button presses. The computer
+   sends back the buttons on its current screen so the phone can press any of them,
+   plus a little race info and vibration cues.
+   ============================================================ */
+const REMOTE = { peer: null, conn: null, code: null, role: null, buttons: [], lastUI: '', hudTimer: 0, sendTimer: 0, steerBtn: 0, pedal: 0, wake: null };
+const PEERJS_URL = 'https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js';
+const QRJS_URL = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
+const REMOTE_ACTS = ['race-pause', 'race-resume', 'race-view', 'pit-open', 'race-reset'];
+function loadScriptOnce(src) {
+  loadScriptOnce.p = loadScriptOnce.p || {};
+  return loadScriptOnce.p[src] = loadScriptOnce.p[src] || new Promise((res, rej) => {
+    const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = () => { loadScriptOnce.p[src] = null; rej(new Error('Could not load ' + src)); };
+    document.head.appendChild(s);
+  });
+}
+const padPeerId = code => 'kart2crown-pad-' + String(code).toLowerCase();
+const padURL = code => location.origin + location.pathname + '?pad=' + code;
+function remoteSend(m) { try { if (REMOTE.conn && REMOTE.conn.open) REMOTE.conn.send(m); } catch (e) { } }
+function remoteConnected() { return !!(REMOTE.conn && REMOTE.conn.open); }
+
+/* ---------------- computer side ---------------- */
+function newPadCode() { const A = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'; let s = ''; for (let i = 0; i < 5; i++) s += A[Math.floor(Math.random() * A.length)]; return s; }
+function remoteBadge() {
+  let b = document.getElementById('remote-badge');
+  if (!b) { b = document.createElement('button'); b.id = 'remote-badge'; b.className = 'remote-badge'; b.dataset.act = 'remote-host'; document.body.appendChild(b); }
+  b.classList.toggle('hidden', REMOTE.role !== 'host');
+  b.classList.toggle('on', remoteConnected());
+  b.textContent = remoteConnected() ? '📱 Phone connected' : '📱 Waiting for phone…';
+}
+function remoteStatus(text, good) {
+  const el = document.getElementById('remote-status');
+  if (el) { el.textContent = text; el.classList.toggle('good', !!good); }
+  remoteBadge();
+}
+ACTIONS['remote-host'] = () => {
+  openModal(`<div class="remote-modal">
+    <h2>Use your phone as the controller</h2>
+    <p class="muted">The race shows on this screen. Your phone becomes the wheel: tilt to steer, thumb slider for gas and brake, and every button in the game.</p>
+    <div class="remote-qr-wrap"><div id="remote-qr" class="remote-qr"></div></div>
+    <p>Scan the code with your phone's camera, or open the game on your phone, tap <b>Control a computer</b> and enter</p>
+    <div id="remote-code" class="remote-code">…</div>
+    <div id="remote-status" class="remote-status">Starting…</div>
+    <div class="btn-row" style="justify-content:center;margin-top:14px">
+      <button class="btn primary" data-act="modal-close">Done</button>
+      <button class="btn ghost" data-act="remote-stop">Disconnect</button>
+    </div></div>`);
+  hostRemote();
+};
+ACTIONS['remote-stop'] = () => {
+  try { if (REMOTE.conn) REMOTE.conn.close(); if (REMOTE.peer) REMOTE.peer.destroy(); } catch (e) { }
+  REMOTE.peer = REMOTE.conn = null; REMOTE.role = null; REMOTE.code = null;
+  remoteBadge(); closeModal(); toast('Phone controller off');
+};
+function showRemoteCode() {
+  const c = REMOTE.code, el = document.getElementById('remote-code'), qr = document.getElementById('remote-qr');
+  if (el) el.textContent = c;
+  if (qr && qr.dataset.code !== c) {
+    qr.innerHTML = ''; qr.dataset.code = c;
+    loadScriptOnce(QRJS_URL).then(() => { new QRCode(qr, { text: padURL(c), width: 200, height: 200, colorDark: '#0b0f1a', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M }); })
+      .catch(() => { qr.innerHTML = `<div class="muted small" style="padding:20px">QR code unavailable. Use the code below.</div>`; });
+  }
+}
+async function hostRemote() {
+  REMOTE.role = 'host';
+  if (REMOTE.peer && !REMOTE.peer.destroyed && REMOTE.code) {
+    showRemoteCode();
+    remoteStatus(remoteConnected() ? 'Phone connected ✓' : 'Waiting for your phone…', remoteConnected());
+    return;
+  }
+  try { await loadScriptOnce(PEERJS_URL); } catch (e) { remoteStatus('Could not load the connection library. Check your internet connection.'); return; }
+  REMOTE.code = newPadCode();
+  showRemoteCode();
+  remoteStatus('Connecting…');
+  const peer = new Peer(padPeerId(REMOTE.code));
+  REMOTE.peer = peer;
+  peer.on('open', () => remoteStatus('Waiting for your phone…'));
+  peer.on('error', err => {
+    if (err && err.type === 'unavailable-id') { try { peer.destroy(); } catch (e) { } REMOTE.peer = null; hostRemote(); return; }
+    remoteStatus('Connection problem: ' + (err && err.type || 'unknown') + '. Close this and try again.');
+  });
+  peer.on('disconnected', () => { try { peer.reconnect(); } catch (e) { } });
+  peer.on('connection', conn => {
+    if (REMOTE.conn && REMOTE.conn.open) { try { REMOTE.conn.close(); } catch (e) { } }
+    REMOTE.conn = conn;
+    conn.on('open', () => {
+      remoteStatus('Phone connected ✓', true); toast('Phone connected - it controls the game now', 'good');
+      REMOTE.lastUI = ''; remoteSendUI();
+      if (document.getElementById('remote-status')) setTimeout(() => { if (remoteConnected()) closeModal(); }, 900);
+    });
+    conn.on('data', onHostData);
+    conn.on('close', () => { if (REMOTE.conn === conn) { REMOTE.conn = null; remoteStatus('Phone disconnected. Waiting for your phone…'); toast('Phone disconnected', 'bad'); if (UI.engine) { UI.engine.remoteSteer = 0; UI.engine.setPedal(0); } } });
+  });
+}
+function onHostData(m) {
+  if (!m || typeof m !== 'object') return;
+  if (m.t === 'in') {
+    const e = UI.engine; if (!e) return;
+    e.remoteSteer = clamp(+m.s || 0, -1, 1);
+    e.remoteAt = performance.now();
+    e.setPedal(clamp(+m.p || 0, -1, 1));
+  } else if (m.t === 'act' && REMOTE_ACTS.includes(m.a)) {
+    if (m.a === 'race-pause' && UI.engine && UI.engine.paused) ACTIONS['race-resume'] && ACTIONS['race-resume']();
+    else if (ACTIONS[m.a]) ACTIONS[m.a]();
+  } else if (m.t === 'click') {
+    const b = REMOTE.buttons[m.i | 0];
+    if (b && b.isConnected && !b.disabled) b.click();
+  } else if (m.t === 'hello') { REMOTE.lastUI = ''; remoteSendUI(); }
+}
+// visible buttons on the computer's current screen, so the phone can press them
+function visibleButtons(root) {
+  return [...root.querySelectorAll('[data-act]')].filter(b => {
+    if (b.disabled || b.id === 'remote-badge') return false;
+    if (b.closest('.touch-controls')) return false;
+    const r = b.getBoundingClientRect();
+    if (r.width < 2 || r.height < 2) return false;
+    const cs = getComputedStyle(b); return cs.visibility !== 'hidden' && cs.opacity !== '0';
+  });
+}
+function remoteSendUI() {
+  if (!remoteConnected()) return;
+  const raceOn = !$('#race-screen').classList.contains('hidden');
+  const modalOn = !$('#modal').classList.contains('hidden');
+  let roots;
+  if (modalOn) roots = [$('#modal')];
+  else if (raceOn) roots = [$('#pit-menu'), $('#pause-menu')].filter(r => !r.classList.contains('hidden'));
+  else roots = [appEl];
+  const btns = roots.flatMap(r => visibleButtons(r)).slice(0, 80);
+  REMOTE.buttons = btns;
+  const items = btns.map(b => {
+    const label = (b.textContent || '').replace(/\s+/g, ' ').trim() || b.getAttribute('aria-label') || b.dataset.act;
+    return { l: label.slice(0, 60), on: /\b(on|sel|active)\b/.test(b.className), pr: /\bprimary\b/.test(b.className), c: b.classList.contains('sw') ? b.style.background : (b.style.getPropertyValue('--c') || '') };
+  });
+  const head = (modalOn ? $('#modal h2') : raceOn ? null : appEl.querySelector('h1, h2, .logo')) || null;
+  const msg = { t: 'ui', race: raceOn && !modalOn, quali: raceOn && $('#race-screen').classList.contains('race-quali'), choosing: $('#pit-menu').classList.contains('choosing') && !$('#pit-menu').classList.contains('hidden'), paused: !$('#pause-menu').classList.contains('hidden'), title: head ? head.textContent.replace(/\s+/g, ' ').trim().slice(0, 60) : '', b: items };
+  const key = JSON.stringify(msg);
+  if (key === REMOTE.lastUI) return;
+  REMOTE.lastUI = key;
+  remoteSend(msg);
+}
+let remoteUIQueued = false;
+new MutationObserver(() => {
+  if (REMOTE.role !== 'host' || !remoteConnected() || remoteUIQueued) return;
+  remoteUIQueued = true;
+  setTimeout(() => { remoteUIQueued = false; remoteSendUI(); }, 120);
+}).observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ['class', 'disabled'] });
+// race info for the phone screen
+setInterval(() => {
+  if (REMOTE.role !== 'host' || !remoteConnected() || !UI.engine || !UI.engine.player) return;
+  const e = UI.engine, p = e.player;
+  remoteSend({ t: 'hud', pos: p.pos, n: e.cars.length, lap: clamp(Math.floor(p.total / e.track.L) + 1, 1, e.laps), laps: e.laps, spd: Math.round(Math.hypot(p.vx, p.vy) * e.tier.kmh), state: e.state, pit: !!p.pitReq });
+}, 250);
+
+/* ---------------- phone side ---------------- */
+ACTIONS['remote-join'] = () => {
+  openModal(`<h2>Control a computer</h2>
+    <p class="muted">On the computer, open the game and click <b>Use my phone as the controller</b>. Then scan the QR code, or type the 5-letter code here.</p>
+    <input id="pad-code" type="text" maxlength="5" autocapitalize="characters" autocomplete="off" placeholder="CODE" style="text-align:center;font-size:28px;letter-spacing:.3em;text-transform:uppercase">
+    <div class="btn-row" style="justify-content:flex-end;margin-top:14px"><button class="btn" data-act="modal-close">Cancel</button><button class="btn primary" data-act="remote-join-go">Connect</button></div>`);
+  setTimeout(() => { const i = $('#pad-code'); if (i) i.focus(); }, 50);
+};
+ACTIONS['remote-join-go'] = () => {
+  const c = ($('#pad-code').value || '').trim().toUpperCase();
+  if (!/^[A-Z0-9]{5}$/.test(c)) { toast('Enter the 5-letter code from the computer', 'bad'); return; }
+  closeModal(); renderPad(c);
+};
+function renderPad(code) {
+  REMOTE.role = 'pad'; REMOTE.code = code;
+  hideRace(); closeModal();
+  document.documentElement.classList.add('pad-mode');
+  const hand = getHand();
+  appEl.innerHTML = `<div id="pad" class="pad hand-${hand}">
+    <div class="pad-top">
+      <span id="pad-status" class="pad-status">Connecting to ${esc(code)}…</span>
+      <span id="pad-hud" class="pad-hud"></span>
+      <button class="pad-mini" data-pad="hand">⇄ ${hand === 'left' ? 'Left' : 'Right'}-handed</button>
+      <button class="pad-mini" data-pad="quit">Exit</button>
+    </div>
+    <div id="pad-menu" class="pad-menu"><div class="pad-wait">Waiting for the computer…</div></div>
+    <div id="pad-drive" class="pad-drive hidden">
+      <div class="pad-btns">
+        <button data-pad-act="race-pause">II</button>
+        <button data-pad-act="pit-open" class="pad-pit">PIT</button>
+        <button data-pad-act="race-view">VIEW</button>
+        <button data-pad="center">CENTER</button>
+        <button data-pad-act="race-reset">RESET</button>
+      </div>
+      <div class="pad-steer hidden" id="pad-steer"><button data-steer="-1">◀</button><button data-steer="1">▶</button></div>
+      <div class="pad-tilt" id="pad-tilt"><div class="tc-tilt-meter pad-meter"><i></i></div><span>Tilt to steer</span></div>
+      <div id="pad-pedal" class="tc-pedal pad-pedal">
+        <span class="tc-pedal-gas">GAS</span><span class="tc-pedal-mid"></span><span class="tc-pedal-brk">BRAKE</span>
+        <i class="tc-knob"></i>
+      </div>
+      <div id="pad-overlay" class="pad-overlay hidden"></div>
+    </div>
+  </div>`;
+  REMOTE.padReset = bindPedal($('#pad-pedal'), v => { REMOTE.pedal = v; });
+  const steerEl = $('#pad-steer');
+  steerEl.querySelectorAll('[data-steer]').forEach(b => {
+    const on = e => { e.preventDefault(); REMOTE.steerBtn = +b.dataset.steer; b.classList.add('active'); };
+    const off = e => { e.preventDefault(); if (REMOTE.steerBtn === +b.dataset.steer) REMOTE.steerBtn = 0; b.classList.remove('active'); };
+    b.addEventListener('pointerdown', on); b.addEventListener('pointerup', off); b.addEventListener('pointercancel', off); b.addEventListener('pointerleave', off);
+  });
+  // tilt: needs a tap first on iPhone; arrows appear if no readings come in
+  const tryTilt = () => enableTilt(true).then(ok => {
+    setTimeout(() => {
+      const has = TILT.got;
+      steerEl.classList.toggle('hidden', has); $('#pad-tilt').classList.toggle('hidden', !has);
+      if (has && !REMOTE.leveled) { REMOTE.leveled = true; TILT.zero = TILT.raw; }
+    }, 1200);
+  });
+  document.addEventListener('pointerdown', function first() { document.removeEventListener('pointerdown', first, true); tryTilt(); }, true);
+  tryTilt();
+  try { if (navigator.wakeLock) navigator.wakeLock.request('screen').then(w => REMOTE.wake = w).catch(() => { }); } catch (e) { }
+  clearInterval(REMOTE.sendTimer);
+  REMOTE.sendTimer = setInterval(() => {
+    if (!REMOTE.driving || !remoteConnected()) return;
+    const s = REMOTE.steerBtn || (TILT.got ? TILT.steer : 0);
+    remoteSend({ t: 'in', s: +s.toFixed(3), p: +REMOTE.pedal.toFixed(3) });
+  }, 33);
+  connectPad(code);
+}
+async function connectPad(code) {
+  const st = t => { const el = $('#pad-status'); if (el) el.textContent = t; };
+  try { await loadScriptOnce(PEERJS_URL); } catch (e) { st('Could not load the connection library. Check your internet.'); return; }
+  if (REMOTE.peer) { try { REMOTE.peer.destroy(); } catch (e) { } }
+  const peer = new Peer();
+  REMOTE.peer = peer;
+  peer.on('open', () => {
+    const conn = peer.connect(padPeerId(code), { serialization: 'json' });
+    REMOTE.conn = conn;
+    conn.on('open', () => { st('● Connected'); $('#pad-status').classList.add('good'); remoteSend({ t: 'hello' }); if (navigator.vibrate) navigator.vibrate(40); });
+    conn.on('data', onPadData);
+    conn.on('close', () => { st('Disconnected - tap here to reconnect'); $('#pad-status').classList.remove('good'); REMOTE.driving = false; });
+  });
+  peer.on('error', err => {
+    st(err && err.type === 'peer-unavailable' ? 'No computer found with code ' + code + '. Check the code, then tap here.' : 'Connection problem - tap here to retry.');
+  });
+}
+function onPadData(m) {
+  if (!m || typeof m !== 'object') return;
+  if (m.t === 'buzz') { try { navigator.vibrate && navigator.vibrate(m.p); } catch (e) { } return; }
+  if (m.t === 'hud') {
+    const h = $('#pad-hud'); if (h) h.textContent = m.state === 'countdown' ? 'GET READY' : `P${m.pos}/${m.n}  •  LAP ${m.lap}/${m.laps}  •  ${m.spd} KM/H`;
+    const pb = document.querySelector('.pad-pit'); if (pb) pb.classList.toggle('on', !!m.pit);
+    return;
+  }
+  if (m.t !== 'ui') return;
+  const drive = $('#pad-drive'), menu = $('#pad-menu'), ov = $('#pad-overlay');
+  if (!drive) return;
+  const btnHTML = (b, i) => `<button data-pad-click="${i}" class="pad-b ${b.on ? 'on' : ''} ${b.pr ? 'pr' : ''}" ${b.c ? `style="--c:${esc(b.c)}"` : ''}>${b.c && !b.l.replace(/^(colour|helmet) /, '').trim().length ? '' : esc(b.l.replace(/^(colour|helmet) #\w+$/, '●'))}</button>`;
+  REMOTE.driving = !!m.race;
+  if (!m.race) REMOTE.wasDriving = false;
+  drive.classList.toggle('hidden', !m.race);
+  menu.classList.toggle('hidden', !!m.race);
+  drive.classList.toggle('quali', !!m.quali);
+  if (m.race) {
+    if (!REMOTE.wentFull) { REMOTE.wentFull = true; phoneRaceMode(); }
+    if (!REMOTE.wasDriving) { REMOTE.wasDriving = true; requestAnimationFrame(() => REMOTE.padReset && REMOTE.padReset()); }
+    ov.classList.toggle('hidden', !m.b.length);
+    ov.innerHTML = m.b.length ? `<div class="pad-ov-title">${m.choosing ? 'CHOOSE TYRES' : m.paused ? 'PAUSED' : ''}</div><div class="pad-ov-grid">${m.b.map(btnHTML).join('')}</div>` : '';
+  } else {
+    menu.innerHTML = `${m.title ? `<div class="pad-title">${esc(m.title)}</div>` : ''}<div class="pad-list">${m.b.map(btnHTML).join('') || '<div class="pad-wait">Nothing to press on this screen. Use the computer.</div>'}</div>`;
+  }
+}
+// phone pad taps
+document.addEventListener('click', e => {
+  if (REMOTE.role !== 'pad') return;
+  const t = e.target.closest('[data-pad-click],[data-pad-act],[data-pad],#pad-status');
+  if (!t) return;
+  if (navigator.vibrate) navigator.vibrate(12);
+  if (t.id === 'pad-status') { if (!remoteConnected()) connectPad(REMOTE.code); return; }
+  if (t.dataset.padClick != null) remoteSend({ t: 'click', i: +t.dataset.padClick });
+  else if (t.dataset.padAct) remoteSend({ t: 'act', a: t.dataset.padAct });
+  else if (t.dataset.pad === 'center') { TILT.zero = TILT.raw; toast('Steering re-levelled', 'good'); }
+  else if (t.dataset.pad === 'hand') {
+    const h = getHand() === 'left' ? 'right' : 'left'; setHand(h); if (S) { S.settings.hand = h; }
+    const pad = $('#pad'); pad.classList.toggle('hand-left', h === 'left'); pad.classList.toggle('hand-right', h !== 'left');
+    t.textContent = '⇄ ' + (h === 'left' ? 'Left' : 'Right') + '-handed';
+  } else if (t.dataset.pad === 'quit') {
+    try { if (REMOTE.conn) REMOTE.conn.close(); if (REMOTE.peer) REMOTE.peer.destroy(); } catch (x) { }
+    clearInterval(REMOTE.sendTimer); REMOTE.role = null; REMOTE.conn = REMOTE.peer = null;
+    document.documentElement.classList.remove('pad-mode');
+    history.replaceState(null, '', location.pathname); renderTitle();
+  }
+});
+
+/* ---------------- boot: phone opened from the QR code ---------------- */
+{
+  const code = new URLSearchParams(location.search).get('pad');
+  if (code && /^[A-Za-z0-9]{5}$/.test(code)) renderPad(code.toUpperCase());
+}
 
 </script>
 </body>
