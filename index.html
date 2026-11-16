@@ -1652,6 +1652,8 @@ const TYRES = {
   H: { key: 'H', name: 'Hard', color: '#f1f1f1', grip: 0.93, life: 1.4, warm: 0.05, desc: 'Least grip and slow to warm up, but lasts the whole race.' },
   W: { key: 'W', name: 'Wet', color: '#3a86ff', grip: 0.9, life: 0.45, warm: 0.15, wet: true, desc: 'For rain. Grips on a wet track, but wears out fast once it dries.' }
 };
+// How often AI drivers make mistakes (per second spent in a corner, before modifiers)
+const AI_MISTAKE_RATE = 0.006;
 // Grip multiplier a compound gets from the track wetness (0 = dry, 1 = soaked)
 function wetGrip(TC, w) { return TC.wet ? 0.93 + 0.17 * w : 1 - 0.42 * w; }
 
@@ -1822,7 +1824,7 @@ class RaceEngine {
       item: null, itemRoll: 0, rollItem: null, boost: 0, shield: 0, spin: 0, spinDir: 1, slow: 0,
       drift: false, driftDir: 0, driftCharge: 0, ers: 1, ersActive: false, slip: 0, offroad: false, wear: 0,
       lat: 0, laneOff: (Math.random() - 0.5) * tr.W * 0.24, lanePref: (Math.random() - 0.5) * tr.W * 0.24,
-      mistake: 0, mistakeSteer: 0, recover: 0, recoverDir: 1, itemHold: 0, startDelay: 0.08 + Math.random() * 0.35, stuck: 0,
+      mistake: 0, mistakeSteer: 0, recover: 0, recoverDir: 1, itemHold: 0, startDelay: Math.random() < 0.08 ? 0.9 + Math.random() * 0.8 : 0.08 + Math.random() * 0.35, stuck: 0,
       aiK: clamp(this.diffK + (s.rc - 60) / 100 * 0.04 + (s.foc - 60) / 100 * 0.02, 0.7, 0.985),
       rubber: 1, prevItemKey: false, lastHitBy: null, wrongWay: 0, auto: false, bog: 0,
       compound: TYRES[r.compound] ? r.compound : 'M', temp: 0.3, tg: 0.85, tyreWarned: false,
@@ -2247,6 +2249,23 @@ class RaceEngine {
     }
   }
 
+  aiMistake(c) {
+    const x = Math.random(), spinP = 0.15 + 0.3 * this.wet;
+    let text;
+    if (x < spinP) {
+      c.spin = 0.7 + Math.random() * 0.6; c.spinDir = Math.random() < 0.5 ? -1 : 1;
+      c.vx *= 0.55; c.vy *= 0.55; c.mistake = 0;
+      text = 'SPINS!';
+    } else if (x < spinP + (1 - spinP) * 0.5) { c.mType = 'wide'; c.mistake = 0.6 + Math.random() * 0.5; text = 'RUNS WIDE'; }
+    else { c.mType = 'late'; c.mistake = 0.35 + Math.random() * 0.25; text = 'LOCKS UP'; }
+    c.mistakes = (c.mistakes || 0) + 1;
+    this.announce(c, text);
+  }
+  announce(c, text) {
+    if (this.headless || !this.player || c === this.player) return;
+    const d = Math.hypot(c.x - this.player.x, c.y - this.player.y);
+    if (c.isRival || d < 700 || c.pos <= 3) this.flash((c.isRival ? 'RIVAL ' : '') + c.code + ' ' + text, '#ffb703', 1.6, 24);
+  }
   doPit(c) {
     const tr = this.track, p = tr.pts[c.idx];
     const side = tr.W / 2 + tr.runoff * 0.55;
@@ -2254,6 +2273,7 @@ class RaceEngine {
     c.vx = 0; c.vy = 0;
     c.inPit = true;
     c.pitTimer = (this.isKart ? 3.2 : 4.2) + Math.random() * 0.6;
+    if (!c.isPlayer && Math.random() < 0.15) { c.pitTimer += 2 + Math.random() * 3; this.announce(c, '- SLOW PIT STOP'); }
     c.compound = c.pitReq; c.pitReq = null;
     c.stint = c.total; c.wear = 0; c.temp = 0.5; c.tyreWarned = false; c.pits++;
     if (c.isPlayer) { this.flash('PIT STOP - ' + TYRES[c.compound].name.toUpperCase() + 'S', TYRES[c.compound].color, 2.5, 32); this.sfx.beep(330, 0.3, 'triangle'); if (this.o.onPit) this.o.onPit(null); }
@@ -2385,11 +2405,30 @@ class RaceEngine {
       return { thr: Math.abs(diff) < 1.2, brk: false, steer: Math.sign(d), pivot: d, drift: false, item: false };
     }
 
-    // mistakes
-    if (!c.auto) {
-      if (c.mistake > 0) { c.mistake -= dt; steer = clamp(steer + c.mistakeSteer, -1, 1); }
-      else if (this.time > 3 && Math.random() < dt * (1 - c.stats.foc / 100) * 0.05) {
-        c.mistake = 0.3 + Math.random() * 0.3; c.mistakeSteer = (Math.random() < 0.5 ? -1 : 1) * 0.6;
+    // mistakes: running wide, missing a braking point, locking up, spinning.
+    // More likely in the rain, on cold or worn tyres, under pressure, and for low-Focus drivers.
+    if ((!c.auto || c.mistakesOn) && this.state === 'race' && this.time > 2) {
+      if (c.mistake > 0) {
+        c.mistake -= dt;
+        if (c.mType === 'wide') { steer *= 0.2; thr = true; brk = false; }
+        else if (c.mType === 'late') { thr = true; brk = false; steer *= 0.6; }
+        else if (c.mType === 'lock') {
+          thr = false; brk = true; steer *= 0.3;
+          if (Math.random() < 0.6) this.addParticle(c.x, c.y, (Math.random() - 0.5) * 30, (Math.random() - 0.5) * 30, 0.8, 'rgba(235,235,235,0.6)', 9);
+        }
+        if (c.mistake <= 0 && c.mType === 'late') { c.mType = 'lock'; c.mistake = 0.45; } // braked too late... now locks up
+      } else if (maxK > 1 / 800 && v > this.tier.baseSpeed * 0.4) {
+        const TC = TYRES[c.compound];
+        let rate = AI_MISTAKE_RATE * (1.4 - c.stats.foc / 100) * ({ easy: 1.5, normal: 1, hard: 0.65 }[this.o.difficulty] || 1);
+        rate *= 1 + 2.5 * this.wet * (TC.wet ? 0.35 : 1);
+        if (c.temp < 0.55) rate *= 1.7;
+        if (c.wear > 1) rate *= 2;
+        for (const o of this.cars) { // pressure from a car right behind
+          if (o === c) continue;
+          const dx = o.x - c.x, dy = o.y - c.y, along = dx * cs + dy * sn;
+          if (along < -8 && along > -70 && Math.abs(-dx * sn + dy * cs) < 30) { rate *= 1.6; break; }
+        }
+        if (Math.random() < rate * dt) this.aiMistake(c);
       }
     }
 
@@ -3123,6 +3162,7 @@ function simQualiLap(tier, track, racer, difficulty, weather) {
   const r = Object.assign({}, racer, { isPlayer: true, compound: weather && weather.start > 0.3 ? 'W' : 'S' });
   const e = new RaceEngine(canvas, { tier, track, laps: 1, racers: [r], items: false, ers: false, difficulty, sound: false, headless: true, qualifying: true, weather, onEnd: o => { out = o; } });
   e.player.auto = true;
+  e.player.mistakesOn = true;
   let n = 0;
   while (!out && n < 120 * 150) { e.update(1 / 120); n++; }
   if (!out) e.destroy();
