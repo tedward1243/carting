@@ -8,7 +8,298 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css">
+  <style>
+:root {
+  --bg: #0b0f1a;
+  --bg2: #111729;
+  --card: #161d31;
+  --card2: #1c2540;
+  --line: rgba(255, 255, 255, 0.08);
+  --text: #eef1f8;
+  --muted: #8d97b3;
+  --accent: #ff3b5c;
+  --accent2: #ffd166;
+  --good: #7bd88f;
+  --bad: #ff6b6b;
+  --blue: #4cc9f0;
+  --radius: 14px;
+  --head: 'Rajdhani', 'Segoe UI', system-ui, sans-serif;
+  --body: 'Inter', 'Segoe UI', system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--body);
+  font-size: 15px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+h1, h2, h3, h4 { font-family: var(--head); margin: 0 0 8px; letter-spacing: 0.02em; }
+h2 { font-size: 26px; }
+h3 { font-size: 20px; }
+.hidden { display: none !important; }
+.muted { color: var(--muted); }
+.small { font-size: 13px; }
+.good { color: var(--good); }
+.bad { color: var(--bad); }
+.gold { color: var(--accent2); }
+button { font: inherit; color: inherit; }
+
+/* ---------- buttons ---------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  background: var(--card2); border: 1px solid var(--line); color: var(--text);
+  padding: 10px 18px; border-radius: 10px; cursor: pointer;
+  font-family: var(--head); font-weight: 700; font-size: 17px; letter-spacing: 0.04em; text-transform: uppercase;
+  transition: transform .08s ease, background .15s ease, border-color .15s;
+}
+.btn:hover { background: #243055; border-color: rgba(255,255,255,0.18); }
+.btn:active { transform: translateY(1px); }
+.btn.primary { background: linear-gradient(135deg, #ff3b5c, #ff7a3b); border-color: transparent; color: #fff; box-shadow: 0 6px 22px rgba(255, 59, 92, 0.3); }
+.btn.primary:hover { filter: brightness(1.08); }
+.btn.gold { background: linear-gradient(135deg, #ffd166, #ffb703); color: #1a1200; border-color: transparent; }
+.btn.danger { background: rgba(255, 107, 107, 0.12); border-color: rgba(255, 107, 107, 0.4); color: #ffb3b3; }
+.btn.ghost { background: transparent; }
+.btn.big { padding: 14px 28px; font-size: 21px; }
+.btn.sm { padding: 6px 12px; font-size: 14px; border-radius: 8px; }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+.btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+
+/* ---------- title ---------- */
+.title-screen {
+  min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 40px 16px; text-align: center; position: relative; overflow: hidden;
+  background:
+    radial-gradient(ellipse at 50% 120%, rgba(255, 59, 92, 0.25), transparent 60%),
+    repeating-linear-gradient(115deg, rgba(255,255,255,0.025) 0 40px, transparent 40px 80px),
+    var(--bg);
+}
+.logo { font-family: var(--head); font-weight: 700; font-size: clamp(54px, 11vw, 120px); line-height: 0.9; letter-spacing: 0.02em; }
+.logo .k { color: #fff; }
+.logo .to { color: var(--accent); font-size: 0.45em; vertical-align: middle; margin: 0 0.15em; }
+.logo .c { background: linear-gradient(180deg, #ffe08a, #ffb703); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.tagline { color: var(--muted); font-size: 18px; margin: 18px 0 34px; max-width: 560px; }
+.title-menu { display: flex; flex-direction: column; gap: 12px; width: min(320px, 100%); }
+.ladder-mini { display: flex; gap: 6px; margin-top: 46px; flex-wrap: wrap; justify-content: center; }
+.ladder-mini span { font-family: var(--head); font-weight: 700; font-size: 13px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); }
+.ladder-mini span:last-child { color: #1a1200; background: var(--accent2); border-color: transparent; }
+.checker { position: absolute; left: 0; right: 0; height: 16px; background: repeating-conic-gradient(#fff 0 25%, #111 0 50%) 0 0/16px 16px; opacity: 0.12; }
+.checker.top { top: 0; } .checker.bottom { bottom: 0; }
+
+/* ---------- layout ---------- */
+.page { max-width: 1180px; margin: 0 auto; padding: 20px 16px 60px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; }
+.card + .card { margin-top: 16px; }
+.card-title { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+.card-title h3 { margin: 0; }
+.grid2 { display: grid; grid-template-columns: 1.25fr 1fr; gap: 16px; align-items: start; }
+.grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.stack > * + * { margin-top: 16px; }
+@media (max-width: 860px) { .grid2 { grid-template-columns: 1fr; } .grid3 { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 520px) { .grid3 { grid-template-columns: 1fr; } }
+
+/* ---------- topbar ---------- */
+.topbar { position: sticky; top: 0; z-index: 20; background: rgba(11, 15, 26, 0.92); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+.topbar-inner { max-width: 1180px; margin: 0 auto; padding: 10px 16px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.brand { font-family: var(--head); font-weight: 700; font-size: 22px; cursor: pointer; }
+.brand span { color: var(--accent); }
+.driver-chip { display: flex; align-items: center; gap: 10px; }
+.helmet { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; font-family: var(--head); font-weight: 700; font-size: 16px; color: #000; border: 3px solid rgba(255,255,255,0.25); flex: none; }
+.driver-chip .nm { font-weight: 700; line-height: 1.1; }
+.driver-chip .sub { font-size: 12px; color: var(--muted); }
+.top-stats { display: flex; gap: 18px; margin-left: auto; flex-wrap: wrap; align-items: center; }
+.tstat { display: flex; flex-direction: column; min-width: 64px; }
+.tstat b { font-family: var(--head); font-size: 18px; line-height: 1.1; }
+.tstat small { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.meter { height: 6px; background: rgba(255,255,255,0.08); border-radius: 99px; overflow: hidden; width: 80px; margin-top: 4px; }
+.meter i { display: block; height: 100%; border-radius: 99px; }
+.tabs { max-width: 1180px; margin: 0 auto; padding: 0 16px; display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; }
+.tabs::-webkit-scrollbar { display: none; }
+.tab { padding: 10px 14px; border: none; background: none; color: var(--muted); font-family: var(--head); font-weight: 700; font-size: 16px; letter-spacing: 0.05em; text-transform: uppercase; cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap; }
+.tab.active { color: #fff; border-bottom-color: var(--accent); }
+.tab .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); margin-left: 5px; vertical-align: middle; }
+
+/* ---------- tier badge ---------- */
+.tier-badge { display: inline-flex; align-items: center; gap: 6px; font-family: var(--head); font-weight: 700; font-size: 13px; padding: 3px 10px; border-radius: 999px; letter-spacing: 0.06em; color: #0b0f1a; }
+
+/* ---------- next race ---------- */
+.next-race { position: relative; overflow: hidden; }
+.next-race .round { font-family: var(--head); color: var(--muted); font-weight: 700; letter-spacing: 0.08em; }
+.next-race h2 { font-size: 34px; margin: 2px 0 8px; }
+.race-meta { display: flex; gap: 14px; flex-wrap: wrap; color: var(--muted); font-size: 14px; margin-bottom: 16px; }
+.race-meta b { color: var(--text); }
+.track-preview { width: 100%; height: 170px; display: block; }
+.next-race-body { display: grid; grid-template-columns: 1fr 220px; gap: 12px; align-items: center; }
+@media (max-width: 560px) { .next-race-body { grid-template-columns: 1fr; } .track-preview { height: 140px; } }
+
+/* ---------- planner ---------- */
+.slots { display: flex; gap: 8px; margin-bottom: 14px; }
+.slot { flex: 1; min-height: 58px; border-radius: 10px; border: 1px dashed rgba(255,255,255,0.15); padding: 8px 10px; font-size: 13px; color: var(--muted); display: flex; flex-direction: column; justify-content: center; }
+.slot.filled { border-style: solid; background: var(--card2); color: var(--text); }
+.slot .s-name { font-weight: 700; font-family: var(--head); font-size: 15px; }
+.actions { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px; }
+.action { text-align: left; background: var(--bg2); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; cursor: pointer; transition: border-color .15s, background .15s; }
+.action:hover:not(:disabled) { border-color: rgba(255,255,255,0.25); background: #18203a; }
+.action:disabled { opacity: 0.4; cursor: not-allowed; }
+.action .a-top { display: flex; justify-content: space-between; align-items: center; font-family: var(--head); font-weight: 700; font-size: 16px; }
+.action .a-desc { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.energy-cost { font-size: 12px; font-weight: 700; color: var(--accent2); }
+.energy-cost.gain { color: var(--good); }
+
+/* ---------- events ---------- */
+.event-card { border-color: rgba(255, 209, 102, 0.35); background: linear-gradient(160deg, rgba(255,209,102,0.08), var(--card) 55%); }
+.event-card .tagline-s { font-family: var(--head); font-weight: 700; color: var(--accent2); letter-spacing: 0.1em; font-size: 13px; }
+.event-card p { margin: 6px 0 14px; font-size: 16px; }
+.choices { display: flex; flex-direction: column; gap: 8px; }
+.choices .btn { justify-content: flex-start; text-transform: none; font-family: var(--body); font-weight: 600; font-size: 15px; letter-spacing: 0; }
+
+/* ---------- stats ---------- */
+.stat-row { display: grid; grid-template-columns: 130px 1fr 44px 40px; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.stat-row:last-child { border-bottom: none; }
+.stat-row .nm { font-weight: 600; }
+.stat-row .nm small { display: block; font-weight: 400; color: var(--muted); font-size: 11px; }
+.bar { height: 10px; background: rgba(255,255,255,0.07); border-radius: 99px; overflow: hidden; }
+.bar i { display: block; height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--blue), #7b61ff); }
+.stat-val { font-family: var(--head); font-weight: 700; font-size: 20px; text-align: right; }
+.plus { width: 34px; height: 30px; padding: 0; }
+.ovr-big { font-family: var(--head); font-weight: 700; font-size: 64px; line-height: 1; }
+.kv { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
+.kv div { background: var(--bg2); border-radius: 10px; padding: 10px 12px; }
+.kv b { display: block; font-family: var(--head); font-size: 22px; }
+.kv small { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; }
+@media (max-width: 520px) { .stat-row { grid-template-columns: 96px 1fr 36px 36px; } }
+
+/* ---------- tables ---------- */
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th { text-align: left; color: var(--muted); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; padding: 8px 8px; border-bottom: 1px solid var(--line); }
+td { padding: 8px 8px; border-bottom: 1px solid var(--line); }
+tr.me td { background: rgba(255, 209, 102, 0.1); font-weight: 700; }
+tr.rival td { background: rgba(255, 77, 109, 0.08); }
+td.pos { font-family: var(--head); font-weight: 700; font-size: 17px; width: 40px; }
+.swatch { display: inline-block; width: 4px; height: 16px; border-radius: 2px; vertical-align: middle; margin-right: 8px; }
+.table-wrap { overflow-x: auto; }
+.tag { display: inline-block; font-size: 11px; font-weight: 700; padding: 1px 7px; border-radius: 99px; margin-left: 6px; vertical-align: middle; }
+.tag.rival { background: rgba(255,77,109,0.2); color: #ff8fa3; }
+.tag.you { background: rgba(255,209,102,0.2); color: var(--accent2); }
+.tag.fl { background: rgba(199,125,255,0.2); color: #d8b4fe; }
+
+/* ---------- news ---------- */
+.news { list-style: none; padding: 0; margin: 0; }
+.news li { padding: 9px 0 9px 14px; border-bottom: 1px solid var(--line); font-size: 14px; position: relative; }
+.news li::before { content: ''; position: absolute; left: 0; top: 15px; width: 6px; height: 6px; border-radius: 50%; background: var(--muted); }
+.news li.win::before { background: var(--accent2); }
+.news li.podium::before { background: var(--good); }
+.news li.rival::before { background: var(--accent); }
+.news li.story::before { background: var(--blue); }
+.news li:last-child { border-bottom: none; }
+
+/* ---------- garage ---------- */
+.part { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.part:last-child { border-bottom: none; }
+.pips { display: flex; gap: 4px; margin-top: 6px; }
+.pips i { width: 22px; height: 7px; border-radius: 3px; background: rgba(255,255,255,0.1); }
+.pips i.on { background: var(--accent2); }
+
+/* ---------- ladder ---------- */
+.ladder { display: flex; flex-direction: column-reverse; gap: 8px; }
+.rung { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 10px; background: var(--bg2); border: 1px solid var(--line); }
+.rung .lvl { font-family: var(--head); font-weight: 700; width: 26px; color: var(--muted); }
+.rung .rn { font-family: var(--head); font-weight: 700; font-size: 17px; }
+.rung .rd { font-size: 12px; color: var(--muted); }
+.rung .st { margin-left: auto; font-size: 13px; font-weight: 700; }
+.rung.done { opacity: 0.75; }
+.rung.current { border-color: var(--accent); background: linear-gradient(90deg, rgba(255,59,92,0.15), var(--bg2)); }
+.rung.locked { opacity: 0.45; }
+
+/* ---------- create ---------- */
+.create-grid { display: grid; grid-template-columns: 1fr 360px; gap: 16px; align-items: start; }
+@media (max-width: 900px) { .create-grid { grid-template-columns: 1fr; } }
+label.f { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin: 14px 0 6px; font-weight: 600; }
+input[type=text], input[type=number], select {
+  width: 100%; background: var(--bg2); border: 1px solid var(--line); color: var(--text); border-radius: 10px; padding: 10px 12px; font: inherit; font-size: 16px;
+}
+input:focus, select:focus { outline: 2px solid rgba(255, 59, 92, 0.5); outline-offset: 1px; }
+.row2 { display: grid; grid-template-columns: 1fr 110px 120px; gap: 10px; }
+@media (max-width: 520px) { .row2 { grid-template-columns: 1fr 1fr; } .row2 > :first-child { grid-column: 1 / -1; } }
+.swatches { display: flex; gap: 8px; flex-wrap: wrap; }
+.sw { width: 34px; height: 34px; border-radius: 50%; border: 3px solid transparent; cursor: pointer; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.2); }
+.sw.sel { border-color: #fff; transform: scale(1.08); }
+.bgs { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 8px; }
+.bgc { text-align: left; background: var(--bg2); border: 2px solid var(--line); border-radius: 12px; padding: 10px 12px; cursor: pointer; }
+.bgc.sel { border-color: var(--accent); background: rgba(255,59,92,0.08); }
+.bgc b { font-family: var(--head); font-size: 17px; display: block; }
+.bgc span { font-size: 12px; color: var(--muted); display: block; }
+.bgc em { font-style: normal; font-size: 12px; color: var(--good); display: block; margin-top: 4px; }
+.alloc-row { display: grid; grid-template-columns: 110px 1fr 32px 32px 36px; gap: 8px; align-items: center; margin: 6px 0; }
+.preview-card { position: sticky; top: 16px; text-align: center; }
+#kart-preview { width: 100%; height: 220px; display: block; }
+
+/* ---------- results ---------- */
+.result-hero { text-align: center; padding: 26px 16px; }
+.result-hero .pbig { font-family: var(--head); font-size: 96px; font-weight: 700; line-height: 1; }
+.rewards { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.rewards div { background: var(--bg2); border-radius: 10px; padding: 10px 12px; }
+.rewards small { display: block; color: var(--muted); font-size: 12px; }
+.rewards b { font-family: var(--head); font-size: 20px; }
+.notes { margin: 12px 0 0; padding-left: 18px; color: var(--accent2); }
+
+.offer { display: flex; gap: 14px; align-items: center; padding: 14px; background: var(--bg2); border: 1px solid var(--line); border-radius: 12px; margin-top: 10px; flex-wrap: wrap; }
+.offer .o-main { flex: 1; min-width: 200px; }
+.offer .o-name { font-family: var(--head); font-weight: 700; font-size: 20px; }
+.offer.promote { border-color: rgba(123, 216, 143, 0.45); }
+.trophy { font-size: 80px; line-height: 1; filter: drop-shadow(0 6px 20px rgba(255, 209, 102, 0.5)); }
+
+/* ---------- race screen ---------- */
+#race-screen { position: fixed; inset: 0; background: #000; z-index: 50; touch-action: none; user-select: none; -webkit-user-select: none; }
+#race-canvas { width: 100%; height: 100%; display: block; }
+.overlay { position: fixed; inset: 0; background: rgba(5, 8, 15, 0.7); backdrop-filter: blur(4px); display: grid; place-items: center; z-index: 60; padding: 16px; }
+.overlay-card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 24px; width: min(360px, 100%); display: flex; flex-direction: column; gap: 10px; }
+.overlay-card.wide { width: min(620px, 100%); max-height: 88vh; overflow: auto; display: block; }
+.overlay-card h2 { text-align: center; }
+.touch-controls { display: none; }
+@media (hover: none) and (pointer: coarse) {
+  .touch-controls { display: block; }
+  .touch-controls button { position: relative; background: rgba(255,255,255,0.12); border: 2px solid rgba(255,255,255,0.25); color: #fff; border-radius: 50%; width: 74px; height: 74px; font-family: var(--head); font-weight: 700; font-size: 18px; touch-action: none; }
+  .touch-controls button.active { background: rgba(255,255,255,0.35); }
+  .tc-left { position: absolute; left: 16px; bottom: 110px; display: flex; gap: 14px; }
+  .tc-right { position: absolute; right: 16px; bottom: 110px; display: grid; grid-template-columns: 74px 74px; gap: 10px; }
+  .tc-right .tc-small { width: 74px; height: 52px; border-radius: 14px; font-size: 14px; }
+  .tc-right .tc-gas { background: rgba(123, 216, 143, 0.3); }
+  .tc-pause { position: absolute; top: 120px; right: 16px; width: 44px !important; height: 44px !important; font-size: 14px !important; }
+  .touch-controls .tc-tilt { position: absolute; top: 120px; right: 70px; width: 64px; height: 44px; border-radius: 12px; font-size: 13px; }
+  .touch-controls.tilt-on .tc-tilt { background: rgba(76, 201, 240, 0.45); border-color: #4cc9f0; }
+  .touch-controls .tilt-only { display: none; }
+  .touch-controls.tilt-on .tilt-only { display: block; }
+  .touch-controls.tilt-on .steer-only { display: none; }
+  .touch-controls.tilt-on .tc-left { left: 16px; }
+  .touch-controls .tc-brake { width: 110px; height: 110px; background: rgba(255, 107, 107, 0.3); }
+  .touch-controls.tilt-on .tc-right { grid-template-columns: 74px 110px; }
+  .touch-controls.tilt-on .tc-gas { width: 110px; height: 110px; grid-column: 2; grid-row: 1 / span 2; }
+  .tc-tilt-meter { position: absolute; bottom: 22px; left: 50%; transform: translateX(-50%); width: 160px; height: 8px; border-radius: 99px; background: rgba(255,255,255,0.15); }
+  .tc-tilt-meter i { position: absolute; top: -4px; left: 50%; width: 16px; height: 16px; margin-left: -8px; border-radius: 50%; background: #4cc9f0; }
+}
+
+/* ---------- toasts ---------- */
+#toasts { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 100; display: flex; flex-direction: column; gap: 8px; align-items: center; pointer-events: none; width: min(460px, calc(100% - 32px)); }
+.toast { background: #222c4a; border: 1px solid rgba(255,255,255,0.15); padding: 10px 16px; border-radius: 10px; font-weight: 600; box-shadow: 0 10px 30px rgba(0,0,0,0.4); animation: tin .25s ease; text-align: center; }
+.toast.good { border-color: rgba(123,216,143,0.5); }
+.toast.bad { border-color: rgba(255,107,107,0.5); }
+@keyframes tin { from { opacity: 0; transform: translateY(10px); } }
+
+.help h3 { margin-top: 16px; }
+.help kbd { background: var(--bg2); border: 1px solid var(--line); border-radius: 5px; padding: 1px 6px; font-size: 13px; }
+.help ul { padding-left: 18px; margin: 6px 0; }
+.toggle { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.toggle:last-child { border-bottom: none; }
+.seg { display: inline-flex; background: var(--bg2); border-radius: 10px; padding: 3px; border: 1px solid var(--line); }
+.seg button { border: none; background: none; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-weight: 600; color: var(--muted); }
+.seg button.on { background: var(--card2); color: #fff; }
+
+</style>
 </head>
 <body>
   <div id="app"></div>
@@ -44,10 +335,3110 @@
   <div id="toasts"></div>
   <div id="modal" class="overlay hidden"><div class="overlay-card wide" id="modal-body"></div></div>
 
-  <script src="js/data.js"></script>
-  <script src="js/track.js"></script>
-  <script src="js/race.js"></script>
-  <script src="js/career.js"></script>
-  <script src="js/ui.js"></script>
+  <script>
+'use strict';
+/* ============================================================
+   KART TO CROWN — static game data
+   ============================================================ */
+
+const TIERS = [
+  {
+    id: 0, name: 'Backyard Karts', short: 'CLUB', vehicle: 'kart', cls: '60cc Cadet',
+    races: 4, field: 8, laps: 3, ratingMin: 30, ratingMax: 44, aiMachine: [0.05, 0.25],
+    baseSpeed: 290, baseAcc: 250, baseTurn: 3.0, width: 124, runoff: 56, radius: 820,
+    view: 620, kmh: 0.30, items: true, prize: 300, fansBase: 8, upgradeMult: 1,
+    color: '#7bd88f',
+    desc: 'Weekend club races at the local track. Everyone starts somewhere.',
+    tracks: ['Maple Lane Kartway', 'Rusty Pines Circuit', 'Harbor Lot Speedway', 'Cornfield Ring', 'Duckpond Raceway']
+  },
+  {
+    id: 1, name: 'Regional Kart Series', short: 'REG', vehicle: 'kart', cls: '100cc Junior',
+    races: 5, field: 10, laps: 3, ratingMin: 40, ratingMax: 54, aiMachine: [0.2, 0.45],
+    baseSpeed: 320, baseAcc: 270, baseTurn: 3.0, width: 128, runoff: 58, radius: 900,
+    view: 660, kmh: 0.30, items: true, prize: 700, fansBase: 20, upgradeMult: 1.6,
+    color: '#5cc8ff',
+    desc: 'Bigger grids, travelling teams and the first scouts in the paddock.',
+    tracks: ['Lakeside Kart Park', 'Granite Hill Raceway', 'Sunset Mesa', 'Riverbend Kartdrome', 'Old Mill Circuit', 'Foxglove Fields']
+  },
+  {
+    id: 2, name: 'National Kart Championship', short: 'NAT', vehicle: 'kart', cls: '125cc Shifter',
+    races: 5, field: 10, laps: 4, ratingMin: 48, ratingMax: 62, aiMachine: [0.4, 0.7],
+    baseSpeed: 350, baseAcc: 290, baseTurn: 3.0, width: 130, runoff: 60, radius: 980,
+    view: 700, kmh: 0.31, items: true, prize: 1500, fansBase: 45, upgradeMult: 2.4,
+    color: '#ffd166',
+    desc: 'The best karters in the country. Win here and the formula teams call.',
+    tracks: ['Thunder Valley', 'Coastline Kart Center', 'Ironwood Raceway', 'Silver Creek', 'Desert Bloom Kartplex', 'Blackrock Bowl']
+  },
+  {
+    id: 3, name: 'Formula Junior', short: 'FJR', vehicle: 'formula', cls: 'Single-seater',
+    races: 6, field: 12, laps: 4, ratingMin: 55, ratingMax: 69, aiMachine: null,
+    baseSpeed: 420, baseAcc: 320, baseTurn: 2.75, width: 150, runoff: 76, radius: 1250,
+    view: 820, kmh: 0.52, items: false, prize: 4000, fansBase: 110, salary: 1500,
+    color: '#ff9f43',
+    desc: 'Your first real race car. Wings, slicks and team engineers.',
+    tracks: ['Ashford Park', 'Montvale Ring', 'Port Lorne', 'Velden Circuit', 'Sierra Alta', 'Kingsbridge', 'Cedar Falls Raceway']
+  },
+  {
+    id: 4, name: 'Formula Rising', short: 'FRS', vehicle: 'formula', cls: 'Junior Formula',
+    races: 6, field: 12, laps: 5, ratingMin: 62, ratingMax: 76, aiMachine: null,
+    baseSpeed: 460, baseAcc: 340, baseTurn: 2.7, width: 150, runoff: 78, radius: 1320,
+    view: 860, kmh: 0.56, items: false, prize: 8000, fansBase: 260, salary: 4000,
+    color: '#ff6b6b',
+    desc: 'The feeder series where future champions are made — or broken.',
+    tracks: ['Circuit Valtora', 'Marisol Bay', 'Nordhavn Ring', 'Lakemont', 'Hakone Ridge', 'Autodromo Serrano', 'Ostrava Grand Circuit']
+  },
+  {
+    id: 5, name: 'Formula Elite', short: 'FEL', vehicle: 'formula', cls: 'Second tier',
+    races: 7, field: 12, laps: 5, ratingMin: 68, ratingMax: 83, aiMachine: null,
+    baseSpeed: 500, baseAcc: 360, baseTurn: 2.65, width: 152, runoff: 80, radius: 1400,
+    view: 900, kmh: 0.6, items: false, prize: 15000, fansBase: 600, salary: 10000,
+    color: '#c77dff',
+    desc: 'One step from the top. Every Apex team boss is watching.',
+    tracks: ['Al Qamar Circuit', 'Sao Bento', 'Kingsbridge Park', 'Port Lorne Street Circuit', 'Montvale GP', 'Velden Ring', 'Ashford National', 'Sierra Alta GP']
+  },
+  {
+    id: 6, name: 'Apex Grand Prix', short: 'APEX', vehicle: 'formula', cls: 'World Championship',
+    races: 8, field: 12, laps: 5, ratingMin: 75, ratingMax: 93, aiMachine: null,
+    baseSpeed: 540, baseAcc: 380, baseTurn: 2.6, width: 156, runoff: 84, radius: 1480,
+    view: 940, kmh: 0.6, items: false, prize: 40000, fansBase: 1500, salary: 40000,
+    color: '#f9f871',
+    desc: 'The pinnacle. Twelve of the fastest humans alive. One crown.',
+    tracks: ['Grand Prix of Valtora', 'Marisol Bay GP', 'Nordhavn GP', 'Hakone Ridge GP', 'Autodromo Serrano GP', 'Al Qamar Night Race', 'Sao Bento GP', 'Kingsbridge Grand Prix', 'Ostrava GP', 'Lakemont GP']
+  }
+];
+
+const FORMULA_TEAMS = [
+  { name: 'Vortex Racing', color: '#e63946' },
+  { name: 'Halcyon GP', color: '#4cc9f0' },
+  { name: 'Ironclad Motorsport', color: '#adb5bd' },
+  { name: 'Lumen Racing', color: '#ffd60a' },
+  { name: 'Corsa Nova', color: '#06d6a0' },
+  { name: 'Sable Works', color: '#7b2cbf' },
+  { name: 'Kestrel Racing', color: '#ff8500' },
+  { name: 'Zenith Racing', color: '#f72585' }
+];
+
+const POINTS = [25, 18, 15, 12, 10, 8, 6, 4, 2, 1];
+const PRIZE_SHARE = [1, 0.7, 0.5, 0.4, 0.33, 0.27, 0.22, 0.18, 0.15, 0.12, 0.1, 0.08];
+
+const FIRST_NAMES = ['Leo', 'Mateo', 'Kai', 'Nico', 'Aria', 'Zane', 'Luca', 'Mila', 'Ravi', 'Theo', 'Ines', 'Felix', 'Sora', 'Yuki', 'Omar', 'Jonas', 'Elena', 'Dario', 'Ivy', 'Remy', 'Taro', 'Lena', 'Bruno', 'Noa', 'Callum', 'Enzo', 'Freya', 'Hugo', 'Anya', 'Malik', 'Sven', 'Tomas', 'Rhea', 'Pablo', 'Kira', 'Oscar', 'Niamh', 'Arjun', 'Wren', 'Esme', 'Joaquin', 'Hana', 'Idris', 'Vera'];
+const LAST_NAMES = ['Varga', 'Castell', 'Moreau', 'Okafor', 'Lindqvist', 'Brandt', 'Tanaka', 'Rossi', 'Novak', 'Haddad', 'Sato', 'Ferreira', 'Kowalski', 'Dubois', 'Reyes', 'Hale', 'Petrov', 'Marin', 'Quinn', 'Adeyemi', 'Larsen', 'Cruz', 'Fontaine', 'Ibarra', 'Kane', 'Nakamura', 'Orlov', 'Stroud', 'Valente', 'Wilder', 'Ashby', 'Bianchi', 'Duarte', 'Engel', 'Faulk', 'Grimaldi', 'Holt', 'Jansen', 'Kovac', 'Ueda', 'Silva', 'Mbeki'];
+const NATIONS = ['USA', 'GBR', 'ITA', 'GER', 'FRA', 'ESP', 'BRA', 'JPN', 'MEX', 'NED', 'AUS', 'CAN', 'FIN', 'NGA', 'IND', 'KOR', 'ARG', 'SWE', 'NZL', 'RSA'];
+
+const BODY_COLORS = ['#e63946', '#ff8500', '#ffd60a', '#06d6a0', '#118ab2', '#4361ee', '#7b2cbf', '#f72585', '#f1f1f1', '#222831'];
+const HELMET_COLORS = ['#ffffff', '#ffd60a', '#e63946', '#4cc9f0', '#06d6a0', '#ff8500', '#c77dff', '#111111'];
+
+const STAT_KEYS = ['spd', 'acc', 'hnd', 'foc', 'rc', 'fit'];
+const STAT_INFO = {
+  spd: { name: 'Speed', desc: 'Top speed on the straights.' },
+  acc: { name: 'Acceleration', desc: 'How fast you get up to speed out of corners.' },
+  hnd: { name: 'Handling', desc: 'Steering response and grip in the corners.' },
+  foc: { name: 'Focus', desc: 'Less time lost off-track and after spins.' },
+  rc: { name: 'Racecraft', desc: 'Slipstream strength and better item luck.' },
+  fit: { name: 'Fitness', desc: 'Stay sharp late in the race. Matters most in formula cars.' }
+};
+
+const BACKGROUNDS = [
+  { id: 'family', name: 'Racing Family', desc: 'Your mum raced. You grew up in the paddock.', mods: { hnd: 4, rc: 4 }, money: 1500, fans: 80 },
+  { id: 'natural', name: 'Natural Talent', desc: 'Raw pace nobody can teach.', mods: { spd: 5, acc: 4 }, money: 600, fans: 40 },
+  { id: 'underdog', name: 'Underdog', desc: 'Second-hand kart, first-class grit.', mods: { foc: 5, fit: 4 }, money: 250, fans: 20, morale: 90 },
+  { id: 'rich', name: 'Rich Kid', desc: 'Best equipment money can buy. Talent sold separately.', mods: { foc: -3 }, money: 6000, fans: 60, kart: 1 },
+  { id: 'sim', name: 'Sim Prodigy', desc: 'Thousands of hours in the simulator.', mods: { rc: 5, hnd: 4, fit: -2 }, money: 800, fans: 150 }
+];
+
+const WEEK_ACTIONS = [
+  { id: 'track', name: 'Track Practice', icon: '🏁', energy: 22, desc: 'Laps, laps, laps. Builds Speed or Acceleration.', stats: ['spd', 'acc'], perk: 'coach' },
+  { id: 'sim', name: 'Simulator', icon: '🎮', energy: 12, desc: 'Learn the lines. Builds Handling or Racecraft.', stats: ['hnd', 'rc'], perk: 'simrig' },
+  { id: 'gym', name: 'Gym Session', icon: '💪', energy: 20, desc: 'Neck, core, cardio. Builds Fitness.', stats: ['fit'], perk: 'trainer' },
+  { id: 'mental', name: 'Mental Coaching', icon: '🧠', energy: 8, desc: 'Visualisation and calm. Builds Focus.', stats: ['foc'], perk: 'trainer' },
+  { id: 'media', name: 'Media Day', icon: '📸', energy: 10, desc: 'Interviews, socials, autographs. Fans and a little cash.', stats: [] },
+  { id: 'rest', name: 'Rest Day', icon: '😴', energy: -35, desc: 'Sleep in. Restores energy and morale.', stats: [] }
+];
+
+const PERKS = [
+  { id: 'coach', name: 'Driving Coach', desc: 'Track Practice gives bigger gains.', cost: [1500, 6000, 25000] },
+  { id: 'simrig', name: 'Pro Sim Rig', desc: 'Simulator sessions give bigger gains.', cost: [1200, 5000, 20000] },
+  { id: 'trainer', name: 'Performance Trainer', desc: 'Gym and Mental Coaching give bigger gains.', cost: [1200, 5000, 20000] },
+  { id: 'agent', name: 'PR Agent', desc: 'More fans from everything, bigger sponsor offers.', cost: [2500, 10000, 40000] }
+];
+
+const KART_PARTS = [
+  { id: 'eng', name: 'Engine', desc: 'Raises top speed.' },
+  { id: 'chas', name: 'Chassis', desc: 'Faster acceleration.' },
+  { id: 'tire', name: 'Tyres', desc: 'More grip and sharper turn-in.' }
+];
+
+const SPONSOR_NAMES = ['VoltCharge Energy', 'Nimbus Telecom', 'Crispy Crunch Snacks', 'Atlas Tools', 'Polar Fizz', 'Stellar Bank', 'Rocket Pizza', 'Quantum Gear', 'Blaze Watches', 'Harbor Insurance', 'Pixel Arcade', 'Summit Outdoors'];
+
+/* Story events. {rival} and {name} are replaced. cond(state) decides eligibility. */
+const EVENTS = [
+  {
+    id: 'party', title: 'Party Invite',
+    text: 'Your friends are throwing a huge party the night before the race. Everyone will be there.',
+    choices: [
+      { label: 'Go (just for a bit)', fx: { morale: 15, energy: -25, fans: 15 }, result: 'Great night. Rough morning.' },
+      { label: 'Stay home and rest', fx: { energy: 10, morale: -5 }, result: 'Early night. Your legs feel fresh.' }
+    ]
+  },
+  {
+    id: 'trash', title: 'Trash Talk',
+    text: '{rival} posted that you are "a backmarker with a good haircut". The clip is everywhere.',
+    choices: [
+      { label: 'Fire back online', fx: { fans: 60, morale: 5, rep: -3, flag: 'rivalHeat' }, result: 'The internet loves it. {rival} does not.' },
+      { label: 'Let the racing talk', fx: { rep: 5, stats: { foc: 1 } }, result: 'You stay quiet. Respect earned.' }
+    ]
+  },
+  {
+    id: 'mechanic', title: 'Late-Night Tune',
+    text: 'A veteran mechanic offers to stay late and squeeze extra power out of your machine — for a fee.',
+    cond: s => s.money >= 200,
+    choices: [
+      { label: 'Pay for the tune', fx: { moneyPct: -0.12, moneyMin: 200, buff: { type: 'machine', value: 0.12, races: 1 } }, result: 'It sounds angrier already. +machine for the next race.' },
+      { label: 'No thanks', fx: {}, result: 'You save the money.' }
+    ]
+  },
+  {
+    id: 'exam', title: 'Big Exam',
+    text: 'You have a big school exam the same week. Your parents are not thrilled about racing right now.',
+    cond: s => s.driver.age < 18,
+    choices: [
+      { label: 'Study hard', fx: { energy: -10, stats: { foc: 2 }, morale: -3 }, result: 'Passed. Your concentration is sharper.' },
+      { label: 'Skip study, go practise', fx: { stats: { spd: 1 }, morale: -8, rep: -2 }, result: 'Faster on track. Grounded at home.' }
+    ]
+  },
+  {
+    id: 'interview', title: 'Newspaper Interview',
+    text: 'A reporter asks what you expect from this weekend.',
+    choices: [
+      { label: '"I am going to win it."', fx: { flag: 'boldWin', fans: 20 }, result: 'Bold. Now you have to back it up (win to cash in).' },
+      { label: '"One step at a time."', fx: { rep: 4 }, result: 'Humble and professional.' },
+      { label: '"Ask {rival} how slow they are."', fx: { fans: 40, rep: -4, flag: 'rivalHeat' }, result: 'The headline writes itself.' }
+    ]
+  },
+  {
+    id: 'rain', title: 'Wet Track Day',
+    text: 'It is pouring at the practice track. Nobody else showed up.',
+    choices: [
+      { label: 'Practise in the wet', fx: { energy: -15, stats: { hnd: 2 } }, result: 'Car control improved massively.' },
+      { label: 'Go home', fx: { energy: 5 }, result: 'Warm and dry.' }
+    ]
+  },
+  {
+    id: 'job', title: 'Money Is Tight',
+    text: 'Racing is expensive. A local garage offers you weekend work.',
+    cond: s => s.tier <= 2 && s.money < 1500,
+    choices: [
+      { label: 'Take the shifts', fx: { money: 450, energy: -15, stats: { foc: 1 } }, result: 'Grease under the nails, cash in the pocket.' },
+      { label: 'Focus on racing', fx: { morale: 3 }, result: 'All in on the dream.' }
+    ]
+  },
+  {
+    id: 'scout', title: 'Scout in the Paddock',
+    text: 'Word is a scout from a top team will be watching this weekend.',
+    choices: [
+      { label: 'Extra prep session', fx: { energy: -10, flag: 'scout', stats: { rc: 1 } }, result: 'Podium this weekend and they will remember you.' },
+      { label: 'Treat it like any race', fx: { flag: 'scout', morale: 4 }, result: 'Podium this weekend and they will remember you.' }
+    ]
+  },
+  {
+    id: 'engine', title: 'Strange Noise',
+    text: 'Your engine made a horrible noise at the end of practice.',
+    choices: [
+      { label: 'Full rebuild', fx: { moneyPct: -0.1, moneyMin: 150 }, result: 'Good as new.' },
+      { label: 'Risk it', fx: { buff: { type: 'machine', value: -0.1, races: 1 }, morale: -3 }, result: 'It will probably hold... (−machine next race)' }
+    ]
+  },
+  {
+    id: 'viral', title: 'Viral Moment',
+    text: 'An onboard clip of your last race just hit a million views.',
+    choices: [
+      { label: 'Ride the wave', fx: { fans: 150, energy: -10 }, result: 'New followers pour in.' },
+      { label: 'Stay focused', fx: { fans: 50, stats: { foc: 1 } }, result: 'Nice, but there is work to do.' }
+    ]
+  },
+  {
+    id: 'charity', title: 'Charity Kart Day',
+    text: 'A children\'s hospital is hosting a charity kart day and asked for you.',
+    choices: [
+      { label: 'Of course', fx: { fans: 80, rep: 8, morale: 10, energy: -15 }, result: 'Best day of the year.' },
+      { label: 'Too busy', fx: { rep: -3 }, result: 'Maybe next time.' }
+    ]
+  },
+  {
+    id: 'telemetry', title: 'Leaked Data',
+    text: 'Someone offers you {rival}\'s telemetry on a USB stick.',
+    choices: [
+      { label: 'Use it', fx: { stats: { rc: 2, hnd: 1 }, rep: -12 }, result: 'Useful data. People are whispering though.' },
+      { label: 'Report it', fx: { rep: 10, morale: 2 }, result: 'Integrity intact. Even {rival} nods at you.' }
+    ]
+  },
+  {
+    id: 'coachtip', title: 'Coach\'s Focus',
+    text: 'Your coach wants to spend the week on one thing.',
+    choices: [
+      { label: 'Braking points', fx: { stats: { hnd: 2 }, energy: -8 }, result: 'You brake later and harder.' },
+      { label: 'Launches', fx: { stats: { acc: 2 }, energy: -8 }, result: 'Rocket starts incoming.' }
+    ]
+  },
+  {
+    id: 'wrist', title: 'Sore Wrist',
+    text: 'Your wrist is aching after a big crash in practice.',
+    choices: [
+      { label: 'Rest it', fx: { energy: 15, stats: { fit: -1 } }, result: 'It feels better, but you lost a little conditioning.' },
+      { label: 'Tape it and push on', fx: { buff: { type: 'perf', value: -0.02, races: 1 }, morale: 5 }, result: 'Tough. Slightly slower this weekend.' }
+    ]
+  },
+  {
+    id: 'usedparts', title: 'Garage Sale',
+    text: 'A retiring racer is selling high-end parts cheap.',
+    cond: s => s.tier <= 2 && s.money >= 400,
+    choices: [
+      { label: 'Buy them ($400)', fx: { money: -400, kartUp: 1 }, result: 'Free upgrade level on a random part!' },
+      { label: 'Pass', fx: {}, result: 'Maybe they were junk anyway.' }
+    ]
+  },
+  {
+    id: 'teamorders', title: 'Team Orders',
+    text: 'Your team boss wants you to let your teammate past if you are running behind them this weekend.',
+    cond: s => s.tier >= 3,
+    choices: [
+      { label: 'Agree', fx: { rep: 6, money: 0, teamRel: 10 }, result: 'The team appreciates a team player.' },
+      { label: 'Refuse', fx: { fans: 60, rep: -4, teamRel: -10, morale: 5 }, result: 'Fans love the fire. The team boss does not.' }
+    ]
+  },
+  {
+    id: 'docu', title: 'Documentary Crew',
+    text: 'A streaming documentary wants to follow you this season.',
+    cond: s => s.tier >= 2,
+    choices: [
+      { label: 'Sign up', fx: { fans: 200, money: 800, energy: -10, morale: -3 }, result: 'Cameras everywhere. Fame rising.' },
+      { label: 'Keep it private', fx: { morale: 5, stats: { foc: 1 } }, result: 'Peace and quiet.' }
+    ]
+  },
+  {
+    id: 'rivaltalk', title: 'Unexpected Visitor',
+    text: '{rival} finds you in the paddock: "Whatever happens this year — may the best driver win."',
+    choices: [
+      { label: 'Shake hands', fx: { rep: 6, morale: 6 }, result: 'Respect between rivals.' },
+      { label: '"It will be me."', fx: { fans: 30, flag: 'rivalHeat' }, result: '{rival} smirks. Game on.' }
+    ]
+  }
+];
+
+</script>
+  <script>
+'use strict';
+/* ============================================================
+   Track generation — every circuit is built from its name (seed)
+   ============================================================ */
+
+const TAU = Math.PI * 2;
+function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
+function angDiff(a, b) { let d = a - b; while (d > Math.PI) d -= TAU; while (d < -Math.PI) d += TAU; return d; }
+function hashStr(s) { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+function mulberry32(a) {
+  return function () {
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+
+const TRACK_CACHE = {};
+
+function buildTrack(name, tier) {
+  const key = name + '|' + tier.id;
+  if (TRACK_CACHE[key]) return TRACK_CACHE[key];
+  const rnd = mulberry32(hashStr(name));
+  const R = tier.radius, W = tier.width, runoff = tier.runoff;
+  const spacing = 10;
+  const AMP = [0, 0, 0.26, 0.2, 0.13, 0.08, 0.05];
+  let scale = 1, best = null;
+
+  for (let attempt = 0; attempt < 16; attempt++) {
+    const harm = [];
+    for (let k = 2; k <= 6; k++) harm.push({ k, a: (0.35 + rnd() * 0.65) * AMP[k] * scale, p: rnd() * TAU });
+    const sx = 1 + rnd() * 0.45, rot = rnd() * TAU;
+    const cr = Math.cos(rot), sr = Math.sin(rot);
+    // raw polyline
+    const N = 1600, rx = new Float64Array(N), ry = new Float64Array(N);
+    for (let i = 0; i < N; i++) {
+      const th = i / N * TAU;
+      let r = 1;
+      for (const h of harm) r += h.a * Math.sin(h.k * th + h.p);
+      r = R * Math.max(0.4, r);
+      const x = Math.cos(th) * r * sx, y = Math.sin(th) * r;
+      rx[i] = x * cr - y * sr; ry[i] = x * sr + y * cr;
+    }
+    const pts = resample(rx, ry, spacing);
+    computeGeometry(pts, spacing);
+    const ok = validate(pts, spacing, W, runoff);
+    if (ok) { best = pts; break; }
+    scale *= 0.85;
+    best = pts;
+  }
+
+  const pts = best;
+  const n = pts.length;
+  // Start line: end of the straightest stretch
+  let bestI = 0, bestSum = Infinity;
+  const win = 60;
+  for (let i = 0; i < n; i++) {
+    let s = 0;
+    for (let j = 0; j < win; j++) s += Math.abs(pts[(i + j) % n].k);
+    if (s < bestSum) { bestSum = s; bestI = i; }
+  }
+  const startIdx = (bestI + 32) % n;
+  const rot = pts.slice(startIdx).concat(pts.slice(0, startIdx));
+  computeGeometry(rot, spacing);
+  computeRacingLine(rot, W);
+
+  const L = n * spacing;
+  // bounds
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  for (const p of rot) { minX = Math.min(minX, p.x); minY = Math.min(minY, p.y); maxX = Math.max(maxX, p.x); maxY = Math.max(maxY, p.y); }
+
+  const path = new Path2D();
+  rot.forEach((p, i) => i ? path.lineTo(p.x, p.y) : path.moveTo(p.x, p.y));
+  path.closePath();
+  const linePath = new Path2D();
+  rot.forEach((p, i) => {
+    const x = p.x + p.nx * p.line, y = p.y + p.ny * p.line;
+    i ? linePath.lineTo(x, y) : linePath.moveTo(x, y);
+  });
+  linePath.closePath();
+
+  // decorations
+  const drng = mulberry32(hashStr(name + 'deco'));
+  const trees = [], tires = [];
+  const clear = W / 2 + runoff + 34;
+  const margin = 500;
+  let tries = 0;
+  while (trees.length < 260 && tries < 3000) {
+    tries++;
+    const x = minX - margin + drng() * (maxX - minX + margin * 2);
+    const y = minY - margin + drng() * (maxY - minY + margin * 2);
+    let md = Infinity;
+    for (let i = 0; i < n; i += 4) { const dx = rot[i].x - x, dy = rot[i].y - y; const d = dx * dx + dy * dy; if (d < md) md = d; }
+    if (Math.sqrt(md) > clear + 10) trees.push({ x, y, r: 16 + drng() * 22, shade: drng() });
+  }
+  // tyre stacks on the outside of fast corners
+  for (let i = 0; i < n; i += 6) {
+    const p = rot[i];
+    if (Math.abs(p.k) > 1 / (W * 2.6)) {
+      const side = p.k > 0 ? -1 : 1; // outside
+      const d = W / 2 + runoff + 10;
+      tires.push({ x: p.x + p.nx * d * side, y: p.y + p.ny * d * side });
+    }
+  }
+  // grandstand next to start
+  const sp = rot[Math.floor(n * 0.98)];
+  const stand = { x: sp.x - sp.nx * (W / 2 + runoff + 70), y: sp.y - sp.ny * (W / 2 + runoff + 70), a: sp.a };
+
+  // item box rows
+  const boxRows = [Math.floor(n * 0.3), Math.floor(n * 0.68)];
+
+  const track = { name, pts: rot, n, spacing, L, W, runoff, path, linePath, trees, tires, stand, boxRows, bounds: { minX, minY, maxX, maxY } };
+  TRACK_CACHE[key] = track;
+  return track;
+}
+
+function resample(rx, ry, spacing) {
+  const N = rx.length;
+  const cum = new Float64Array(N + 1);
+  for (let i = 0; i < N; i++) {
+    const j = (i + 1) % N;
+    cum[i + 1] = cum[i] + Math.hypot(rx[j] - rx[i], ry[j] - ry[i]);
+  }
+  const total = cum[N];
+  const n = Math.round(total / spacing);
+  const step = total / n;
+  const pts = [];
+  let seg = 0;
+  for (let k = 0; k < n; k++) {
+    const d = k * step;
+    while (cum[seg + 1] < d) seg++;
+    const t = (d - cum[seg]) / (cum[seg + 1] - cum[seg] || 1);
+    const j = (seg + 1) % N;
+    pts.push({ x: rx[seg] + (rx[j] - rx[seg]) * t, y: ry[seg] + (ry[j] - ry[seg]) * t });
+  }
+  return pts;
+}
+
+function computeGeometry(pts, spacing) {
+  const n = pts.length;
+  for (let i = 0; i < n; i++) {
+    const a = pts[(i - 1 + n) % n], b = pts[(i + 1) % n];
+    pts[i].a = Math.atan2(b.y - a.y, b.x - a.x);
+  }
+  let k = new Float64Array(n);
+  for (let i = 0; i < n; i++) k[i] = angDiff(pts[(i + 1) % n].a, pts[(i - 1 + n) % n].a) / (2 * spacing);
+  for (let pass = 0; pass < 4; pass++) {
+    const k2 = new Float64Array(n);
+    for (let i = 0; i < n; i++) k2[i] = (k[(i - 1 + n) % n] + 2 * k[i] + k[(i + 1) % n]) / 4;
+    k = k2;
+  }
+  for (let i = 0; i < n; i++) {
+    const p = pts[i];
+    p.k = k[i];
+    p.nx = -Math.sin(p.a); p.ny = Math.cos(p.a);
+  }
+}
+
+function validate(pts, spacing, W, runoff) {
+  const n = pts.length;
+  let maxK = 0;
+  for (const p of pts) maxK = Math.max(maxK, Math.abs(p.k));
+  if (1 / maxK < W * 0.8) return false;
+  const minSep = W + runoff * 2 + 24;
+  const skip = Math.ceil(minSep * 1.7 / spacing);
+  const ms2 = minSep * minSep;
+  for (let i = 0; i < n; i += 2) {
+    for (let j = i + skip; j < n; j += 2) {
+      const sep = Math.min(j - i, n - (j - i));
+      if (sep <= skip) continue;
+      const dx = pts[i].x - pts[j].x, dy = pts[i].y - pts[j].y;
+      if (dx * dx + dy * dy < ms2) return false;
+    }
+  }
+  return true;
+}
+
+function computeRacingLine(pts, W) {
+  const n = pts.length;
+  // wide curvature average
+  const win = 22;
+  const kw = new Float64Array(n);
+  let acc = 0;
+  for (let j = -win; j <= win; j++) acc += pts[(j + n) % n].k;
+  for (let i = 0; i < n; i++) {
+    kw[i] = acc / (win * 2 + 1);
+    acc -= pts[(i - win + n) % n].k;
+    acc += pts[(i + win + 1) % n].k;
+  }
+  let line = new Float64Array(n);
+  for (let i = 0; i < n; i++) line[i] = clamp(kw[i] * W * 75, -0.3 * W, 0.3 * W);
+  for (let pass = 0; pass < 6; pass++) {
+    const l2 = new Float64Array(n);
+    for (let i = 0; i < n; i++) l2[i] = (line[(i - 2 + n) % n] + line[(i - 1 + n) % n] + line[i] + line[(i + 1) % n] + line[(i + 2) % n]) / 5;
+    line = l2;
+  }
+  for (let i = 0; i < n; i++) pts[i].line = line[i];
+}
+
+/* Small preview of a track drawn into a canvas element */
+function drawTrackPreview(canvas, track, color) {
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const w = canvas.clientWidth || 200, h = canvas.clientHeight || 140;
+  canvas.width = w * dpr; canvas.height = h * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, w, h);
+  const b = track.bounds;
+  const s = Math.min((w - 24) / (b.maxX - b.minX), (h - 24) / (b.maxY - b.minY));
+  ctx.save();
+  ctx.translate(w / 2, h / 2);
+  ctx.scale(s, s);
+  ctx.translate(-(b.minX + b.maxX) / 2, -(b.minY + b.maxY) / 2);
+  ctx.lineJoin = 'round';
+  ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+  ctx.lineWidth = track.W * 2.2;
+  ctx.stroke(track.path);
+  ctx.strokeStyle = color || '#fff';
+  ctx.lineWidth = Math.max(track.W * 0.7, 3 / s);
+  ctx.stroke(track.path);
+  const p = track.pts[0];
+  ctx.fillStyle = '#fff';
+  ctx.beginPath(); ctx.arc(p.x, p.y, 7 / s, 0, TAU); ctx.fill();
+  ctx.restore();
+}
+
+</script>
+  <script>
+'use strict';
+/* ============================================================
+   Race engine — physics, AI, items, rendering, HUD
+   ============================================================ */
+
+const ITEM_DEFS = {
+  nitro: { icon: '🚀', name: 'Nitro' },
+  bolt: { icon: '⚡', name: 'Bolt' },
+  oil: { icon: '🛢️', name: 'Oil Slick' },
+  shield: { icon: '🛡️', name: 'Shield' },
+  storm: { icon: '🌩️', name: 'Storm' }
+};
+const ITEM_KEYS = Object.keys(ITEM_DEFS);
+
+/* ---------- tiny synth ---------- */
+class Sfx {
+  constructor(enabled) {
+    this.enabled = enabled;
+    this.ctx = null;
+  }
+  init() {
+    if (!this.enabled || this.ctx) return;
+    try {
+      this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+      this.master = this.ctx.createGain(); this.master.gain.value = 0.5; this.master.connect(this.ctx.destination);
+      this.eng = this.ctx.createOscillator(); this.eng.type = 'sawtooth';
+      this.eng2 = this.ctx.createOscillator(); this.eng2.type = 'square';
+      this.engFilter = this.ctx.createBiquadFilter(); this.engFilter.type = 'lowpass'; this.engFilter.frequency.value = 700;
+      this.engGain = this.ctx.createGain(); this.engGain.gain.value = 0;
+      this.eng.connect(this.engFilter); this.eng2.connect(this.engFilter);
+      this.engFilter.connect(this.engGain); this.engGain.connect(this.master);
+      this.eng.start(); this.eng2.start();
+    } catch (e) { this.ctx = null; }
+  }
+  engine(speedFrac, on) {
+    if (!this.ctx) return;
+    const t = this.ctx.currentTime;
+    const f = 55 + speedFrac * 170;
+    this.eng.frequency.setTargetAtTime(f, t, 0.05);
+    this.eng2.frequency.setTargetAtTime(f * 0.5, t, 0.05);
+    this.engGain.gain.setTargetAtTime(on ? 0.05 + speedFrac * 0.05 : 0, t, 0.1);
+  }
+  beep(freq, dur, type = 'square', vol = 0.15) {
+    if (!this.ctx) return;
+    try {
+      const o = this.ctx.createOscillator(), g = this.ctx.createGain();
+      o.type = type; o.frequency.value = freq;
+      g.gain.value = vol;
+      g.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + dur);
+      o.connect(g); g.connect(this.master);
+      o.start(); o.stop(this.ctx.currentTime + dur);
+    } catch (e) { }
+  }
+  whoosh() { this.beep(220, 0.35, 'sawtooth', 0.12); setTimeout(() => this.beep(440, 0.25, 'sawtooth', 0.08), 60); }
+  hit() { this.beep(90, 0.3, 'square', 0.25); }
+  pickup() { this.beep(880, 0.08, 'triangle', 0.15); setTimeout(() => this.beep(1320, 0.1, 'triangle', 0.12), 70); }
+  stop() { if (this.ctx) { try { this.ctx.close(); } catch (e) { } this.ctx = null; } }
+}
+
+class RaceEngine {
+  /* opts: { tier, track, laps, racers, items, ers, difficulty, sound, onEnd } */
+  constructor(canvas, opts) {
+    this.canvas = canvas;
+    this.ctx = canvas.getContext('2d');
+    this.o = opts;
+    this.tier = opts.tier;
+    this.track = opts.track;
+    this.laps = opts.laps;
+    this.isKart = this.tier.vehicle === 'kart';
+    this.itemsOn = opts.items;
+    this.ersOn = opts.ers;
+    this.driftOn = this.isKart || opts.items;
+    this.sfx = new Sfx(opts.sound);
+    this.keys = {};
+    this.touch = {};
+    this.tilt = opts.tilt || null; // shared { on, steer } object updated by the UI
+    this.time = 0;          // race clock (after green)
+    this.clock = 0;         // total time since start
+    this.state = 'countdown';
+    this.lights = 0;
+    this.goAt = 3.2 + Math.random() * 0.7;
+    this.paused = false;
+    this.particles = [];
+    this.skids = [];
+    this.hazards = [];
+    this.shots = [];
+    this.flashes = [];
+    this.stormFlash = 0;
+    this.shake = 0;
+    this.endTimer = -1;
+    this.done = false;
+    this.messages = [];
+    this.cam = { x: 0, y: 0, z: 1 };
+    this.diffK = { easy: 0.8, normal: 0.88, hard: 0.95 }[opts.difficulty] || 0.88;
+    this.cars = opts.racers.map((r, i) => this.makeCar(r, i));
+    this.player = this.cars.find(c => c.isPlayer);
+    this.computeOrder();
+    this.boxes = [];
+    if (this.itemsOn) {
+      for (const idx of this.track.boxRows) {
+        const p = this.track.pts[idx];
+        for (const f of [-0.32, -0.11, 0.11, 0.32]) {
+          this.boxes.push({ x: p.x + p.nx * f * this.track.W, y: p.y + p.ny * f * this.track.W, active: true, t: 0 });
+        }
+      }
+    }
+    this.grassPattern = this.makeGrass();
+    this.cam.x = this.player.x; this.cam.y = this.player.y;
+    this.cam.z = this.targetZoom(0);
+    this.throttlePressAt = -10;
+    this.bindInput();
+    this.resize();
+    this.last = performance.now();
+    this.acc = 0;
+    this.loop = this.loop.bind(this);
+    this.raf = requestAnimationFrame(this.loop);
+  }
+
+  makeGrass() {
+    const c = document.createElement('canvas');
+    c.width = 160; c.height = 160;
+    const g = c.getContext('2d');
+    const dark = this.isKart ? '#3f7a3a' : '#3b6f3f';
+    const light = this.isKart ? '#468541' : '#427a45';
+    g.fillStyle = dark; g.fillRect(0, 0, 160, 160);
+    g.fillStyle = light; g.fillRect(0, 0, 160, 80);
+    g.fillStyle = 'rgba(0,0,0,0.05)';
+    for (let i = 0; i < 40; i++) g.fillRect(Math.random() * 160, Math.random() * 160, 2, 2);
+    return this.ctx.createPattern(c, 'repeat');
+  }
+
+  makeCar(r, slot) {
+    const T = this.tier, tr = this.track, s = r.stats, m = r.machine;
+    const perf = r.perf || 1;
+    const kart = this.isKart;
+    const row = Math.floor(slot / 2), side = slot % 2 ? -1 : 1;
+    const back = (kart ? 34 : 46) + row * (kart ? 40 : 56) + (slot % 2) * (kart ? 14 : 20);
+    let idx = tr.n - Math.round(back / tr.spacing);
+    idx = (idx + tr.n) % tr.n;
+    const p = tr.pts[idx];
+    const lat = side * tr.W * 0.22;
+    const c = Object.assign({}, r, {
+      maxSpeed: T.baseSpeed * (0.86 + 0.12 * s.spd / 100 + 0.07 * m.eng) * perf,
+      accel: T.baseAcc * (0.75 + 0.35 * s.acc / 100 + 0.12 * m.chas) * perf,
+      turn: T.baseTurn * (0.86 + 0.16 * s.hnd / 100 + 0.06 * m.tire),
+      grip: 5.5 + 4 * s.hnd / 100 + 1.5 * m.tire,
+      brake: T.baseAcc * 1.7,
+      len: kart ? 28 : 40, wid: kart ? 18 : 18, rad: kart ? 13 : 15,
+      x: p.x + p.nx * lat, y: p.y + p.ny * lat, h: p.a, vx: 0, vy: 0,
+      idx, s: idx * tr.spacing, total: idx * tr.spacing - tr.L, maxLap: -1, lapStart: 0, lapTimes: [], best: Infinity,
+      finished: false, finishTime: 0, pos: slot + 1, grid: slot + 1,
+      item: null, itemRoll: 0, rollItem: null, boost: 0, shield: 0, spin: 0, spinDir: 1, slow: 0,
+      drift: false, driftDir: 0, driftCharge: 0, ers: 1, ersActive: false, slip: 0, offroad: false, wear: 0,
+      lat: 0, laneOff: (Math.random() - 0.5) * tr.W * 0.24, lanePref: (Math.random() - 0.5) * tr.W * 0.24,
+      mistake: 0, mistakeSteer: 0, recover: 0, recoverDir: 1, itemHold: 0, startDelay: 0.08 + Math.random() * 0.35, stuck: 0,
+      aiK: clamp(this.diffK + (s.rc - 60) / 100 * 0.04 + (s.foc - 60) / 100 * 0.02, 0.7, 0.985),
+      rubber: 1, prevItemKey: false, lastHitBy: null, wrongWay: 0, auto: false, bog: 0
+    });
+    return c;
+  }
+
+  /* ---------- input ---------- */
+  bindInput() {
+    this.onKeyDown = e => {
+      const k = e.code;
+      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].includes(k)) e.preventDefault();
+      if (!this.keys[k] && (k === 'ArrowUp' || k === 'KeyW')) this.throttlePressAt = this.clock;
+      this.keys[k] = true;
+      this.sfx.init();
+      if ((k === 'Escape' || k === 'KeyP') && !this.done) this.togglePause();
+      if (k === 'KeyR' && this.state === 'race' && !this.paused) this.resetToTrack(this.player);
+    };
+    this.onKeyUp = e => { this.keys[e.code] = false; };
+    this.onResize = () => this.resize();
+    window.addEventListener('keydown', this.onKeyDown);
+    window.addEventListener('keyup', this.onKeyUp);
+    window.addEventListener('resize', this.onResize);
+  }
+  setTouch(key, on) {
+    if (key === 'thr' && on && !this.touch.thr) this.throttlePressAt = this.clock;
+    this.touch[key] = on;
+    this.sfx.init();
+  }
+  playerInput() {
+    const k = this.keys, t = this.touch;
+    let steer = 0;
+    if (k.ArrowLeft || k.KeyA || t.left) steer -= 1;
+    if (k.ArrowRight || k.KeyD || t.right) steer += 1;
+    if (steer === 0 && this.tilt && this.tilt.on) steer = this.tilt.steer; // analog phone tilt
+    return {
+      thr: !!(k.ArrowUp || k.KeyW || t.thr),
+      brk: !!(k.ArrowDown || k.KeyS || t.brk),
+      steer,
+      drift: !!(k.ShiftLeft || k.ShiftRight || k.KeyX || t.drift),
+      item: !!(k.Space || k.KeyE || t.item)
+    };
+  }
+  togglePause() {
+    this.paused = !this.paused;
+    if (this.o.onPause) this.o.onPause(this.paused);
+    this.sfx.engine(0, false);
+    if (!this.paused) this.last = performance.now();
+  }
+  resize() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    this.dpr = dpr;
+    this.w = this.canvas.clientWidth; this.h = this.canvas.clientHeight;
+    this.canvas.width = this.w * dpr; this.canvas.height = this.h * dpr;
+  }
+  destroy() {
+    cancelAnimationFrame(this.raf);
+    window.removeEventListener('keydown', this.onKeyDown);
+    window.removeEventListener('keyup', this.onKeyUp);
+    window.removeEventListener('resize', this.onResize);
+    this.sfx.stop();
+    this.done = true;
+  }
+
+  /* ---------- main loop ---------- */
+  loop(now) {
+    if (this.done) return;
+    this.raf = requestAnimationFrame(this.loop);
+    let dt = Math.min(0.05, (now - this.last) / 1000);
+    this.last = now;
+    if (!this.paused) {
+      this.acc += dt;
+      const step = 1 / 120;
+      let n = 0;
+      while (this.acc >= step && n < 10 && !this.done) { this.update(step); this.acc -= step; n++; }
+      if (n >= 10) this.acc = 0;
+    }
+    if (!this.done) this.render();
+  }
+
+  update(dt) {
+    this.clock += dt;
+    const tr = this.track;
+    if (this.state === 'countdown') {
+      this.lights = Math.min(5, Math.floor(this.clock / 0.6));
+      if (this.lights !== this.prevLights) { if (this.lights > 0) this.sfx.beep(440, 0.15); this.prevLights = this.lights; }
+      if (this.clock >= this.goAt) {
+        this.state = 'race';
+        this.sfx.beep(880, 0.4);
+        this.flash('GO!', '#7CFF6B', 1.2, 64);
+        // rocket start
+        const pi = this.playerInput();
+        const since = this.clock - this.throttlePressAt;
+        if (pi.thr && since < 0.45) { this.player.boost = 1.1; this.flash('ROCKET START!', '#ffd166', 1.5); this.sfx.whoosh(); }
+        else if (pi.thr && since > 2.2) { this.player.bog = 0.6; this.flash('Bogged down…', '#ff6b6b', 1.2); }
+      }
+    } else if (this.state === 'race') {
+      this.time += dt;
+    }
+    if (this.state === 'race' && this.time < 0.25 && this.throttlePressAt > this.goAt && this.throttlePressAt - this.goAt < 0.12 && !this.player.rocketChecked) {
+      this.player.rocketChecked = true; this.player.boost = 0.9; this.flash('ROCKET START!', '#ffd166', 1.5); this.sfx.whoosh();
+    }
+
+    const racing = this.state === 'race';
+    // rubber banding & order
+    this.computeOrder();
+    for (const c of this.cars) {
+      let inp;
+      if (!racing) inp = { thr: false, brk: true, steer: 0, drift: false, item: false };
+      else if (c.isPlayer && !c.auto) inp = this.playerInput();
+      else inp = this.aiInput(c, dt);
+      if (!c.isPlayer && racing && this.time < c.startDelay) inp.thr = false;
+      if (c.bog > 0) { c.bog -= dt; inp.thr = false; }
+      if (!c.isPlayer) this.updateRubber(c, dt);
+      this.updateCar(c, dt, inp);
+    }
+    this.collideCars();
+    this.updateSlipstream(dt);
+    if (this.itemsOn) this.updateItems(dt);
+    this.updateParticles(dt);
+
+    // end of race
+    if (this.player.finished) {
+      if (this.endTimer < 0) this.endTimer = 0;
+      this.endTimer += dt;
+      if (this.endTimer > 7 || this.cars.every(c => c.finished)) this.finish(false);
+    }
+    // camera
+    const p = this.player;
+    const lead = 0.35;
+    const tx = p.x + p.vx * lead, ty = p.y + p.vy * lead;
+    this.cam.x += (tx - this.cam.x) * Math.min(1, dt * 6);
+    this.cam.y += (ty - this.cam.y) * Math.min(1, dt * 6);
+    const sp = Math.hypot(p.vx, p.vy);
+    this.cam.z += (this.targetZoom(sp) - this.cam.z) * Math.min(1, dt * 2);
+    this.shake = Math.max(0, this.shake - dt * 3);
+    this.stormFlash = Math.max(0, this.stormFlash - dt * 2);
+    for (const f of this.flashes) f.t -= dt;
+    this.flashes = this.flashes.filter(f => f.t > 0);
+    // engine sound
+    this.sfx.engine(clamp(sp / (this.tier.baseSpeed * 1.1), 0, 1.2), !this.paused);
+  }
+
+  targetZoom(speed) {
+    const base = Math.min(this.w || 1000, (this.h || 700) * 1.35) / this.tier.view;
+    return base * (1 - 0.18 * clamp(speed / this.tier.baseSpeed, 0, 1.2));
+  }
+
+  flash(text, color = '#fff', t = 1.5, size = 40) { this.flashes.push({ text, color, t, max: t, size }); }
+
+  computeOrder() {
+    const ord = this.cars.slice().sort((a, b) => {
+      if (a.finished && b.finished) return a.finishTime - b.finishTime;
+      if (a.finished) return -1;
+      if (b.finished) return 1;
+      return b.total - a.total;
+    });
+    ord.forEach((c, i) => c.pos = i + 1);
+    this.order = ord;
+  }
+
+  updateRubber(c, dt) {
+    const gap = this.player.total - c.total; // positive: AI behind
+    let target = 1;
+    const strength = { easy: 1.3, normal: 1, hard: 0.6 }[this.o.difficulty] || 1;
+    if (gap > 500) target = 1 + 0.035 * strength;
+    else if (gap < -800) target = 1 - 0.03 * strength;
+    c.rubber += (target - c.rubber) * Math.min(1, dt * 0.5);
+  }
+
+  /* ---------- physics ---------- */
+  updateCar(c, dt, inp) {
+    const tr = this.track, T = this.tier;
+    const raceFrac = clamp(c.total / (tr.L * this.laps), 0, 1);
+    const fade = (1 - c.stats.fit / 100) * (this.isKart ? 0.025 : 0.05) * raceFrac;
+    let cs = Math.cos(c.h), sn = Math.sin(c.h);
+    let vF = c.vx * cs + c.vy * sn;
+
+    let maxS = c.maxSpeed * (1 - fade) * c.rubber;
+    if (c.offroad) maxS *= 0.5 + 0.12 * c.stats.foc / 100;
+    if (c.boost > 0) maxS *= 1.32;
+    if (c.ersActive) maxS *= 1.1;
+    if (c.slip > 0.35) maxS *= 1.04 + 0.04 * c.stats.rc / 100;
+    if (c.slow > 0) maxS *= 0.62;
+
+    // ERS
+    c.ersActive = false;
+    if (this.ersOn && !this.itemsOn) {
+      if (inp.item && c.ers > 0.02 && c.spin <= 0) { c.ersActive = true; c.ers -= 0.2 * dt; }
+      else c.ers += (inp.brk ? 0.16 : 0.025) * dt;
+      c.ers = clamp(c.ers, 0, 1);
+    }
+
+    // drift (only player — AI doesn't drift)
+    if (this.driftOn && c.isPlayer && !c.auto) {
+      if (!c.drift && inp.drift && Math.abs(inp.steer) > 0.3 && vF > 130 && !c.offroad && c.spin <= 0) {
+        c.drift = true; c.driftDir = Math.sign(inp.steer); c.driftCharge = 0;
+      }
+      if (c.drift) {
+        if (!inp.drift || vF < 90 || c.spin > 0) {
+          const lvl = c.driftCharge > 2.4 ? 3 : c.driftCharge > 1.5 ? 2 : c.driftCharge > 0.75 ? 1 : 0;
+          if (lvl && !c.offroad && c.spin <= 0) {
+            c.boost = Math.max(c.boost, [0, 0.45, 0.85, 1.3][lvl]);
+            this.sfx.whoosh();
+            if (lvl === 3) this.flash('ULTRA BOOST', '#d38cff', 0.8, 30);
+          }
+          c.drift = false;
+        } else {
+          if (c.offroad) c.driftCharge = Math.max(0, c.driftCharge - dt * 2);
+          else c.driftCharge += dt * (0.7 + 0.7 * Math.max(0, inp.steer * c.driftDir));
+        }
+      }
+    }
+
+    // steering
+    const spd = Math.abs(vF);
+    if (c.spin > 0) {
+      c.spin -= dt;
+      c.h += c.spinDir * 9 * dt;
+      inp = { thr: false, brk: false, steer: 0 };
+    } else {
+      let omega = c.turn * Math.min(1, spd / 50) * Math.max(0.35, 1 - 0.45 * spd / T.baseSpeed);
+      omega *= 1 - 0.1 * c.wear;
+      let steer = inp.steer;
+      if (c.drift) { steer = clamp(c.driftDir * 0.6 + inp.steer * 0.55, -1.25, 1.25); omega *= 1.12; }
+      c.h += steer * omega * dt * (vF < -5 ? -1 : 1);
+      if (inp.pivot) c.h += clamp(inp.pivot, -3.2 * dt, 3.2 * dt);
+    }
+
+    cs = Math.cos(c.h); sn = Math.sin(c.h);
+    vF = c.vx * cs + c.vy * sn;
+    let vL = -c.vx * sn + c.vy * cs;
+
+    // longitudinal
+    let acc = c.accel * (c.boost > 0 ? 1.7 : 1) * (c.ersActive ? 1.25 : 1);
+    if (inp.thr) {
+      if (vF < maxS) {
+        const f = Math.max(0, vF) / maxS;
+        vF += acc * (1 - f * f) * dt;
+      }
+    } else if (inp.brk) {
+      if (vF > 15) vF -= c.brake * dt;
+      else vF = Math.max(vF - c.accel * 0.5 * dt, -80);
+    } else {
+      vF -= Math.sign(vF) * Math.min(Math.abs(vF), 80 * dt);
+    }
+    if (vF > maxS) vF -= (vF - maxS) * (c.offroad ? 3 : 1.4) * dt;
+
+    // lateral grip
+    let g = c.drift ? 2.3 : c.grip;
+    if (c.spin > 0) g = 1.5;
+    if (c.offroad) g *= 0.7;
+    g *= 1 - 0.25 * c.wear;
+    vL *= Math.exp(-g * dt);
+
+    c.vx = cs * vF - sn * vL;
+    c.vy = sn * vF + cs * vL;
+    c.x += c.vx * dt;
+    c.y += c.vy * dt;
+
+    c.boost = Math.max(0, c.boost - dt);
+    c.shield = Math.max(0, c.shield - dt);
+    c.slow = Math.max(0, c.slow - dt);
+    if (!this.isKart) c.wear = clamp(raceFrac * 0.9, 0, 1);
+
+    // effects
+    if (c.boost > 0 && Math.random() < 0.7) this.addParticle(c.x - cs * c.len * 0.6, c.y - sn * c.len * 0.6, -cs * 80 + (Math.random() - 0.5) * 60, -sn * 80 + (Math.random() - 0.5) * 60, 0.3, Math.random() < 0.5 ? '#ffb703' : '#fb5607', 5);
+    if (c.drift) {
+      const lvl = c.driftCharge > 2.4 ? 3 : c.driftCharge > 1.5 ? 2 : c.driftCharge > 0.75 ? 1 : 0;
+      const col = ['#cccccc', '#4cc9f0', '#ff9f1c', '#d38cff'][lvl];
+      for (const sd of [-1, 1]) {
+        if (Math.random() < 0.6) this.addParticle(c.x - cs * c.len * 0.45 + -sn * sd * c.wid * 0.5, c.y - sn * c.len * 0.45 + cs * sd * c.wid * 0.5, (Math.random() - 0.5) * 80, (Math.random() - 0.5) * 80, 0.25, col, lvl ? 3.5 : 2.5);
+      }
+    }
+    if ((c.drift || Math.abs(vL) > 70) && this.skids.length < 900) {
+      for (const sd of [-1, 1]) {
+        const x = c.x - cs * c.len * 0.4 - sn * sd * c.wid * 0.45, y = c.y - sn * c.len * 0.4 + cs * sd * c.wid * 0.45;
+        this.skids.push({ x, y, a: 0.35 });
+      }
+    }
+
+    this.trackFollow(c, dt);
+  }
+
+  trackFollow(c, dt) {
+    const tr = this.track, pts = tr.pts, n = tr.n;
+    let best = c.idx, bd = Infinity;
+    for (let j = -12; j <= 30; j++) {
+      const i = (c.idx + j + n) % n;
+      const dx = pts[i].x - c.x, dy = pts[i].y - c.y;
+      const d = dx * dx + dy * dy;
+      if (d < bd) { bd = d; best = i; }
+    }
+    if (bd > (tr.W * 2) * (tr.W * 2)) { // lost: full search
+      for (let i = 0; i < n; i++) {
+        const dx = pts[i].x - c.x, dy = pts[i].y - c.y;
+        const d = dx * dx + dy * dy;
+        if (d < bd) { bd = d; best = i; }
+      }
+    }
+    c.idx = best;
+    const p = pts[best];
+    const dx = c.x - p.x, dy = c.y - p.y;
+    const lat = dx * p.nx + dy * p.ny;
+    c.lat = lat;
+    const half = tr.W / 2;
+    c.offroad = Math.abs(lat) > half + 4;
+    const wall = half + tr.runoff;
+    if (Math.abs(lat) > wall) {
+      const sd = Math.sign(lat);
+      c.x -= p.nx * (Math.abs(lat) - wall) * sd;
+      c.y -= p.ny * (Math.abs(lat) - wall) * sd;
+      const vn = c.vx * p.nx + c.vy * p.ny;
+      if (vn * sd > 0) {
+        c.vx -= p.nx * vn * 1.3; c.vy -= p.ny * vn * 1.3;
+        const impact = Math.abs(vn);
+        c.vx *= 0.82; c.vy *= 0.82;
+        if (c.isPlayer && impact > 60) { this.shake = Math.min(1, impact / 250); this.sfx.hit(); }
+        if (c.drift) c.drift = false;
+      }
+    }
+    if (c.offroad && Math.random() < 0.3 && Math.hypot(c.vx, c.vy) > 60) {
+      this.addParticle(c.x, c.y, (Math.random() - 0.5) * 40, (Math.random() - 0.5) * 40, 0.5, this.isKart ? 'rgba(220,200,150,0.7)' : 'rgba(200,190,170,0.7)', 6);
+    }
+    // progress
+    const along = clamp(dx * Math.cos(p.a) + dy * Math.sin(p.a), -tr.spacing, tr.spacing);
+    let s = best * tr.spacing + along;
+    s = (s + tr.L) % tr.L;
+    let ds = s - c.s;
+    if (ds < -tr.L / 2) ds += tr.L;
+    if (ds > tr.L / 2) ds -= tr.L;
+    c.s = s;
+    if (c.finished) return;
+    c.total += ds;
+    // wrong way
+    if (c.isPlayer && this.state === 'race') {
+      const fwd = Math.cos(c.h) * Math.cos(p.a) + Math.sin(c.h) * Math.sin(p.a);
+      c.wrongWay = (fwd < -0.4 && Math.hypot(c.vx, c.vy) > 30) ? c.wrongWay + dt : 0;
+    }
+    const lap = Math.floor(c.total / tr.L);
+    if (lap > c.maxLap && this.state === 'race') {
+      if (c.maxLap >= 0) {
+        const lt = this.time - c.lapStart;
+        c.lapTimes.push(lt);
+        if (lt < c.best) c.best = lt;
+        if (c.isPlayer && lap < this.laps) {
+          if (lap === this.laps - 1) this.flash('FINAL LAP', '#ffd166', 2);
+          else this.flash('LAP ' + (lap + 1), '#ffffff', 1.2);
+        }
+      }
+      c.maxLap = lap;
+      c.lapStart = this.time;
+      if (lap >= this.laps) {
+        c.finished = true;
+        c.finishTime = this.time;
+        if (c.isPlayer) {
+          this.computeOrder();
+          const pos = c.pos;
+          this.flash(pos === 1 ? 'VICTORY!' : 'FINISHED P' + pos, pos === 1 ? '#ffd166' : '#ffffff', 6, 60);
+          c.auto = true;
+          this.sfx.beep(660, 0.2); setTimeout(() => this.sfx.beep(990, 0.4), 200);
+        }
+      }
+    }
+    // stuck detection (AI)
+    if (!c.isPlayer || c.auto) {
+      if (this.state === 'race' && this.time > 2 && Math.hypot(c.vx, c.vy) < 25 && c.spin <= 0) c.stuck += dt; else c.stuck = 0;
+      if (c.stuck > 3) this.resetToTrack(c);
+    }
+  }
+
+  resetToTrack(c) {
+    const tr = this.track;
+    const p = tr.pts[c.idx];
+    c.x = p.x; c.y = p.y; c.h = p.a; c.vx = Math.cos(p.a) * 40; c.vy = Math.sin(p.a) * 40;
+    c.spin = 0; c.drift = false; c.stuck = 0;
+    if (c.isPlayer) { c.bog = 0.8; this.flash('RESET', '#aaa', 0.8, 28); }
+  }
+
+  collideCars() {
+    const cars = this.cars;
+    for (let i = 0; i < cars.length; i++) {
+      for (let j = i + 1; j < cars.length; j++) {
+        const a = cars[i], b = cars[j];
+        const dx = b.x - a.x, dy = b.y - a.y;
+        const rr = a.rad + b.rad;
+        const d2 = dx * dx + dy * dy;
+        if (d2 < rr * rr && d2 > 0.0001) {
+          const d = Math.sqrt(d2), nx = dx / d, ny = dy / d;
+          const push = (rr - d) / 2;
+          a.x -= nx * push; a.y -= ny * push;
+          b.x += nx * push; b.y += ny * push;
+          const rv = (b.vx - a.vx) * nx + (b.vy - a.vy) * ny;
+          if (rv < 0) {
+            const j2 = -rv * 0.65;
+            a.vx -= nx * j2; a.vy -= ny * j2;
+            b.vx += nx * j2; b.vy += ny * j2;
+            if ((a.isPlayer || b.isPlayer) && -rv > 80) { this.shake = Math.max(this.shake, 0.3); this.sfx.beep(140, 0.08, 'square', 0.1); }
+          }
+        }
+      }
+    }
+  }
+
+  updateSlipstream(dt) {
+    for (const c of this.cars) {
+      const cs = Math.cos(c.h), sn = Math.sin(c.h);
+      let inSlip = false;
+      for (const o of this.cars) {
+        if (o === c) continue;
+        const dx = o.x - c.x, dy = o.y - c.y;
+        const ahead = dx * cs + dy * sn;
+        if (ahead < 20 || ahead > (this.isKart ? 130 : 180)) continue;
+        const lat = Math.abs(-dx * sn + dy * cs);
+        if (lat < 22) { inSlip = true; break; }
+      }
+      c.slip = clamp(c.slip + (inSlip ? dt * 1.5 : -dt * 2), 0, 1);
+      if (c.isPlayer && c.slip > 0.35 && Math.random() < 0.25) {
+        this.addParticle(c.x + (Math.random() - 0.5) * 30, c.y + (Math.random() - 0.5) * 30, -c.vx * 0.3, -c.vy * 0.3, 0.3, 'rgba(255,255,255,0.5)', 1.5);
+      }
+    }
+  }
+
+  /* ---------- AI ---------- */
+  aiInput(c, dt) {
+    const tr = this.track, pts = tr.pts, n = tr.n, W = tr.W;
+    const cs = Math.cos(c.h), sn = Math.sin(c.h);
+    const v = Math.max(0, c.vx * cs + c.vy * sn);
+    const k = c.auto ? 0.84 : c.aiK;
+
+    // lane management
+    let blocker = null, bd = Infinity;
+    for (const o of this.cars) {
+      if (o === c) continue;
+      const dx = o.x - c.x, dy = o.y - c.y;
+      const ahead = dx * cs + dy * sn;
+      if (ahead < 0 || ahead > 95) continue;
+      const lat = Math.abs(-dx * sn + dy * cs);
+      if (lat < c.rad * 2.3 && ahead < bd) { bd = ahead; blocker = o; }
+    }
+    const pAhead = pts[(c.idx + 10) % n];
+    let target = c.lanePref * 0.6;
+    if (blocker) {
+      const myLat = c.lat - pAhead.line, oLat = blocker.lat - pAhead.line;
+      target = oLat > myLat ? oLat - W * 0.32 : oLat + W * 0.32;
+      if (Math.abs(target + pAhead.line) > W * 0.42) target = oLat > myLat ? oLat + W * 0.32 : oLat - W * 0.32;
+    }
+    c.laneOff += (clamp(target, -W * 0.4, W * 0.4) - c.laneOff) * Math.min(1, dt * 1.6);
+
+    const la = Math.round(7 + v * 0.045);
+    const tp = pts[(c.idx + la) % n];
+    const off = clamp(tp.line + c.laneOff, -W * 0.42, W * 0.42);
+    const tx = tp.x + tp.nx * off, ty = tp.y + tp.ny * off;
+    const desired = Math.atan2(ty - c.y, tx - c.x);
+    const diff = angDiff(desired, c.h);
+    let steer = clamp(diff * 3, -1, 1);
+
+    // speed planning
+    const Vt = this.tier.baseSpeed;
+    const turn = c.turn * (1 - 0.1 * c.wear);
+    let tgt = c.maxSpeed * 1.5;
+    let maxK = 0;
+    for (let j = 2; j <= 70; j += 2) {
+      const q = pts[(c.idx + j) % n];
+      const kap = Math.abs(q.k) + 1e-6;
+      if (j < 30) maxK = Math.max(maxK, kap);
+      const vc = k * turn / (kap + 0.45 * k * turn / Vt);
+      const allowed = Math.sqrt(vc * vc + 2 * c.brake * 0.72 * j * tr.spacing);
+      if (allowed < tgt) tgt = allowed;
+    }
+    let thr = v < tgt - 4, brk = v > tgt + 14;
+
+    // recovery when facing the wrong way: commit to a pivot turn until roughly aligned
+    if (c.recover > 0 || (Math.abs(diff) > 1.6 && v < 50)) {
+      if (c.recover <= 0) { c.recover = 2.5; c.recoverDir = Math.sign(diff) || 1; }
+      c.recover -= dt;
+      if (Math.abs(diff) < 0.45) c.recover = 0;
+      const d = Math.abs(diff) > 2.6 ? c.recoverDir * Math.abs(diff) : diff;
+      return { thr: Math.abs(diff) < 1.2, brk: false, steer: Math.sign(d), pivot: d, drift: false, item: false };
+    }
+
+    // mistakes
+    if (!c.auto) {
+      if (c.mistake > 0) { c.mistake -= dt; steer = clamp(steer + c.mistakeSteer, -1, 1); }
+      else if (this.time > 3 && Math.random() < dt * (1 - c.stats.foc / 100) * 0.05) {
+        c.mistake = 0.3 + Math.random() * 0.3; c.mistakeSteer = (Math.random() < 0.5 ? -1 : 1) * 0.6;
+      }
+    }
+
+    // ERS / items
+    let item = false;
+    if (this.ersOn && !this.itemsOn) item = maxK < 1 / 900 && c.ers > 0.25;
+    if (this.itemsOn && c.item && !c.auto) c.itemHold += dt; // item use decided in _aiItemWant
+    return { thr, brk, steer, drift: false, item };
+  }
+
+  /* ---------- items ---------- */
+  rollItem(c) {
+    const N = this.cars.length;
+    let frac = (c.pos - 1) / Math.max(1, N - 1);
+    frac = clamp(frac + 0.12 * (c.stats.rc / 100) - 0.04, 0, 1);
+    const w = {
+      nitro: 1 + 3 * frac,
+      bolt: 0.6 + 2.2 * frac,
+      oil: 2.6 - 1.8 * frac,
+      shield: 1.4,
+      storm: frac > 0.6 ? (frac - 0.6) * 4 : 0
+    };
+    let tot = 0; for (const k in w) tot += w[k];
+    let r = Math.random() * tot;
+    for (const k in w) { r -= w[k]; if (r <= 0) return k; }
+    return 'nitro';
+  }
+
+  useItem(c) {
+    const it = c.item;
+    c.item = null; c.itemHold = 0;
+    const cs = Math.cos(c.h), sn = Math.sin(c.h);
+    if (it === 'nitro') { c.boost = Math.max(c.boost, 1.4); if (c.isPlayer) this.sfx.whoosh(); }
+    else if (it === 'shield') { c.shield = 8; }
+    else if (it === 'oil') { this.hazards.push({ x: c.x - cs * (c.len + 8), y: c.y - sn * (c.len + 8), life: 30, owner: c, born: this.time }); }
+    else if (it === 'bolt') {
+      const sp = Math.max(0, c.vx * cs + c.vy * sn) + 380;
+      this.shots.push({ x: c.x + cs * c.len * 0.7, y: c.y + sn * c.len * 0.7, h: c.h, v: sp, life: 2.6, owner: c, trail: [] });
+      if (c.isPlayer) this.sfx.beep(1200, 0.12, 'sawtooth', 0.1);
+    } else if (it === 'storm') {
+      this.stormFlash = 1;
+      this.sfx.beep(60, 0.6, 'sawtooth', 0.3);
+      for (const o of this.cars) {
+        if (o === c || o.pos > c.pos || o.finished) continue;
+        if (o.shield > 0) { o.shield = 0; continue; }
+        o.slow = 2.4;
+        if (o.isPlayer) this.flash('STRUCK BY ' + c.code + '\'s STORM', '#c77dff', 1.4, 26);
+      }
+      if (c.isPlayer) this.flash('STORM UNLEASHED', '#c77dff', 1.2, 28);
+    }
+  }
+
+  hitCar(c, by, kind) {
+    if (c.shield > 0) { c.shield = 0; this.burst(c.x, c.y, '#4cc9f0'); return; }
+    c.spin = 0.7 + 0.5 * (1 - c.stats.foc / 100);
+    c.spinDir = Math.random() < 0.5 ? -1 : 1;
+    c.vx *= 0.45; c.vy *= 0.45;
+    c.drift = false;
+    this.burst(c.x, c.y, kind === 'oil' ? '#222' : '#ffd60a');
+    if (c.isPlayer) { this.shake = 0.6; this.sfx.hit(); this.flash(by && by !== c ? 'HIT BY ' + by.code : 'SPUN OUT', '#ff6b6b', 1.2, 30); }
+    else if (by && by.isPlayer) { this.flash('HIT ' + c.code + '!', '#7CFF6B', 1, 30); this.sfx.beep(520, 0.12, 'triangle', 0.15); }
+  }
+
+  updateItems(dt) {
+    // boxes
+    for (const b of this.boxes) {
+      if (!b.active) { b.t -= dt; if (b.t <= 0) b.active = true; continue; }
+      for (const c of this.cars) {
+        if (c.item || c.itemRoll > 0) continue;
+        const dx = c.x - b.x, dy = c.y - b.y;
+        if (dx * dx + dy * dy < (c.rad + 12) * (c.rad + 12)) {
+          b.active = false; b.t = 2.5;
+          c.itemRoll = c.isPlayer ? 1.0 : 0.6;
+          c.rollItem = this.rollItem(c);
+          if (c.isPlayer) this.sfx.pickup();
+          this.burst(b.x, b.y, '#ffffff');
+          break;
+        }
+      }
+    }
+    // item rolls & use
+    for (const c of this.cars) {
+      if (c.itemRoll > 0) { c.itemRoll -= dt; if (c.itemRoll <= 0) { c.item = c.rollItem; c.itemHold = 0; } }
+      const inp = c.isPlayer && !c.auto ? this.playerInput() : null;
+      if (c.isPlayer && !c.auto) {
+        if (inp.item && !c.prevItemKey && c.item && this.state === 'race' && c.spin <= 0) this.useItem(c);
+        c.prevItemKey = inp.item;
+      } else if (c.item && this.state === 'race') {
+        const ai = this._aiItemWant(c);
+        if (ai) this.useItem(c);
+      }
+    }
+    // hazards
+    for (const hz of this.hazards) {
+      hz.life -= dt;
+      for (const c of this.cars) {
+        if (c.spin > 0) continue;
+        if (c === hz.owner && this.time - hz.born < 0.8) continue;
+        const dx = c.x - hz.x, dy = c.y - hz.y;
+        if (dx * dx + dy * dy < (c.rad + 13) * (c.rad + 13)) { this.hitCar(c, hz.owner, 'oil'); hz.life = 0; break; }
+      }
+    }
+    this.hazards = this.hazards.filter(h => h.life > 0);
+    // projectiles
+    const tr = this.track;
+    for (const s of this.shots) {
+      s.life -= dt;
+      // home on nearest car ahead in cone
+      let tgt = null, td = 420;
+      for (const c of this.cars) {
+        if (c === s.owner) continue;
+        const dx = c.x - s.x, dy = c.y - s.y;
+        const d = Math.hypot(dx, dy);
+        if (d < td && Math.abs(angDiff(Math.atan2(dy, dx), s.h)) < 0.7) { td = d; tgt = c; }
+      }
+      if (tgt) s.h += clamp(angDiff(Math.atan2(tgt.y - s.y, tgt.x - s.x), s.h), -3.2 * dt, 3.2 * dt);
+      else {
+        // follow the track direction gently
+        let bi = 0, bd = Infinity;
+        for (let i = 0; i < tr.n; i += 3) { const dx = tr.pts[i].x - s.x, dy = tr.pts[i].y - s.y; const d = dx * dx + dy * dy; if (d < bd) { bd = d; bi = i; } }
+        const p = tr.pts[(bi + 6) % tr.n];
+        s.h += clamp(angDiff(Math.atan2(p.y - s.y, p.x - s.x), s.h), -2 * dt, 2 * dt);
+      }
+      s.x += Math.cos(s.h) * s.v * dt; s.y += Math.sin(s.h) * s.v * dt;
+      s.trail.push({ x: s.x, y: s.y }); if (s.trail.length > 10) s.trail.shift();
+      for (const c of this.cars) {
+        if (c === s.owner || c.spin > 0) continue;
+        const dx = c.x - s.x, dy = c.y - s.y;
+        if (dx * dx + dy * dy < (c.rad + 8) * (c.rad + 8)) { this.hitCar(c, s.owner, 'bolt'); s.life = 0; break; }
+      }
+    }
+    this.shots = this.shots.filter(s => s.life > 0);
+  }
+
+  _aiItemWant(c) {
+    // reuse the AI decision computed in aiInput by re-running only the item part cheaply
+    const cs = Math.cos(c.h), sn = Math.sin(c.h);
+    const it = c.item;
+    if (it === 'shield' || it === 'storm') return c.itemHold > 0.8;
+    if (it === 'nitro') {
+      let maxK = 0; const pts = this.track.pts, n = this.track.n;
+      for (let j = 2; j < 30; j += 2) maxK = Math.max(maxK, Math.abs(pts[(c.idx + j) % n].k));
+      return maxK < 1 / 500 || c.itemHold > 6;
+    }
+    for (const o of this.cars) {
+      if (o === c) continue;
+      const dx = o.x - c.x, dy = o.y - c.y;
+      const ahead = dx * cs + dy * sn, lat = Math.abs(-dx * sn + dy * cs);
+      if (it === 'bolt' && ahead > 40 && ahead < 380 && lat < ahead * 0.3) return true;
+      if (it === 'oil' && ahead < -25 && ahead > -170 && lat < 40) return true;
+    }
+    return c.itemHold > (it === 'bolt' ? 8 : 7);
+  }
+
+  /* ---------- particles ---------- */
+  addParticle(x, y, vx, vy, life, color, size) {
+    if (this.particles.length > 500) return;
+    this.particles.push({ x, y, vx, vy, life, max: life, color, size });
+  }
+  burst(x, y, color) {
+    for (let i = 0; i < 18; i++) {
+      const a = Math.random() * TAU, s = 60 + Math.random() * 160;
+      this.addParticle(x, y, Math.cos(a) * s, Math.sin(a) * s, 0.5, color, 4);
+    }
+  }
+  updateParticles(dt) {
+    for (const p of this.particles) { p.life -= dt; p.x += p.vx * dt; p.y += p.vy * dt; p.vx *= 0.96; p.vy *= 0.96; }
+    this.particles = this.particles.filter(p => p.life > 0);
+    for (const s of this.skids) s.a -= dt * 0.035;
+    if (this.skids.length > 0 && this.skids[0].a <= 0) this.skids = this.skids.filter(s => s.a > 0);
+  }
+
+  /* ---------- finish ---------- */
+  finish(retired) {
+    if (this.done) return;
+    this.computeOrder();
+    const results = this.order.map(c => ({
+      id: c.id, pos: c.pos, finished: c.finished, time: c.finishTime, best: c.best, grid: c.grid,
+      dnf: retired && c.isPlayer
+    }));
+    if (retired) {
+      const pr = results.find(r => r.dnf);
+      results.splice(results.indexOf(pr), 1);
+      results.push(pr);
+      results.forEach((r, i) => r.pos = i + 1);
+    }
+    let fl = null;
+    for (const c of this.cars) if (c.best < Infinity && (!fl || c.best < fl.best)) fl = c;
+    const out = { results, fastestLap: fl ? fl.id : null, fastestTime: fl ? fl.best : null };
+    this.destroy();
+    this.o.onEnd(out);
+  }
+
+  /* ============================================================
+     Rendering
+     ============================================================ */
+  render() {
+    const ctx = this.ctx, w = this.w, h = this.h, tr = this.track;
+    ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+    const z = this.cam.z;
+    const shx = (Math.random() - 0.5) * this.shake * 14, shy = (Math.random() - 0.5) * this.shake * 14;
+    ctx.save();
+    ctx.translate(w / 2 + shx, h / 2 + shy);
+    ctx.scale(z, z);
+    ctx.translate(-this.cam.x, -this.cam.y);
+    const vx0 = this.cam.x - w / 2 / z - 50, vy0 = this.cam.y - h / 2 / z - 50, vx1 = this.cam.x + w / 2 / z + 50, vy1 = this.cam.y + h / 2 / z + 50;
+    const inView = (x, y, m = 0) => x > vx0 - m && x < vx1 + m && y > vy0 - m && y < vy1 + m;
+
+    // grass
+    ctx.fillStyle = this.grassPattern;
+    ctx.fillRect(vx0, vy0, vx1 - vx0, vy1 - vy0);
+
+    ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+    // barrier + runoff
+    ctx.strokeStyle = this.isKart ? '#2b2b2b' : '#d9dde3';
+    ctx.lineWidth = tr.W + tr.runoff * 2 + 14;
+    ctx.stroke(tr.path);
+    ctx.strokeStyle = this.isKart ? '#c8ad78' : '#b9ad95';
+    ctx.lineWidth = tr.W + tr.runoff * 2;
+    ctx.stroke(tr.path);
+    // curbs
+    ctx.strokeStyle = '#f4f4f4';
+    ctx.lineWidth = tr.W + 20;
+    ctx.stroke(tr.path);
+    ctx.setLineDash([24, 24]);
+    ctx.strokeStyle = '#d62828';
+    ctx.stroke(tr.path);
+    ctx.setLineDash([]);
+    // asphalt
+    ctx.strokeStyle = '#3a3e46';
+    ctx.lineWidth = tr.W;
+    ctx.stroke(tr.path);
+    ctx.strokeStyle = 'rgba(0,0,0,0.16)';
+    ctx.lineWidth = tr.W * 0.3;
+    ctx.stroke(tr.linePath);
+    ctx.strokeStyle = 'rgba(255,255,255,0.55)';
+    ctx.lineWidth = 2;
+    ctx.save();
+    ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+    ctx.setLineDash([30, 40]);
+    ctx.stroke(tr.path);
+    ctx.restore();
+
+    // start line + grid boxes
+    const sp = tr.pts[0];
+    ctx.save();
+    ctx.translate(sp.x, sp.y); ctx.rotate(sp.a);
+    const sq = 8, cols = Math.ceil(tr.W / sq);
+    for (let i = 0; i < cols; i++) for (let j = 0; j < 2; j++) {
+      ctx.fillStyle = (i + j) % 2 ? '#111' : '#fff';
+      ctx.fillRect(-sq + j * sq, -tr.W / 2 + i * sq, sq, Math.min(sq, tr.W / 2 - (-tr.W / 2 + i * sq)));
+    }
+    ctx.restore();
+
+    // skids
+    ctx.fillStyle = '#111';
+    for (const s of this.skids) {
+      if (!inView(s.x, s.y)) continue;
+      ctx.globalAlpha = Math.max(0, s.a);
+      ctx.fillRect(s.x - 2, s.y - 2, 4, 4);
+    }
+    ctx.globalAlpha = 1;
+
+    // stand + tyres
+    const st = tr.stand;
+    if (inView(st.x, st.y, 200)) {
+      ctx.save(); ctx.translate(st.x, st.y); ctx.rotate(st.a);
+      ctx.fillStyle = '#555c66'; ctx.fillRect(-150, -30, 300, 60);
+      for (let r = 0; r < 4; r++) {
+        for (let i = 0; i < 28; i++) {
+          ctx.fillStyle = ['#e63946', '#ffd60a', '#4cc9f0', '#f1f1f1', '#06d6a0'][(i * 7 + r * 3) % 5];
+          ctx.fillRect(-145 + i * 10.5, -25 + r * 13, 7, 8);
+        }
+      }
+      ctx.fillStyle = '#2b2f36'; ctx.fillRect(-155, -36, 310, 8);
+      ctx.restore();
+    }
+    for (const t of tr.tires) {
+      if (!inView(t.x, t.y)) continue;
+      for (let i = -1; i <= 1; i++) {
+        ctx.fillStyle = '#1b1b1b';
+        ctx.beginPath(); ctx.arc(t.x + i * 9, t.y, 6, 0, TAU); ctx.fill();
+        ctx.fillStyle = i ? '#e63946' : '#f1f1f1';
+        ctx.beginPath(); ctx.arc(t.x + i * 9, t.y, 2.4, 0, TAU); ctx.fill();
+      }
+    }
+
+    // item boxes
+    const tt = this.clock;
+    for (const b of this.boxes) {
+      if (!b.active || !inView(b.x, b.y)) continue;
+      ctx.save(); ctx.translate(b.x, b.y); ctx.rotate(tt * 1.6);
+      const hue = (tt * 120 + b.x) % 360;
+      ctx.fillStyle = `hsla(${hue},90%,60%,0.85)`;
+      ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.rect(-10, -10, 20, 20); ctx.fill(); ctx.stroke();
+      ctx.rotate(-tt * 1.6);
+      ctx.fillStyle = '#fff'; ctx.font = 'bold 14px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText('?', 0, 1);
+      ctx.restore();
+    }
+    // hazards
+    for (const hz of this.hazards) {
+      if (!inView(hz.x, hz.y)) continue;
+      ctx.fillStyle = 'rgba(10,10,15,0.9)';
+      ctx.beginPath(); ctx.ellipse(hz.x, hz.y, 16, 12, 0.4, 0, TAU); ctx.fill();
+      ctx.fillStyle = 'rgba(120,80,200,0.35)';
+      ctx.beginPath(); ctx.ellipse(hz.x - 4, hz.y - 3, 6, 4, 0.4, 0, TAU); ctx.fill();
+    }
+
+    // cars
+    for (const c of this.cars) if (inView(c.x, c.y, 60)) this.drawCar(ctx, c);
+
+    // shots
+    for (const s of this.shots) {
+      ctx.strokeStyle = 'rgba(255,214,10,0.6)'; ctx.lineWidth = 5;
+      ctx.beginPath(); s.trail.forEach((p, i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y)); ctx.stroke();
+      ctx.fillStyle = '#fff6a0';
+      ctx.beginPath(); ctx.arc(s.x, s.y, 7, 0, TAU); ctx.fill();
+      ctx.strokeStyle = '#ffd60a'; ctx.lineWidth = 2; ctx.stroke();
+    }
+    // particles
+    for (const p of this.particles) {
+      ctx.globalAlpha = Math.max(0, p.life / p.max);
+      ctx.fillStyle = p.color;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.size * (0.5 + p.life / p.max * 0.5), 0, TAU); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+
+    // trees
+    for (const t of tr.trees) {
+      if (!inView(t.x, t.y, t.r)) continue;
+      ctx.fillStyle = 'rgba(0,0,0,0.25)';
+      ctx.beginPath(); ctx.arc(t.x + 8, t.y + 8, t.r, 0, TAU); ctx.fill();
+      ctx.fillStyle = t.shade < 0.5 ? '#1f5a2a' : '#256b33';
+      ctx.beginPath(); ctx.arc(t.x, t.y, t.r, 0, TAU); ctx.fill();
+      ctx.fillStyle = 'rgba(255,255,255,0.08)';
+      ctx.beginPath(); ctx.arc(t.x - t.r * 0.3, t.y - t.r * 0.3, t.r * 0.5, 0, TAU); ctx.fill();
+    }
+    ctx.restore();
+
+    if (this.stormFlash > 0) { ctx.fillStyle = `rgba(200,160,255,${this.stormFlash * 0.35})`; ctx.fillRect(0, 0, w, h); }
+    this.drawHUD(ctx, w, h);
+  }
+
+  drawCar(ctx, c) {
+    ctx.save();
+    ctx.translate(c.x, c.y);
+    ctx.rotate(c.h);
+    const L = c.len, W = c.wid;
+    // shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.3)';
+    ctx.beginPath(); ctx.ellipse(3, 4, L * 0.55, W * 0.6, 0, 0, TAU); ctx.fill();
+    if (this.isKart) {
+      ctx.fillStyle = '#111';
+      for (const [x, y] of [[-L * 0.32, -W * 0.55], [-L * 0.32, W * 0.55], [L * 0.3, -W * 0.5], [L * 0.3, W * 0.5]]) {
+        ctx.fillRect(x - 4.5, y - 3, 9, 6);
+      }
+      ctx.fillStyle = c.color;
+      roundRect(ctx, -L * 0.5, -W * 0.42, L * 0.95, W * 0.84, 5); ctx.fill();
+      ctx.fillStyle = 'rgba(0,0,0,0.25)';
+      ctx.fillRect(L * 0.38, -W * 0.38, 4, W * 0.76);
+      ctx.fillStyle = 'rgba(255,255,255,0.25)';
+      ctx.fillRect(-L * 0.3, -W * 0.15, L * 0.55, W * 0.3);
+      // driver
+      ctx.fillStyle = c.helmet;
+      ctx.beginPath(); ctx.arc(-L * 0.08, 0, 5.6, 0, TAU); ctx.fill();
+      ctx.fillStyle = '#111';
+      ctx.fillRect(-L * 0.08 + 1.5, -3.5, 2.8, 7);
+    } else {
+      ctx.fillStyle = '#111';
+      for (const [x, y] of [[-L * 0.32, -W * 0.62], [-L * 0.32, W * 0.62], [L * 0.27, -W * 0.58], [L * 0.27, W * 0.58]]) ctx.fillRect(x - 6, y - 3.5, 12, 7);
+      // rear wing
+      ctx.fillStyle = c.team || c.color;
+      ctx.fillRect(-L * 0.52, -W * 0.6, 6, W * 1.2);
+      // body
+      ctx.fillStyle = c.color;
+      ctx.beginPath();
+      ctx.moveTo(-L * 0.45, -W * 0.38); ctx.lineTo(L * 0.05, -W * 0.36); ctx.lineTo(L * 0.5, -W * 0.12);
+      ctx.lineTo(L * 0.5, W * 0.12); ctx.lineTo(L * 0.05, W * 0.36); ctx.lineTo(-L * 0.45, W * 0.38); ctx.closePath(); ctx.fill();
+      // front wing
+      ctx.fillStyle = c.team || c.color;
+      ctx.fillRect(L * 0.42, -W * 0.62, 5, W * 1.24);
+      ctx.fillStyle = 'rgba(0,0,0,0.3)';
+      ctx.fillRect(-L * 0.12, -W * 0.2, L * 0.25, W * 0.4);
+      ctx.fillStyle = c.helmet;
+      ctx.beginPath(); ctx.arc(-L * 0.02, 0, 4.6, 0, TAU); ctx.fill();
+    }
+    ctx.restore();
+    if (c.shield > 0) {
+      ctx.strokeStyle = `rgba(76,201,240,${0.5 + 0.3 * Math.sin(this.clock * 10)})`;
+      ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.arc(c.x, c.y, c.len * 0.75, 0, TAU); ctx.stroke();
+    }
+    if (c.slow > 0) {
+      ctx.strokeStyle = 'rgba(199,125,255,0.8)'; ctx.lineWidth = 2;
+      ctx.beginPath();
+      for (let i = 0; i < 5; i++) { const a = this.clock * 8 + i; ctx.lineTo(c.x + Math.cos(a) * 18, c.y + Math.sin(a * 1.3) * 18); }
+      ctx.stroke();
+    }
+    if (c.isPlayer) {
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath(); ctx.moveTo(c.x, c.y - c.len * 0.9); ctx.lineTo(c.x - 6, c.y - c.len * 0.9 - 9); ctx.lineTo(c.x + 6, c.y - c.len * 0.9 - 9); ctx.closePath(); ctx.fill();
+    } else if (c.isRival) {
+      ctx.fillStyle = '#ff4d6d'; ctx.font = 'bold 11px Rajdhani, sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText('RIVAL', c.x, c.y - c.len * 0.85);
+    }
+  }
+
+  drawHUD(ctx, w, h) {
+    const p = this.player, tr = this.track;
+    const font = (s, wgt = 700) => `${wgt} ${s}px Rajdhani, "Segoe UI", sans-serif`;
+    const small = w < 700;
+    ctx.textBaseline = 'alphabetic';
+
+    // position + lap
+    const lap = clamp(Math.floor(p.total / tr.L) + 1, 1, this.laps);
+    panel(ctx, 14, 14, small ? 150 : 190, small ? 92 : 108);
+    ctx.fillStyle = '#fff'; ctx.textAlign = 'left';
+    ctx.font = font(small ? 40 : 52);
+    ctx.fillText('P' + p.pos, 26, small ? 56 : 66);
+    ctx.font = font(18, 600); ctx.fillStyle = 'rgba(255,255,255,0.6)';
+    ctx.fillText('/' + this.cars.length, small ? 80 : 100, small ? 56 : 66);
+    ctx.font = font(small ? 15 : 18, 600); ctx.fillStyle = '#ffd166';
+    ctx.fillText(`LAP ${p.finished ? this.laps : lap}/${this.laps}`, 26, small ? 80 : 92);
+    ctx.fillStyle = 'rgba(255,255,255,0.8)';
+    ctx.fillText(fmtTime(p.finished ? p.finishTime : this.time), small ? 92 : 112, small ? 80 : 92);
+
+    // timing tower
+    if (!small) {
+      const tx = 14, ty = 132, rowH = 22;
+      panel(ctx, tx, ty, 190, rowH * this.order.length + 12);
+      const leader = this.order[0];
+      this.order.forEach((c, i) => {
+        const y = ty + 8 + i * rowH;
+        if (c.isPlayer) { ctx.fillStyle = 'rgba(255,255,255,0.15)'; ctx.fillRect(tx + 4, y, 182, rowH - 2); }
+        ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.font = font(14, 700); ctx.textAlign = 'right';
+        ctx.fillText(String(i + 1), tx + 26, y + 15);
+        ctx.fillStyle = c.team || c.color; ctx.fillRect(tx + 32, y + 3, 4, rowH - 8);
+        ctx.fillStyle = c.isPlayer ? '#ffd166' : c.isRival ? '#ff8fa3' : '#fff'; ctx.textAlign = 'left';
+        ctx.fillText(c.code, tx + 42, y + 15);
+        ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.textAlign = 'right'; ctx.font = font(13, 600);
+        let gap = '';
+        if (i === 0) gap = 'Leader';
+        else if (c.finished && leader.finished) gap = '+' + (c.finishTime - leader.finishTime).toFixed(1);
+        else gap = '+' + Math.max(0, (leader.total - c.total) / (c.maxSpeed * 0.78)).toFixed(1);
+        if (c.spin > 0) gap = 'SPIN';
+        ctx.fillText(gap, tx + 182, y + 15);
+      });
+    }
+
+    // minimap
+    const ms = small ? 120 : 180;
+    const mx = w - ms - 14, my = 14;
+    panel(ctx, mx, my, ms, ms);
+    const b = tr.bounds;
+    const s = Math.min((ms - 24) / (b.maxX - b.minX), (ms - 24) / (b.maxY - b.minY));
+    ctx.save();
+    ctx.translate(mx + ms / 2, my + ms / 2);
+    ctx.scale(s, s);
+    ctx.translate(-(b.minX + b.maxX) / 2, -(b.minY + b.maxY) / 2);
+    ctx.lineJoin = 'round';
+    ctx.strokeStyle = 'rgba(255,255,255,0.75)'; ctx.lineWidth = 5 / s;
+    ctx.stroke(tr.path);
+    const sp = tr.pts[0];
+    ctx.fillStyle = '#fff'; ctx.fillRect(sp.x - 6 / s, sp.y - 6 / s, 12 / s, 12 / s);
+    for (const c of this.cars) {
+      if (c.isPlayer) continue;
+      ctx.fillStyle = c.isRival ? '#ff4d6d' : (c.team || c.color);
+      ctx.beginPath(); ctx.arc(c.x, c.y, 4.5 / s, 0, TAU); ctx.fill();
+    }
+    ctx.fillStyle = '#ffd166'; ctx.strokeStyle = '#000'; ctx.lineWidth = 2 / s;
+    ctx.beginPath(); ctx.arc(p.x, p.y, 7 / s, 0, TAU); ctx.fill(); ctx.stroke();
+    ctx.restore();
+
+    // speed
+    const spd = Math.hypot(p.vx, p.vy);
+    panel(ctx, 14, h - 86, 150, 72);
+    ctx.fillStyle = '#fff'; ctx.textAlign = 'left'; ctx.font = font(44);
+    ctx.fillText(Math.round(spd * this.tier.kmh), 26, h - 36);
+    ctx.font = font(15, 600); ctx.fillStyle = 'rgba(255,255,255,0.6)';
+    ctx.fillText('KM/H', 110, h - 36);
+    if (p.best < Infinity) { ctx.font = font(13, 600); ctx.fillText('BEST ' + fmtTime(p.best), 26, h - 20); }
+
+    // item / ERS
+    const cx = w / 2;
+    if (this.itemsOn) {
+      panel(ctx, cx - 40, h - 96, 80, 80);
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.font = '42px "Segoe UI Emoji", "Apple Color Emoji", sans-serif';
+      if (p.itemRoll > 0) {
+        const k = ITEM_KEYS[Math.floor(this.clock * 14) % ITEM_KEYS.length];
+        ctx.globalAlpha = 0.7; ctx.fillText(ITEM_DEFS[k].icon, cx, h - 54); ctx.globalAlpha = 1;
+      } else if (p.item) {
+        ctx.fillText(ITEM_DEFS[p.item].icon, cx, h - 54);
+        ctx.font = font(12, 700); ctx.fillStyle = '#fff'; ctx.fillText('SPACE', cx, h - 22);
+      } else {
+        ctx.font = font(13, 600); ctx.fillStyle = 'rgba(255,255,255,0.35)'; ctx.fillText('NO ITEM', cx, h - 56);
+      }
+      ctx.textBaseline = 'alphabetic';
+    }
+    if (this.ersOn && !this.itemsOn) {
+      const bw = 220;
+      panel(ctx, cx - bw / 2 - 10, h - 70, bw + 20, 56);
+      ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.font = font(12, 700); ctx.textAlign = 'left';
+      ctx.fillText('ERS  (HOLD SPACE)', cx - bw / 2, h - 52);
+      ctx.fillStyle = 'rgba(255,255,255,0.12)'; ctx.fillRect(cx - bw / 2, h - 44, bw, 10);
+      ctx.fillStyle = p.ersActive ? '#f9f871' : '#4cc9f0'; ctx.fillRect(cx - bw / 2, h - 44, bw * p.ers, 10);
+      ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.fillText('TYRES', cx - bw / 2, h - 20);
+      ctx.fillStyle = 'rgba(255,255,255,0.12)'; ctx.fillRect(cx - bw / 2 + 50, h - 28, bw - 50, 8);
+      const tw = 1 - p.wear;
+      ctx.fillStyle = tw > 0.6 ? '#7bd88f' : tw > 0.3 ? '#ffd166' : '#ff6b6b';
+      ctx.fillRect(cx - bw / 2 + 50, h - 28, (bw - 50) * tw, 8);
+    }
+    if (p.slip > 0.35) {
+      ctx.fillStyle = '#7CFF6B'; ctx.font = font(16, 700); ctx.textAlign = 'center';
+      ctx.fillText('SLIPSTREAM', cx, h - (this.itemsOn ? 108 : 82));
+    }
+    if (p.drift) {
+      const lvl = p.driftCharge > 2.4 ? 3 : p.driftCharge > 1.5 ? 2 : p.driftCharge > 0.75 ? 1 : 0;
+      ctx.fillStyle = ['#ccc', '#4cc9f0', '#ff9f1c', '#d38cff'][lvl]; ctx.font = font(16, 700); ctx.textAlign = 'center';
+      ctx.fillText('DRIFT ' + '●'.repeat(lvl) + '○'.repeat(3 - lvl), cx, h - (this.itemsOn ? 128 : 102));
+    }
+
+    // countdown lights
+    if (this.state === 'countdown' || this.time < 1) {
+      const lw = 5 * 46 + 20;
+      const lx = cx - lw / 2, ly = 20;
+      panel(ctx, lx, ly, lw, 64);
+      for (let i = 0; i < 5; i++) {
+        const on = this.state === 'countdown' && i < this.lights;
+        ctx.fillStyle = on ? '#ff2d2d' : '#2a2a2a';
+        ctx.beginPath(); ctx.arc(lx + 33 + i * 46, ly + 32, 16, 0, TAU); ctx.fill();
+        if (on) { ctx.fillStyle = 'rgba(255,80,80,0.3)'; ctx.beginPath(); ctx.arc(lx + 33 + i * 46, ly + 32, 22, 0, TAU); ctx.fill(); }
+      }
+      if (this.state === 'countdown') {
+        ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.font = font(small ? 26 : 36);
+        ctx.fillText(tr.name.toUpperCase(), cx, h * 0.33);
+        ctx.font = font(18, 600); ctx.fillStyle = 'rgba(255,255,255,0.75)';
+        ctx.fillText(`Starting P${p.grid}  •  ${this.laps} laps  •  Time the GO for a rocket start`, cx, h * 0.33 + 30);
+      }
+    }
+
+    // wrong way
+    if (p.wrongWay > 1) {
+      ctx.fillStyle = '#ff6b6b'; ctx.textAlign = 'center'; ctx.font = font(40);
+      ctx.fillText('WRONG WAY  —  press R to reset', cx, h * 0.28);
+    }
+
+    // flashes
+    let fy = h * 0.42;
+    for (const f of this.flashes) {
+      const a = clamp(f.t / Math.min(0.4, f.max), 0, 1);
+      ctx.globalAlpha = a;
+      ctx.fillStyle = f.color; ctx.textAlign = 'center'; ctx.font = font(small ? f.size * 0.7 : f.size);
+      ctx.strokeStyle = 'rgba(0,0,0,0.6)'; ctx.lineWidth = 5;
+      ctx.strokeText(f.text, cx, fy); ctx.fillText(f.text, cx, fy);
+      fy += f.size + 6;
+    }
+    ctx.globalAlpha = 1;
+
+    // controls hint
+    if (this.time < 6 && !small) {
+      ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = font(14, 600); ctx.textAlign = 'right';
+      const hint = this.itemsOn || this.isKart
+        ? '↑↓←→ / WASD drive  •  SHIFT drift (release for boost)  •  SPACE item  •  R reset  •  ESC pause'
+        : '↑↓←→ / WASD drive  •  hold SPACE for ERS  •  R reset  •  ESC pause';
+      ctx.fillText(hint, w - 16, h - 16);
+    }
+  }
+}
+
+function panel(ctx, x, y, w, h) {
+  ctx.fillStyle = 'rgba(10,14,24,0.72)';
+  roundRect(ctx, x, y, w, h, 10); ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.08)'; ctx.lineWidth = 1; ctx.stroke();
+}
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y); ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r); ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h); ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r); ctx.quadraticCurveTo(x, y, x + r, y); ctx.closePath();
+}
+function fmtTime(t) {
+  if (!isFinite(t)) return '--:--.---';
+  const m = Math.floor(t / 60), s = t - m * 60;
+  return m + ':' + (s < 10 ? '0' : '') + s.toFixed(3);
+}
+
+</script>
+  <script>
+'use strict';
+/* ============================================================
+   Career state & progression (no DOM in here)
+   ============================================================ */
+
+const SAVE_KEY = 'kartToCrown.save.v1';
+const HOF_KEY = 'kartToCrown.hof.v1';
+const Store = {
+  load(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } },
+  save(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } },
+  del(k) { try { localStorage.removeItem(k); } catch (e) { } }
+};
+
+let S = null; // the live career
+
+const rand = (a, b) => a + Math.random() * (b - a);
+const randi = (a, b) => Math.floor(rand(a, b + 1));
+const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function gauss() { return (Math.random() + Math.random() + Math.random() - 1.5) / 1.5; }
+const fmtMoney = n => '$' + Math.round(n).toLocaleString('en-US');
+const fmtNum = n => n >= 1e6 ? (n / 1e6).toFixed(1) + 'M' : n >= 1e4 ? Math.round(n / 1000) + 'K' : n >= 1000 ? (n / 1000).toFixed(1) + 'K' : String(Math.round(n));
+
+function ovr(st) {
+  return Math.round(st.spd * 0.2 + st.acc * 0.15 + st.hnd * 0.2 + st.foc * 0.15 + st.rc * 0.15 + st.fit * 0.15);
+}
+function codeOf(name) { const parts = name.trim().split(/\s+/); return (parts[parts.length - 1] || 'DRV').replace(/[^A-Za-z]/g, '').slice(0, 3).toUpperCase().padEnd(3, 'X'); }
+function xpNeeded(level) { return 200 + level * 60; }
+function skillCost(v) { return v < 60 ? 1 : v < 80 ? 2 : 3; }
+function tier() { return TIERS[S.tier]; }
+function agentMult() { return 1 + 0.25 * (S.perks.agent || 0); }
+
+function save() { if (S) Store.save(SAVE_KEY, S); }
+function loadSave() { const s = Store.load(SAVE_KEY); if (s && s.v === 1 && s.driver) { S = s; return true; } return false; }
+
+function randomName(used) {
+  for (let i = 0; i < 50; i++) {
+    const n = pick(FIRST_NAMES) + ' ' + pick(LAST_NAMES);
+    if (!used.has(n)) { used.add(n); return n; }
+  }
+  return 'Driver ' + randi(10, 99);
+}
+function statsAround(r, spread = 6) {
+  const o = {};
+  for (const k of STAT_KEYS) o[k] = clamp(Math.round(r + gauss() * spread), 20, 99);
+  return o;
+}
+
+/* ---------------- new career ---------------- */
+function newCareer(opt) {
+  const bg = BACKGROUNDS.find(b => b.id === opt.bg) || BACKGROUNDS[0];
+  const used = new Set([opt.name]);
+  const rivalName = randomName(used);
+  S = {
+    v: 1, created: Date.now(), id: Math.random().toString(36).slice(2),
+    driver: {
+      name: opt.name, number: opt.number, nation: opt.nation, color: opt.color, helmet: opt.helmet, bg: bg.id,
+      age: 12, stats: opt.stats, xp: 0, level: 1, skillPts: 0, energy: 100, morale: bg.morale || 70, fans: bg.fans, rep: 10
+    },
+    money: bg.money,
+    tier: 0, season: 1,
+    kart: { eng: bg.kart || 0, chas: bg.kart || 0, tire: bg.kart || 0 },
+    perks: { coach: 0, simrig: 0, trainer: 0, agent: 0 },
+    team: null, teamRel: 50, sponsor: null,
+    rival: { name: rivalName, code: codeOf(rivalName), nation: pick(NATIONS), color: '#ff4d6d', helmet: '#111111', number: randi(2, 99) },
+    buffs: [], flags: {},
+    week: null, seasonData: null, lastRace: null, offers: null,
+    history: [], trophies: [],
+    totals: { starts: 0, wins: 0, podiums: 0, fastest: 0, titles: 0, poles: 0, bestTier: 0 },
+    news: [], recentEvents: [],
+    settings: Object.assign({ difficulty: 'normal', chaos: false, sound: true }, opt.settings || {})
+  };
+  startSeason();
+  addNews(`${opt.name}, age 12, enters the ${TIERS[0].name}. The road to the Apex starts today.`, 'story');
+  addNews(`Meet your rival: ${rivalName}. Same age, same dream, zero friendship.`, 'rival');
+  save();
+}
+
+function addNews(text, kind = 'info') {
+  S.news.unshift({ text, kind, season: S.season, tier: S.tier });
+  if (S.news.length > 40) S.news.length = 40;
+}
+
+/* ---------------- teams ---------------- */
+function genTeams(tierId) {
+  const T = TIERS[tierId];
+  const n = T.field / 2;
+  const teams = shuffle(FORMULA_TEAMS.slice()).slice(0, n);
+  teams.forEach((t, i) => { t.car = clamp(0.95 - i * (0.62 / (n - 1)) + rand(-0.05, 0.05), 0.2, 1); });
+  return teams.map(t => ({ name: t.name, color: t.color, car: +t.car.toFixed(2) }));
+}
+
+/* ---------------- seasons ---------------- */
+function startSeason() {
+  const T = tier();
+  const used = new Set([S.driver.name, S.rival.name]);
+  const grid = [];
+  const isF = T.vehicle === 'formula';
+  let teams = null;
+  if (isF) {
+    teams = S.nextTeams && S.nextTeams.tier === S.tier ? S.nextTeams.list : genTeams(S.tier);
+    if (!S.team) { const sorted = teams.slice().sort((a, b) => a.car - b.car); S.team = Object.assign({}, sorted[0], { salary: T.salary * 0.6 }); }
+    const i = teams.findIndex(t => t.name === S.team.name);
+    if (i >= 0) teams[i] = { name: S.team.name, color: S.team.color, car: S.team.car };
+    else { teams.sort((a, b) => a.car - b.car); teams[0] = { name: S.team.name, color: S.team.color, car: S.team.car }; }
+  }
+  S.nextTeams = null;
+
+  // rival: always near the top of whatever series you are in
+  const rivalRating = clamp(T.ratingMax - 3 + randi(-1, 3), 20, 97);
+  grid.push({ id: 'rival', name: S.rival.name, code: S.rival.code, nation: S.rival.nation, rating: rivalRating, stats: statsAround(rivalRating, 4), color: S.rival.color, helmet: S.rival.helmet, isRival: true });
+  for (let i = 0; i < T.field - 2; i++) {
+    const name = randomName(used);
+    const r = Math.round(rand(T.ratingMin, T.ratingMax));
+    grid.push({ id: 'ai' + i, name, code: codeOf(name), nation: pick(NATIONS), rating: r, stats: statsAround(r), color: pick(BODY_COLORS), helmet: pick(HELMET_COLORS) });
+  }
+  // machines / seats
+  if (isF) {
+    const seats = [];
+    for (const t of teams) { if (t.name === S.team.name) seats.push(t); else { seats.push(t); seats.push(t); } }
+    seats.sort((a, b) => b.car - a.car);
+    const ais = grid.slice().sort((a, b) => (b.rating + gauss() * 6) - (a.rating + gauss() * 6));
+    ais.forEach((d, i) => { const t = seats[i]; d.team = t.name; d.teamColor = t.color; d.color = t.color; d.machine = { eng: t.car, chas: t.car, tire: t.car }; });
+  } else {
+    for (const d of grid) { const m = rand(T.aiMachine[0], T.aiMachine[1]); d.machine = { eng: m, chas: m + rand(-0.05, 0.05), tire: m + rand(-0.05, 0.05) }; }
+  }
+  const points = { player: 0 };
+  grid.forEach(d => points[d.id] = 0);
+  const tracks = shuffle(T.tracks.slice());
+  while (tracks.length < T.races) tracks.push(pick(T.tracks));
+  S.seasonData = { tier: S.tier, tracks: tracks.slice(0, T.races), round: 0, grid, points, wins: {}, podiums: {}, results: [], teams };
+  S.sponsor = null;
+  S.offers = null;
+  S.seasonOver = false;
+  S.totals.bestTier = Math.max(S.totals.bestTier, S.tier);
+  newWeek(true);
+}
+
+function newWeek(first) {
+  if (!first) S.driver.energy = clamp(S.driver.energy + 30, 0, 100);
+  let event = null;
+  if (!first && Math.random() < 0.65) {
+    const pool = EVENTS.filter(e => (!e.cond || e.cond(S)) && !S.recentEvents.includes(e.id));
+    if (pool.length) { event = pick(pool); S.recentEvents.push(event.id); if (S.recentEvents.length > 6) S.recentEvents.shift(); }
+  }
+  let sponsorOffer = null;
+  const T = tier();
+  if (!S.sponsor && (first ? S.driver.fans > 60 : Math.random() < 0.35)) {
+    const fansF = clamp(Math.log10(Math.max(10, S.driver.fans)) / 3, 0.5, 2.2);
+    sponsorOffer = {
+      name: pick(SPONSOR_NAMES),
+      perRace: Math.round(T.prize * rand(0.12, 0.25) * fansF * agentMult() / 10) * 10,
+      podiumBonus: Math.round(T.prize * rand(0.3, 0.6) / 10) * 10
+    };
+  }
+  S.week = { used: [], event: event ? event.id : null, eventResult: null, sponsorOffer, log: [] };
+}
+
+/* ---------------- performance helpers ---------------- */
+function playerMachine() {
+  const T = tier();
+  let m;
+  if (T.vehicle === 'formula') { const c = S.team ? S.team.car : 0.3; m = { eng: c, chas: c, tire: c }; }
+  else m = { eng: S.kart.eng / 5, chas: S.kart.chas / 5, tire: S.kart.tire / 5 };
+  const b = S.buffs.filter(b => b.type === 'machine').reduce((a, b) => a + b.value, 0);
+  for (const k in m) m[k] = clamp(m[k] + b, 0, 1.2);
+  return m;
+}
+function playerPerf() {
+  const d = S.driver;
+  const pb = S.buffs.filter(b => b.type === 'perf').reduce((a, b) => a + b.value, 0);
+  return (0.93 + 0.07 * d.energy / 100) * (0.98 + 0.02 * d.morale / 100) * (1 + pb);
+}
+function machineAvg(m) { return (m.eng + m.chas + m.tire) / 3; }
+
+function buildRacers() {
+  const sd = S.seasonData, T = tier(), d = S.driver;
+  const pm = playerMachine();
+  const racers = [{
+    id: 'player', name: d.name, code: codeOf(d.name), isPlayer: true,
+    color: T.vehicle === 'formula' ? S.team.color : d.color, helmet: d.helmet, team: T.vehicle === 'formula' ? S.team.color : null,
+    stats: Object.assign({}, d.stats), machine: pm, perf: playerPerf()
+  }];
+  for (const g of sd.grid) {
+    racers.push({
+      id: g.id, name: g.name, code: g.code, isRival: !!g.isRival, color: g.color, helmet: g.helmet, team: g.teamColor || null,
+      stats: g.stats, machine: g.machine, perf: 1
+    });
+  }
+  // qualifying
+  for (const r of racers) r.q = ovr(r.stats) * r.perf + machineAvg(r.machine) * 18 + gauss() * 5 + (r.isPlayer ? 2 : 0);
+  racers.sort((a, b) => b.q - a.q);
+  return racers;
+}
+
+function simulateRace(racers) {
+  const scored = racers.map(r => ({ r, s: ovr(r.stats) * r.perf + machineAvg(r.machine) * 20 + gauss() * 9 - racers.indexOf(r) * 0.4 }));
+  scored.sort((a, b) => b.s - a.s);
+  const results = scored.map((x, i) => ({ id: x.r.id, pos: i + 1, finished: true, time: 0, best: 0, grid: racers.indexOf(x.r) + 1 }));
+  const fl = results[Math.floor(Math.random() * Math.min(4, results.length))].id;
+  return { results, fastestLap: fl, simulated: true };
+}
+
+/* ---------------- after the race ---------------- */
+function applyRaceResult(out) {
+  const sd = S.seasonData, T = tier(), d = S.driver;
+  const track = sd.tracks[sd.round];
+  const field = out.results.length;
+  const nameOf = id => id === 'player' ? d.name : (sd.grid.find(g => g.id === id) || {}).name || id;
+  const rows = [];
+  for (const r of out.results) {
+    let pts = r.dnf ? 0 : (POINTS[r.pos - 1] || 0);
+    const fl = out.fastestLap === r.id && r.pos <= 10 && !r.dnf;
+    if (fl) pts += 1;
+    sd.points[r.id] = (sd.points[r.id] || 0) + pts;
+    if (r.pos === 1 && !r.dnf) sd.wins[r.id] = (sd.wins[r.id] || 0) + 1;
+    if (r.pos <= 3 && !r.dnf) sd.podiums[r.id] = (sd.podiums[r.id] || 0) + 1;
+    rows.push({ id: r.id, name: nameOf(r.id), pos: r.pos, pts, fl, time: r.time, best: r.best, grid: r.grid, dnf: r.dnf });
+  }
+  const me = out.results.find(r => r.id === 'player');
+  const rv = out.results.find(r => r.id === 'rival');
+  const pos = me.pos, dnf = !!me.dnf;
+  const won = pos === 1 && !dnf, podium = pos <= 3 && !dnf;
+  const beatRival = rv && me.pos < rv.pos;
+  const gotFL = out.fastestLap === 'player';
+
+  const rewards = [];
+  // money
+  let money = dnf ? 0 : Math.round(T.prize * (PRIZE_SHARE[pos - 1] || 0.05));
+  rewards.push(['Prize money', fmtMoney(money)]);
+  if (S.team && T.vehicle === 'formula') { money += S.team.salary; rewards.push(['Team salary', fmtMoney(S.team.salary)]); }
+  if (S.sponsor) {
+    money += S.sponsor.perRace; rewards.push([S.sponsor.name, fmtMoney(S.sponsor.perRace)]);
+    if (podium) { money += S.sponsor.podiumBonus; rewards.push(['Podium bonus', fmtMoney(S.sponsor.podiumBonus)]); }
+  }
+  S.money += money;
+
+  // xp
+  let xp = 60 + (field - pos) * 18;
+  if (won) xp += 120; else if (podium) xp += 50;
+  if (beatRival) xp += 40;
+  if (gotFL) xp += 30;
+  if (dnf) xp = 30;
+  if (out.simulated) xp = Math.round(xp * 0.75);
+  d.xp += xp;
+  let levels = 0;
+  while (d.xp >= xpNeeded(d.level)) { d.xp -= xpNeeded(d.level); d.level++; d.skillPts += 3; levels++; }
+
+  // fans, morale, rep
+  let fans = Math.round(T.fansBase * (field - pos + 1) * (won ? 2 : 1) * agentMult());
+  if (dnf) fans = 0;
+  let morale = won ? 12 : podium ? 7 : pos > field / 2 ? -5 : 1;
+  let rep = won ? 4 : podium ? 2 : 0;
+  const notes = [];
+  if (S.flags.scout && podium) { rep += 12; notes.push('The scout was impressed. Reputation +12.'); addNews(`Scouts are talking about ${d.name} after a podium at ${track}.`, 'story'); }
+  if (S.flags.boldWin) {
+    if (won) { fans *= 2; morale += 10; notes.push('You called the win — and delivered. Fans doubled!'); }
+    else { morale -= 10; fans = Math.round(fans * 0.5); rep -= 3; notes.push('Your win prediction backfired. Morale hit.'); }
+  }
+  if (S.flags.rivalHeat) {
+    if (beatRival) { morale += 10; fans += Math.round(T.fansBase * 6); notes.push(`You backed up the talk against ${S.rival.name}.`); }
+    else { morale -= 6; notes.push(`${S.rival.name} got the last laugh this time.`); }
+  }
+  d.fans += fans;
+  d.morale = clamp(d.morale + morale, 0, 100);
+  d.rep = clamp(d.rep + rep, 0, 100);
+  d.energy = clamp(d.energy - 15, 0, 100);
+  rewards.push(['XP', '+' + xp], ['Fans', '+' + fmtNum(fans)]);
+
+  // totals
+  S.totals.starts++;
+  if (won) S.totals.wins++;
+  if (podium) S.totals.podiums++;
+  if (gotFL) S.totals.fastest++;
+  if (me.grid === 1) S.totals.poles++;
+
+  // buffs/flags expire
+  S.buffs.forEach(b => b.races--);
+  S.buffs = S.buffs.filter(b => b.races > 0);
+  S.flags = {};
+
+  // headline
+  let hl;
+  if (dnf) hl = `${d.name} retires from the ${track} race. A weekend to forget.`;
+  else if (won) hl = pick([`${d.name} storms to victory at ${track}!`, `Unstoppable! ${d.name} wins at ${track}.`, `${d.name} takes the chequered flag first at ${track}.`]);
+  else if (podium) hl = `${d.name} grabs P${pos} and a podium at ${track}.`;
+  else if (pos <= field / 2) hl = `Solid points for ${d.name}: P${pos} at ${track}.`;
+  else hl = `Tough day for ${d.name}, P${pos} at ${track}.`;
+  addNews(hl, won ? 'win' : podium ? 'podium' : 'race');
+  if (rv) {
+    if (beatRival) addNews(`${d.name} finishes ahead of rival ${S.rival.name} (P${rv.pos}).`, 'rival');
+    else if (rv.pos === 1) addNews(`${S.rival.name} wins at ${track}. Your rival is not slowing down.`, 'rival');
+  }
+
+  sd.results.push({ track, rows });
+  sd.round++;
+  S.lastRace = { track, round: sd.round, rows, pos, rewards, notes, levels, beatRival, rivalPos: rv ? rv.pos : null, simulated: !!out.simulated, fastest: out.fastestLap, dnf };
+  if (sd.round >= T.races) { S.seasonOver = true; prepareSeasonEnd(); }
+  else newWeek(false);
+  save();
+}
+
+function standings() {
+  const sd = S.seasonData;
+  const rows = [{ id: 'player', name: S.driver.name, code: codeOf(S.driver.name), team: S.team ? S.team.name : null, teamColor: S.team ? S.team.color : S.driver.color, isPlayer: true }]
+    .concat(sd.grid.map(g => ({ id: g.id, name: g.name, code: g.code, team: g.team || null, teamColor: g.teamColor || g.color, isRival: g.isRival, rating: g.rating })));
+  rows.forEach(r => { r.pts = sd.points[r.id] || 0; r.wins = sd.wins[r.id] || 0; r.podiums = sd.podiums[r.id] || 0; });
+  rows.sort((a, b) => b.pts - a.pts || b.wins - a.wins || b.podiums - a.podiums);
+  rows.forEach((r, i) => r.pos = i + 1);
+  return rows;
+}
+
+/* ---------------- season end ---------------- */
+function prepareSeasonEnd() {
+  const T = tier();
+  const st = standings();
+  const me = st.find(r => r.isPlayer);
+  const rv = st.find(r => r.isRival);
+  const champ = me.pos === 1;
+  S.history.push({ season: S.season, age: S.driver.age, tier: S.tier, tierName: T.name, pos: me.pos, pts: me.pts, wins: me.wins, podiums: me.podiums, team: S.team ? S.team.name : null, rivalPos: rv ? rv.pos : null });
+  if (champ) {
+    S.trophies.push({ name: T.name + ' Champion', season: S.season, tier: S.tier });
+    S.totals.titles++;
+    S.driver.fans += T.fansBase * 60;
+    S.driver.rep = clamp(S.driver.rep + 15, 0, 100);
+    addNews(`CHAMPION! ${S.driver.name} wins the ${T.name} title!`, 'win');
+  } else addNews(`${S.driver.name} finishes the ${T.name} season P${me.pos}. ${rv && rv.pos < me.pos ? S.rival.name + ' ends up ahead (P' + rv.pos + ').' : ''}`, 'story');
+  const bonus = Math.round(T.prize * [3, 2, 1.5, 1, 0.6][me.pos - 1] || 0);
+  if (bonus) { S.money += bonus; }
+  S.seasonEnd = { pos: me.pos, pts: me.pts, champ, bonus, standings: st.slice(0, 12), rivalPos: rv ? rv.pos : null, tierName: T.name };
+  S.offers = makeOffers(me.pos);
+}
+
+function makeOffers(pos) {
+  const t = S.tier, T = TIERS[t], d = S.driver;
+  const next = t + 1 < TIERS.length ? t + 1 : null;
+  const offers = [];
+  const wildcard = pos <= 5 && (d.rep >= 45 || d.fans >= T.fansBase * 350);
+  const promote = next !== null && (pos <= 3 || wildcard);
+  if (promote) {
+    const NT = TIERS[next];
+    if (NT.vehicle === 'formula') {
+      const teams = genTeams(next).sort((a, b) => b.car - a.car);
+      S.pendingTeams = { [next]: teams };
+      const range = pos === 1 ? [0, 2] : pos <= 3 ? [1, 4] : [3, 5];
+      const cands = shuffle(teams.slice(range[0], range[1] + 1)).slice(0, pos <= 3 ? 2 : 1);
+      for (const tm of cands) offers.push({ type: 'promote', tier: next, team: tm, salary: Math.round(NT.salary * (0.6 + tm.car * 0.8) / 100) * 100, label: `${tm.name} (${NT.name})`, wild: pos > 3 });
+    } else {
+      offers.push({ type: 'promote', tier: next, team: null, label: `Move up to the ${NT.name}`, wild: pos > 3 });
+    }
+  }
+  // stay in current series
+  if (T.vehicle === 'formula') {
+    const teams = genTeams(t).sort((a, b) => b.car - a.car);
+    S.pendingTeams = Object.assign(S.pendingTeams || {}, { [t]: teams });
+    const cur = teams.find(x => x.name === S.team.name) || Object.assign({}, S.team);
+    const idx = clamp(Math.floor((pos - 1) / 2), 0, teams.length - 1);
+    const better = teams[clamp(idx - 1, 0, teams.length - 1)];
+    const stay = [cur];
+    if (better && better.name !== cur.name && better.car > cur.car) stay.push(better);
+    for (const tm of stay) offers.push({ type: 'stay', tier: t, team: tm, salary: Math.round(T.salary * (0.6 + tm.car * 0.8) / 100) * 100, label: tm.name === S.team.name ? `Re-sign with ${tm.name}` : `Switch to ${tm.name}`, });
+  } else {
+    offers.push({ type: 'stay', tier: t, team: null, label: `Another season in the ${T.name}` });
+  }
+  if (d.age >= 34) offers.push({ type: 'retire', label: 'Retire and enter the Hall of Fame' });
+  return offers;
+}
+
+function acceptOffer(i) {
+  const o = S.offers[i];
+  if (o.type === 'retire') return 'retire';
+  const prevTier = S.tier;
+  S.tier = o.tier;
+  if (o.team) {
+    S.team = { name: o.team.name, color: o.team.color, car: o.team.car, salary: o.salary };
+    const list = (S.pendingTeams || {})[o.tier];
+    if (list) S.nextTeams = { tier: o.tier, list };
+  } else if (TIERS[o.tier].vehicle === 'kart') S.team = null;
+  S.pendingTeams = null;
+  S.season++;
+  S.driver.age++;
+  S.driver.energy = 100;
+  S.driver.morale = clamp(S.driver.morale + 10, 0, 100);
+  if (S.tier > prevTier) {
+    addNews(`PROMOTED! ${S.driver.name} moves up to the ${TIERS[S.tier].name}${o.team ? ' with ' + o.team.name : ''}.`, 'win');
+    addNews(`${S.rival.name} also steps up to the ${TIERS[S.tier].name}. The rivalry continues.`, 'rival');
+  } else addNews(`${S.driver.name} commits to another season in the ${TIERS[S.tier].name}.`, 'story');
+  S.seasonEnd = null;
+  S.lastRace = null;
+  startSeason();
+  if (S.driver.age >= 40) { save(); return 'retire'; }
+  save();
+  return 'ok';
+}
+
+/* ---------------- week planner ---------------- */
+function trainGain(v, perkLvl) {
+  let base = v < 50 ? 2 : v < 70 ? 1.5 : v < 85 ? 1 : 0.55;
+  base += perkLvl * 0.45;
+  return Math.max(v >= 99 ? 0 : 0, Math.floor(base + Math.random()));
+}
+
+function doWeekAction(id) {
+  const a = WEEK_ACTIONS.find(x => x.id === id);
+  const d = S.driver, T = tier();
+  if (S.week.used.length >= 3) return { ok: false, msg: 'No more time this week.' };
+  if (a.energy > 0 && d.energy < a.energy) return { ok: false, msg: 'Too tired for that. Try a Rest Day.' };
+  d.energy = clamp(d.energy - a.energy, 0, 100);
+  let text = '';
+  if (a.stats.length) {
+    const k = pick(a.stats);
+    const g = Math.min(99 - d.stats[k], trainGain(d.stats[k], S.perks[a.perk] || 0));
+    d.stats[k] += g;
+    d.xp += 10;
+    text = g > 0 ? `${STAT_INFO[k].name} +${g}` : `${STAT_INFO[k].name} — no gain this time`;
+  } else if (id === 'media') {
+    const f = Math.round(T.fansBase * rand(3, 6) * agentMult());
+    const m = Math.round(T.prize * 0.12 / 10) * 10;
+    d.fans += f; S.money += m; d.morale = clamp(d.morale + 2, 0, 100);
+    text = `+${fmtNum(f)} fans, +${fmtMoney(m)}`;
+  } else if (id === 'rest') {
+    d.morale = clamp(d.morale + 6, 0, 100);
+    text = 'Energy restored, morale +6';
+  }
+  while (d.xp >= xpNeeded(d.level)) { d.xp -= xpNeeded(d.level); d.level++; d.skillPts += 3; text += ' • LEVEL UP!'; }
+  S.week.used.push({ id, text });
+  save();
+  return { ok: true, msg: `${a.name}: ${text}` };
+}
+
+function fill(str) { return str.replace(/\{rival\}/g, S.rival.name).replace(/\{name\}/g, S.driver.name); }
+
+function resolveEvent(choiceIdx) {
+  const ev = EVENTS.find(e => e.id === S.week.event);
+  if (!ev) return;
+  const ch = ev.choices[choiceIdx];
+  applyFx(ch.fx);
+  S.week.eventResult = fill(ch.result);
+  S.week.event = null;
+  save();
+  return S.week.eventResult;
+}
+
+function applyFx(fx) {
+  const d = S.driver;
+  if (fx.energy) d.energy = clamp(d.energy + fx.energy, 0, 100);
+  if (fx.morale) d.morale = clamp(d.morale + fx.morale, 0, 100);
+  if (fx.rep) d.rep = clamp(d.rep + fx.rep, 0, 100);
+  if (fx.fans) d.fans += Math.round(fx.fans * Math.max(1, tier().fansBase / 8) * agentMult());
+  if (fx.money) S.money = Math.max(0, S.money + fx.money * (fx.money > 0 ? Math.max(1, tier().prize / 700) : 1));
+  if (fx.moneyPct) S.money = Math.max(0, S.money - Math.max(fx.moneyMin || 0, S.money * -fx.moneyPct));
+  if (fx.stats) for (const k in fx.stats) d.stats[k] = clamp(d.stats[k] + fx.stats[k], 1, 99);
+  if (fx.buff) S.buffs.push(Object.assign({}, fx.buff));
+  if (fx.flag) S.flags[fx.flag] = true;
+  if (fx.teamRel) S.teamRel = clamp(S.teamRel + fx.teamRel, 0, 100);
+  if (fx.kartUp) { const parts = ['eng', 'chas', 'tire'].filter(p => S.kart[p] < 5); if (parts.length) S.kart[pick(parts)]++; }
+}
+
+function acceptSponsor(yes) {
+  const o = S.week.sponsorOffer;
+  if (!o) return;
+  if (yes) { S.sponsor = o; addNews(`${S.driver.name} signs a sponsorship deal with ${o.name}.`, 'story'); }
+  S.week.sponsorOffer = null;
+  save();
+}
+
+/* ---------------- shop ---------------- */
+function kartUpgradeCost(part) {
+  const lvl = S.kart[part];
+  if (lvl >= 5) return null;
+  return Math.round(200 * Math.pow(1.85, lvl) * (tier().upgradeMult || 1) / 10) * 10;
+}
+function buyKartUpgrade(part) {
+  const c = kartUpgradeCost(part);
+  if (c === null || S.money < c) return false;
+  S.money -= c; S.kart[part]++; save(); return true;
+}
+function perkCost(id) { const p = PERKS.find(x => x.id === id); const l = S.perks[id] || 0; return l >= 3 ? null : p.cost[l]; }
+function buyPerk(id) {
+  const c = perkCost(id);
+  if (c === null || S.money < c) return false;
+  S.money -= c; S.perks[id] = (S.perks[id] || 0) + 1; save(); return true;
+}
+function spendSkill(k) {
+  const d = S.driver;
+  const c = skillCost(d.stats[k]);
+  if (d.skillPts < c || d.stats[k] >= 99) return false;
+  d.skillPts -= c; d.stats[k]++; save(); return true;
+}
+
+/* ---------------- retirement ---------------- */
+function legacyScore() {
+  const t = S.totals;
+  return t.titles * 120 + t.wins * 12 + t.podiums * 4 + t.fastest * 2 + S.totals.bestTier * 60 + Math.round(Math.log10(Math.max(10, S.driver.fans)) * 20);
+}
+function retire() {
+  const hof = Store.load(HOF_KEY) || [];
+  const apexTitles = S.trophies.filter(t => t.tier === 6).length;
+  hof.push({
+    name: S.driver.name, number: S.driver.number, nation: S.driver.nation, color: S.driver.color,
+    seasons: S.history.length, titles: S.totals.titles, apexTitles, wins: S.totals.wins, podiums: S.totals.podiums,
+    bestTier: S.totals.bestTier, score: legacyScore(), date: Date.now()
+  });
+  hof.sort((a, b) => b.score - a.score);
+  Store.save(HOF_KEY, hof.slice(0, 20));
+  const summary = { name: S.driver.name, totals: Object.assign({}, S.totals), trophies: S.trophies.slice(), score: legacyScore(), history: S.history.slice(), apexTitles };
+  Store.del(SAVE_KEY);
+  S = null;
+  return summary;
+}
+
+</script>
+  <script>
+'use strict';
+/* ============================================================
+   UI — screens, hub tabs, race launching
+   ============================================================ */
+
+const $ = s => document.querySelector(s);
+const appEl = $('#app');
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const UI = { tab: 'home', create: null, engine: null, raceCfg: null, quick: { tier: 0, difficulty: 'normal' }, quickRacers: null };
+
+/* ---------- helpers ---------- */
+function toast(msg, kind = '') {
+  const t = document.createElement('div');
+  t.className = 'toast ' + kind;
+  t.textContent = msg;
+  $('#toasts').appendChild(t);
+  setTimeout(() => t.remove(), 2600);
+}
+function tierBadge(t) { const T = TIERS[t]; return `<span class="tier-badge" style="background:${T.color}">${T.short}</span>`; }
+function helmet(color, num, size = 40) {
+  const light = ['#ffffff', '#ffd60a', '#f1f1f1', '#4cc9f0', '#06d6a0', '#ff8500', '#c77dff'].includes(color);
+  return `<div class="helmet" style="background:${color};width:${size}px;height:${size}px;color:${light ? '#000' : '#fff'}">${esc(num)}</div>`;
+}
+function meter(v, color) { return `<div class="meter"><i style="width:${clamp(v, 0, 100)}%;background:${color}"></i></div>`; }
+function energyColor(v) { return v > 60 ? 'var(--good)' : v > 30 ? 'var(--accent2)' : 'var(--bad)'; }
+function openModal(html) { $('#modal-body').innerHTML = html; $('#modal').classList.remove('hidden'); }
+function closeModal() { $('#modal').classList.add('hidden'); }
+let confirmCb = null;
+function confirmModal(title, text, yesLabel, cb, danger) {
+  confirmCb = cb;
+  openModal(`<h2 style="text-align:left">${esc(title)}</h2><p class="muted">${esc(text)}</p>
+    <div class="btn-row" style="justify-content:flex-end;margin-top:16px">
+      <button class="btn" data-act="modal-close">Cancel</button>
+      <button class="btn ${danger ? 'danger' : 'primary'}" data-act="confirm-yes">${esc(yesLabel)}</button></div>`);
+}
+function drawPreviews() {
+  document.querySelectorAll('canvas[data-track]').forEach(cv => {
+    const t = +cv.dataset.tier;
+    drawTrackPreview(cv, buildTrack(cv.dataset.track, TIERS[t]), TIERS[t].color);
+  });
+}
+function drawKartPreview(canvas, color, helmetCol, vehicle = 'kart', teamColor = null) {
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const w = canvas.clientWidth, h = canvas.clientHeight;
+  canvas.width = w * dpr; canvas.height = h * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, w, h);
+  const g = ctx.createRadialGradient(w / 2, h / 2, 10, w / 2, h / 2, w / 2);
+  g.addColorStop(0, 'rgba(255,255,255,0.08)'); g.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+  const isKart = vehicle === 'kart';
+  const car = { x: 0, y: 0, h: -Math.PI / 2, len: isKart ? 28 : 40, wid: 18, color, helmet: helmetCol, team: teamColor, shield: 0, slow: 0 };
+  ctx.save();
+  ctx.translate(w / 2, h / 2);
+  const sc = Math.min(w, h) / (isKart ? 40 : 52);
+  ctx.scale(sc, sc);
+  RaceEngine.prototype.drawCar.call({ isKart, clock: 0 }, ctx, car);
+  ctx.restore();
+}
+
+/* ---------- action dispatcher ---------- */
+const ACTIONS = {};
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-act]');
+  if (!el || el.disabled) return;
+  const fn = ACTIONS[el.dataset.act];
+  if (fn) fn(el.dataset.arg, el, e);
+});
+document.addEventListener('input', e => {
+  const el = e.target;
+  if (el.dataset.field && UI.create) {
+    const f = el.dataset.field;
+    UI.create[f] = f === 'number' ? clamp(parseInt(el.value) || 1, 1, 99) : el.value;
+    if (f === 'number') { const hp = $('#create-helmet'); if (hp) hp.outerHTML = helmet(UI.create.helmet, UI.create.number, 56).replace('class="helmet"', 'class="helmet" id="create-helmet"'); }
+    if (f === 'name') { const n = $('#preview-name'); if (n) n.textContent = el.value || 'Your Name'; }
+  }
+});
+document.addEventListener('change', e => {
+  const el = e.target;
+  if (el.dataset.field === 'nation' && UI.create) UI.create.nation = el.value;
+  if (el.dataset.qfield) { UI.quick[el.dataset.qfield] = el.dataset.qfield === 'tier' ? +el.value : el.value; renderQuick(); }
+});
+$('#modal').addEventListener('click', e => { if (e.target.id === 'modal') closeModal(); });
+
+ACTIONS['modal-close'] = closeModal;
+ACTIONS['confirm-yes'] = () => { closeModal(); if (confirmCb) { const cb = confirmCb; confirmCb = null; cb(); } };
+ACTIONS['menu'] = () => renderTitle();
+ACTIONS['help'] = () => showHelp();
+
+/* ============================================================
+   Title
+   ============================================================ */
+function renderTitle() {
+  hideRace();
+  const has = !!Store.load(SAVE_KEY);
+  appEl.innerHTML = `
+  <div class="title-screen">
+    <div class="checker top"></div>
+    <div class="logo"><span class="k">KART</span><span class="to">TO</span><span class="c">CROWN</span></div>
+    <p class="tagline">Create your driver. Start in backyard karts. Climb all the way to the <b style="color:#fff">Apex Grand Prix</b> and take the crown.</p>
+    <div class="title-menu">
+      ${has ? `<button class="btn primary big" data-act="continue">Continue career</button>` : ''}
+      <button class="btn ${has ? '' : 'primary big'}" data-act="new">New career</button>
+      <button class="btn" data-act="quick">Quick race</button>
+      <button class="btn" data-act="hof">Hall of Fame</button>
+      <button class="btn ghost" data-act="help">How to play</button>
+    </div>
+    <div class="ladder-mini">${TIERS.map(t => `<span>${t.name}</span>`).join('')}</div>
+    <div class="checker bottom"></div>
+  </div>`;
+}
+ACTIONS['continue'] = () => { if (loadSave()) { UI.tab = 'home'; S.seasonOver && S.offers ? renderSeasonEnd() : renderHub(); } };
+ACTIONS['new'] = () => {
+  if (Store.load(SAVE_KEY)) confirmModal('Start a new career?', 'Your current career save will be overwritten.', 'Start new', () => { UI.create = null; renderCreate(); }, true);
+  else { UI.create = null; renderCreate(); }
+};
+
+/* ============================================================
+   Driver creation
+   ============================================================ */
+const CREATE_POOL = 8;
+function createStats(c) {
+  const bg = BACKGROUNDS.find(b => b.id === c.bg);
+  const o = {};
+  for (const k of STAT_KEYS) o[k] = 35 + (bg.mods[k] || 0) + c.alloc[k];
+  return o;
+}
+function renderCreate() {
+  hideRace();
+  if (!UI.create) UI.create = { name: '', number: randi(2, 99), nation: 'USA', bg: 'family', color: BODY_COLORS[0], helmet: HELMET_COLORS[0], alloc: { spd: 0, acc: 0, hnd: 0, foc: 0, rc: 0, fit: 0 }, difficulty: 'normal' };
+  const c = UI.create;
+  const used = STAT_KEYS.reduce((a, k) => a + c.alloc[k], 0);
+  const st = createStats(c);
+  const bg = BACKGROUNDS.find(b => b.id === c.bg);
+  appEl.innerHTML = `
+  <div class="page">
+    <div class="card-title"><h2>Create your driver</h2><button class="btn ghost sm" data-act="menu">← Menu</button></div>
+    <div class="create-grid">
+      <div class="stack">
+        <div class="card">
+          <h3>Identity</h3>
+          <div class="row2">
+            <div><label class="f">Driver name</label><input type="text" maxlength="22" data-field="name" value="${esc(c.name)}" placeholder="e.g. Alex Storm"></div>
+            <div><label class="f">Number</label><input type="number" min="1" max="99" data-field="number" value="${c.number}"></div>
+            <div><label class="f">Nation</label><select data-field="nation">${NATIONS.map(n => `<option ${n === c.nation ? 'selected' : ''}>${n}</option>`).join('')}</select></div>
+          </div>
+          <label class="f">Kart colour</label>
+          <div class="swatches">${BODY_COLORS.map(col => `<button class="sw ${col === c.color ? 'sel' : ''}" style="background:${col}" data-act="c-color" data-arg="${col}" aria-label="colour ${col}"></button>`).join('')}</div>
+          <label class="f">Helmet colour</label>
+          <div class="swatches">${HELMET_COLORS.map(col => `<button class="sw ${col === c.helmet ? 'sel' : ''}" style="background:${col}" data-act="c-helmet" data-arg="${col}" aria-label="helmet ${col}"></button>`).join('')}</div>
+        </div>
+        <div class="card">
+          <h3>Background</h3>
+          <div class="bgs">${BACKGROUNDS.map(b => `
+            <button class="bgc ${b.id === c.bg ? 'sel' : ''}" data-act="c-bg" data-arg="${b.id}">
+              <b>${b.name}</b><span>${b.desc}</span>
+              <em>${Object.entries(b.mods).map(([k, v]) => `${v > 0 ? '+' : ''}${v} ${STAT_INFO[k].name}`).join(', ')}${Object.keys(b.mods).length ? ' • ' : ''}${fmtMoney(b.money)}</em>
+            </button>`).join('')}</div>
+        </div>
+        <div class="card">
+          <div class="card-title"><h3>Starting skills</h3><span class="${used < CREATE_POOL ? 'gold' : 'muted'}"><b>${CREATE_POOL - used}</b> points left</span></div>
+          ${STAT_KEYS.map(k => `
+            <div class="alloc-row">
+              <div><b>${STAT_INFO[k].name}</b></div>
+              <div class="bar"><i style="width:${st[k]}%"></i></div>
+              <button class="btn sm plus" data-act="c-minus" data-arg="${k}" ${c.alloc[k] <= 0 ? 'disabled' : ''}>−</button>
+              <button class="btn sm plus" data-act="c-plus" data-arg="${k}" ${used >= CREATE_POOL || c.alloc[k] >= 5 ? 'disabled' : ''}>+</button>
+              <div class="stat-val">${st[k]}</div>
+            </div>`).join('')}
+          <p class="muted small" style="margin:10px 0 0">${STAT_KEYS.map(k => `<b>${STAT_INFO[k].name}</b>: ${STAT_INFO[k].desc}`).join(' ')}</p>
+        </div>
+      </div>
+      <div class="card preview-card">
+        <canvas id="kart-preview"></canvas>
+        <div style="display:flex;align-items:center;gap:12px;justify-content:center;margin:6px 0 4px">
+          ${helmet(c.helmet, c.number, 56).replace('class="helmet"', 'class="helmet" id="create-helmet"')}
+          <div style="text-align:left"><div id="preview-name" style="font-family:var(--head);font-weight:700;font-size:24px">${esc(c.name || 'Your Name')}</div>
+          <div class="muted small">Age 12 • ${bg.name}</div></div>
+        </div>
+        <div class="ovr-big" style="margin:14px 0 0">${ovr(st)}</div>
+        <div class="muted small">OVERALL</div>
+        <label class="f" style="text-align:left">Difficulty</label>
+        <div class="seg" style="width:100%;justify-content:space-between">${['easy', 'normal', 'hard'].map(d => `<button class="${c.difficulty === d ? 'on' : ''}" style="flex:1" data-act="c-diff" data-arg="${d}">${d[0].toUpperCase() + d.slice(1)}</button>`).join('')}</div>
+        <button class="btn primary big" style="width:100%;margin-top:18px" data-act="c-start">Start career</button>
+        <p class="muted small" style="margin-bottom:0">You start in <b>${TIERS[0].name}</b> with ${fmtMoney(bg.money)}.</p>
+      </div>
+    </div>
+  </div>`;
+  drawKartPreview($('#kart-preview'), c.color, c.helmet);
+}
+ACTIONS['c-color'] = a => { UI.create.color = a; renderCreate(); };
+ACTIONS['c-helmet'] = a => { UI.create.helmet = a; renderCreate(); };
+ACTIONS['c-bg'] = a => { UI.create.bg = a; renderCreate(); };
+ACTIONS['c-diff'] = a => { UI.create.difficulty = a; renderCreate(); };
+ACTIONS['c-plus'] = k => { UI.create.alloc[k]++; renderCreate(); };
+ACTIONS['c-minus'] = k => { UI.create.alloc[k]--; renderCreate(); };
+ACTIONS['c-start'] = () => {
+  const c = UI.create;
+  const name = (c.name || '').trim();
+  if (name.length < 2) { toast('Give your driver a name first.', 'bad'); return; }
+  newCareer({ name, number: c.number, nation: c.nation, color: c.color, helmet: c.helmet, bg: c.bg, stats: createStats(c), settings: { difficulty: c.difficulty } });
+  UI.create = null;
+  UI.tab = 'home';
+  renderHub();
+  setTimeout(() => showHelp(true), 200);
+};
+
+/* ============================================================
+   Hub
+   ============================================================ */
+const TAB_LIST = [['home', 'Home'], ['driver', 'Driver'], ['garage', 'Garage'], ['standings', 'Standings'], ['career', 'Career'], ['settings', 'Settings']];
+function renderHub() {
+  hideRace();
+  const fns = { home: tabHome, driver: tabDriver, garage: tabGarage, standings: tabStandings, career: tabCareer, settings: tabSettings };
+  appEl.innerHTML = topbar() + `<main class="page">${fns[UI.tab]()}</main>`;
+  drawPreviews();
+  const kp = $('#garage-preview');
+  if (kp) { const T = tier(); drawKartPreview(kp, T.vehicle === 'formula' ? S.team.color : S.driver.color, S.driver.helmet, T.vehicle, T.vehicle === 'formula' ? S.team.color : null); }
+}
+ACTIONS['tab'] = t => { UI.tab = t; renderHub(); window.scrollTo(0, 0); };
+
+function topbar() {
+  const d = S.driver, T = tier();
+  const dots = { home: !!(S.week && (S.week.event || S.week.sponsorOffer)) || S.seasonOver, driver: d.skillPts > 0 };
+  return `
+  <div class="topbar">
+    <div class="topbar-inner">
+      <div class="brand" data-act="menu" title="Main menu">K<span>2</span>C</div>
+      <div class="driver-chip">
+        ${helmet(d.helmet, d.number)}
+        <div><div class="nm">${esc(d.name)}</div><div class="sub">Age ${d.age} • Lvl ${d.level} • OVR ${ovr(d.stats)} • ${esc(d.nation)}</div></div>
+      </div>
+      <div class="top-stats">
+        <div class="tstat"><b>${tierBadge(S.tier)}</b><small>S${S.season}</small></div>
+        <div class="tstat"><b>${fmtMoney(S.money)}</b><small>Money</small></div>
+        <div class="tstat"><b>${fmtNum(d.fans)}</b><small>Fans</small></div>
+        <div class="tstat"><b>${Math.round(d.energy)}</b><small>Energy</small>${meter(d.energy, energyColor(d.energy))}</div>
+        <div class="tstat"><b>${Math.round(d.morale)}</b><small>Morale</small>${meter(d.morale, 'var(--blue)')}</div>
+      </div>
+    </div>
+    <nav class="tabs">${TAB_LIST.map(([id, nm]) => `<button class="tab ${UI.tab === id ? 'active' : ''}" data-act="tab" data-arg="${id}">${nm}${dots[id] ? '<span class="dot"></span>' : ''}</button>`).join('')}</nav>
+  </div>`;
+}
+
+/* ---------- Home ---------- */
+function tabHome() {
+  const sd = S.seasonData, T = tier();
+  if (S.seasonOver) {
+    return `<div class="card result-hero">
+      <div class="trophy">${S.seasonEnd && S.seasonEnd.champ ? '🏆' : '🏁'}</div>
+      <h2 style="font-size:34px">Season ${S.season} complete</h2>
+      <p class="muted">You finished <b style="color:#fff">P${S.seasonEnd ? S.seasonEnd.pos : '?'}</b> in the ${T.name}. Teams are calling.</p>
+      <button class="btn primary big" data-act="season-end">Season review & offers</button></div>`;
+  }
+  const track = sd.tracks[sd.round];
+  const ev = S.week.event ? EVENTS.find(e => e.id === S.week.event) : null;
+  const items = T.items || S.settings.chaos;
+  const perf = Math.round(playerPerf() * 100);
+  const st = standings();
+  const me = st.find(r => r.isPlayer);
+  const buffs = S.buffs.map(b => `${b.type === 'machine' ? 'Machine' : 'Performance'} ${b.value > 0 ? '+' : ''}${Math.round(b.value * 100)}%`);
+  const flags = Object.keys(S.flags).map(f => ({ scout: '👀 Scout watching', boldWin: '🎤 Promised a win', rivalHeat: '🔥 Rivalry heated' }[f])).filter(Boolean);
+
+  const left = `
+    <div class="card next-race">
+      <div class="round">ROUND ${sd.round + 1} OF ${T.races} &nbsp;${tierBadge(S.tier)}</div>
+      <h2>${esc(track)}</h2>
+      <div class="next-race-body">
+        <div>
+          <div class="race-meta"><span><b>${T.laps}</b> laps</span><span><b>${T.field}</b> drivers</span><span>${T.cls}</span><span>${items ? '🎁 Items on' : '⚡ ERS + slipstream'}</span></div>
+          <div class="race-meta"><span>Championship <b>P${me.pos}</b> (${me.pts} pts)</span><span>Race-day form <b class="${perf >= 98 ? 'good' : perf < 95 ? 'bad' : ''}">${perf}%</b></span></div>
+          ${buffs.concat(flags).length ? `<div class="race-meta">${buffs.concat(flags).map(x => `<span>${x}</span>`).join('')}</div>` : ''}
+          ${ev ? `<p class="gold small" style="margin:0 0 10px">Make a decision on this week's event before you race.</p>` : ''}
+          <div class="btn-row">
+            <button class="btn primary big" data-act="race" ${ev ? 'disabled' : ''}>🏁 Race</button>
+            <button class="btn" data-act="sim" ${ev ? 'disabled' : ''} title="Skip driving — result is based on ratings (75% XP)">Simulate</button>
+          </div>
+        </div>
+        <canvas class="track-preview" data-track="${esc(track)}" data-tier="${S.tier}"></canvas>
+      </div>
+    </div>
+    ${ev ? eventCard(ev) : ''}
+    ${S.week.eventResult ? `<div class="card"><span class="muted small">THIS WEEK</span><p style="margin:4px 0 0">${esc(S.week.eventResult)}</p></div>` : ''}
+    ${S.week.sponsorOffer ? sponsorCard(S.week.sponsorOffer) : ''}
+    ${plannerCard()}`;
+
+  const right = `
+    ${rivalCard()}
+    <div class="card">
+      <div class="card-title"><h3>Championship</h3><button class="btn ghost sm" data-act="tab" data-arg="standings">Full table</button></div>
+      ${miniStandings(st)}
+    </div>
+    <div class="card">
+      <h3>Paddock news</h3>
+      <ul class="news">${S.news.slice(0, 7).map(n => `<li class="${n.kind}">${esc(n.text)}</li>`).join('')}</ul>
+    </div>`;
+  return `<div class="grid2"><div class="stack">${left}</div><div class="stack">${right}</div></div>`;
+}
+
+function eventCard(ev) {
+  return `<div class="card event-card">
+    <div class="tagline-s">DECISION</div>
+    <h3>${esc(ev.title)}</h3>
+    <p>${esc(fill(ev.text))}</p>
+    <div class="choices">${ev.choices.map((c, i) => `<button class="btn" data-act="event" data-arg="${i}">${esc(fill(c.label))}</button>`).join('')}</div>
+  </div>`;
+}
+ACTIONS['event'] = i => { const r = resolveEvent(+i); toast(r); renderHub(); };
+
+function sponsorCard(o) {
+  return `<div class="card" style="border-color:rgba(76,201,240,0.4)">
+    <div class="tagline-s" style="font-family:var(--head);font-weight:700;color:var(--blue);letter-spacing:.1em;font-size:13px">SPONSOR OFFER</div>
+    <h3>${esc(o.name)}</h3>
+    <p class="muted" style="margin:4px 0 12px">${fmtMoney(o.perRace)} every race + ${fmtMoney(o.podiumBonus)} for each podium, until the end of the season.</p>
+    <div class="btn-row"><button class="btn primary" data-act="sponsor" data-arg="1">Sign deal</button><button class="btn" data-act="sponsor" data-arg="0">Decline</button></div>
+  </div>`;
+}
+ACTIONS['sponsor'] = a => { acceptSponsor(a === '1'); toast(a === '1' ? 'Deal signed!' : 'Offer declined.', a === '1' ? 'good' : ''); renderHub(); };
+
+function plannerCard() {
+  const used = S.week.used;
+  const d = S.driver;
+  const slots = [0, 1, 2].map(i => {
+    const u = used[i];
+    if (!u) return `<div class="slot">Free slot</div>`;
+    const a = WEEK_ACTIONS.find(x => x.id === u.id);
+    return `<div class="slot filled"><span class="s-name">${a.icon} ${a.name}</span><span class="small">${esc(u.text)}</span></div>`;
+  }).join('');
+  const full = used.length >= 3;
+  return `<div class="card">
+    <div class="card-title"><h3>Week planner</h3><span class="muted small">Energy <b style="color:${energyColor(d.energy)}">${Math.round(d.energy)}</b>/100</span></div>
+    <div class="slots">${slots}</div>
+    <div class="actions">${WEEK_ACTIONS.map(a => {
+      const cant = full || (a.energy > 0 && d.energy < a.energy);
+      const perk = a.perk && S.perks[a.perk] ? ` • Perk Lv${S.perks[a.perk]}` : '';
+      return `<button class="action" data-act="week" data-arg="${a.id}" ${cant ? 'disabled' : ''}>
+        <div class="a-top"><span>${a.icon} ${a.name}</span><span class="energy-cost ${a.energy < 0 ? 'gain' : ''}">${a.energy < 0 ? '+' + (-a.energy) : '−' + a.energy}⚡</span></div>
+        <div class="a-desc">${a.desc}${perk}</div></button>`;
+    }).join('')}</div>
+    <p class="muted small" style="margin:10px 0 0">Up to 3 activities per week. Low energy hurts race-day pace, so balance training and rest.</p>
+  </div>`;
+}
+ACTIONS['week'] = id => { const r = doWeekAction(id); toast(r.msg, r.ok ? 'good' : 'bad'); renderHub(); };
+
+function rivalCard() {
+  const sd = S.seasonData;
+  const rv = sd.grid.find(g => g.isRival);
+  let me = 0, them = 0;
+  for (const r of sd.results) {
+    const a = r.rows.find(x => x.id === 'player'), b = r.rows.find(x => x.id === 'rival');
+    if (a && b) a.pos < b.pos ? me++ : them++;
+  }
+  return `<div class="card" style="border-color:rgba(255,77,109,0.35)">
+    <div class="card-title"><h3>Rival</h3><span class="tag rival">NEMESIS</span></div>
+    <div style="display:flex;align-items:center;gap:12px">
+      ${helmet(S.rival.helmet, S.rival.number, 46)}
+      <div style="flex:1"><div style="font-family:var(--head);font-weight:700;font-size:20px">${esc(S.rival.name)}</div>
+      <div class="muted small">${esc(S.rival.nation)} • OVR ${rv ? ovr(rv.stats) : '?'}${rv && rv.team ? ' • ' + esc(rv.team) : ''}</div></div>
+      <div style="text-align:right"><div style="font-family:var(--head);font-weight:700;font-size:26px">${me}–${them}</div><div class="muted small">head-to-head</div></div>
+    </div>
+  </div>`;
+}
+
+function miniStandings(st) {
+  const top = st.slice(0, 6);
+  const me = st.find(r => r.isPlayer);
+  if (!top.includes(me)) top.push(me);
+  return `<table><tbody>${top.map(r => `<tr class="${r.isPlayer ? 'me' : r.isRival ? 'rival' : ''}">
+    <td class="pos">${r.pos}</td><td><span class="swatch" style="background:${r.teamColor}"></span>${esc(r.name)}${r.isRival ? '<span class="tag rival">RIVAL</span>' : ''}</td><td style="text-align:right"><b>${r.pts}</b></td></tr>`).join('')}</tbody></table>`;
+}
+
+/* ---------- Driver ---------- */
+function tabDriver() {
+  const d = S.driver;
+  const need = xpNeeded(d.level);
+  const bg = BACKGROUNDS.find(b => b.id === d.bg);
+  return `<div class="grid2">
+    <div class="card">
+      <div class="card-title"><h3>Skills</h3><span class="${d.skillPts ? 'gold' : 'muted'}"><b>${d.skillPts}</b> skill points</span></div>
+      ${STAT_KEYS.map(k => {
+        const v = d.stats[k], c = skillCost(v);
+        return `<div class="stat-row">
+          <div class="nm">${STAT_INFO[k].name}<small>${STAT_INFO[k].desc}</small></div>
+          <div class="bar"><i style="width:${v}%"></i></div>
+          <div class="stat-val">${v}</div>
+          <button class="btn sm plus" data-act="skill" data-arg="${k}" ${d.skillPts < c || v >= 99 ? 'disabled' : ''} title="Costs ${c} point${c > 1 ? 's' : ''}">+${c > 1 ? '<small style="font-size:10px">' + c + '</small>' : ''}</button>
+        </div>`;
+      }).join('')}
+      <p class="muted small" style="margin:12px 0 0">Earn XP from races and training. Each level gives 3 skill points. Higher skills cost more points (1 under 60, 2 under 80, 3 above).</p>
+    </div>
+    <div class="stack">
+      <div class="card" style="text-align:center">
+        ${helmet(d.helmet, d.number, 72).replace('class="helmet"', 'class="helmet" style="margin:0 auto"')}
+        <h2 style="margin-top:10px">${esc(d.name)}</h2>
+        <div class="muted">${esc(d.nation)} • Age ${d.age} • ${bg ? bg.name : ''}</div>
+        <div class="ovr-big" style="margin-top:12px">${ovr(d.stats)}</div><div class="muted small">OVERALL</div>
+        <div style="margin-top:14px;text-align:left"><div class="muted small">Level ${d.level} — ${d.xp}/${need} XP</div><div class="bar" style="margin-top:4px"><i style="width:${d.xp / need * 100}%;background:linear-gradient(90deg,#ffd166,#ff7a3b)"></i></div></div>
+      </div>
+      <div class="card"><div class="kv">
+        <div><small>Fans</small><b>${fmtNum(d.fans)}</b></div>
+        <div><small>Reputation</small><b>${Math.round(d.rep)}</b></div>
+        <div><small>Morale</small><b>${Math.round(d.morale)}</b></div>
+        <div><small>Energy</small><b>${Math.round(d.energy)}</b></div>
+      </div></div>
+    </div>
+  </div>`;
+}
+ACTIONS['skill'] = k => { if (spendSkill(k)) renderHub(); };
+
+/* ---------- Garage ---------- */
+function tabGarage() {
+  const T = tier();
+  let machine = '';
+  if (T.vehicle === 'kart') {
+    machine = `<div class="card">
+      <div class="card-title"><h3>Your kart</h3><span class="muted small">${T.cls}</span></div>
+      <canvas id="garage-preview" style="width:100%;height:160px;display:block"></canvas>
+      ${KART_PARTS.map(p => {
+        const lvl = S.kart[p.id], cost = kartUpgradeCost(p.id);
+        return `<div class="part"><div><b>${p.name}</b> <span class="muted small">— ${p.desc}</span>
+          <div class="pips">${[0, 1, 2, 3, 4].map(i => `<i class="${i < lvl ? 'on' : ''}"></i>`).join('')}</div></div>
+          ${cost === null ? '<span class="good small"><b>MAXED</b></span>' : `<button class="btn sm ${S.money >= cost ? 'gold' : ''}" data-act="kart-up" data-arg="${p.id}" ${S.money < cost ? 'disabled' : ''}>${fmtMoney(cost)}</button>`}
+        </div>`;
+      }).join('')}
+      <p class="muted small" style="margin:10px 0 0">Kart upgrades carry through the karting tiers. Once you reach formula cars, your team provides the car.</p>
+    </div>`;
+  } else {
+    const sd = S.seasonData;
+    const mate = sd.grid.find(g => g.team === S.team.name);
+    machine = `<div class="card">
+      <div class="card-title"><h3>${esc(S.team.name)}</h3><span class="swatch" style="background:${S.team.color};width:30px"></span></div>
+      <canvas id="garage-preview" style="width:100%;height:160px;display:block"></canvas>
+      <div class="kv" style="margin-top:10px">
+        <div><small>Car rating</small><b>${Math.round(S.team.car * 100)}</b></div>
+        <div><small>Salary / race</small><b>${fmtMoney(S.team.salary)}</b></div>
+        <div><small>Teammate</small><b style="font-size:16px">${mate ? esc(mate.name) : '—'}</b></div>
+        <div><small>Team relationship</small><b>${S.teamRel}</b></div>
+      </div>
+      <p class="muted small" style="margin:10px 0 0">Better results earn offers from faster teams at the end of the season.</p>
+    </div>`;
+  }
+  const perks = `<div class="card">
+    <h3>Support staff & perks</h3>
+    ${PERKS.map(p => {
+      const lvl = S.perks[p.id] || 0, cost = perkCost(p.id);
+      return `<div class="part"><div><b>${p.name}</b> <span class="muted small">— ${p.desc}</span>
+        <div class="pips">${[0, 1, 2].map(i => `<i class="${i < lvl ? 'on' : ''}"></i>`).join('')}</div></div>
+        ${cost === null ? '<span class="good small"><b>MAXED</b></span>' : `<button class="btn sm ${S.money >= cost ? 'gold' : ''}" data-act="perk" data-arg="${p.id}" ${S.money < cost ? 'disabled' : ''}>${fmtMoney(cost)}</button>`}
+      </div>`;
+    }).join('')}
+  </div>`;
+  const sp = S.sponsor ? `<div class="card"><h3>Sponsor</h3><p style="margin:0"><b>${esc(S.sponsor.name)}</b> — ${fmtMoney(S.sponsor.perRace)} per race, ${fmtMoney(S.sponsor.podiumBonus)} podium bonus.</p></div>`
+    : `<div class="card"><h3>Sponsor</h3><p class="muted" style="margin:0">No sponsor yet. More fans means more (and bigger) offers.</p></div>`;
+  return `<div class="grid2"><div class="stack">${machine}</div><div class="stack">${perks}${sp}</div></div>`;
+}
+ACTIONS['kart-up'] = p => { if (buyKartUpgrade(p)) { toast('Upgrade installed!', 'good'); renderHub(); } };
+ACTIONS['perk'] = p => { if (buyPerk(p)) { toast('Hired!', 'good'); renderHub(); } };
+
+/* ---------- Standings ---------- */
+function tabStandings() {
+  const st = standings(), T = tier(), sd = S.seasonData;
+  const isF = T.vehicle === 'formula';
+  const rounds = sd.tracks.map((t, i) => {
+    const r = sd.results[i];
+    if (!r) return `<tr><td class="pos">${i + 1}</td><td>${esc(t)}</td><td class="muted">—</td><td class="muted">—</td></tr>`;
+    const w = r.rows.find(x => x.pos === 1), me = r.rows.find(x => x.id === 'player');
+    return `<tr><td class="pos">${i + 1}</td><td>${esc(t)}</td><td>${esc(w.name)}</td><td><b>${me.dnf ? 'DNF' : 'P' + me.pos}</b></td></tr>`;
+  }).join('');
+  return `<div class="grid2">
+    <div class="card"><div class="card-title"><h3>${T.name} — Season ${S.season}</h3>${tierBadge(S.tier)}</div>
+      <div class="table-wrap"><table><thead><tr><th>#</th><th>Driver</th>${isF ? '<th>Team</th>' : ''}<th>Wins</th><th>Pod</th><th style="text-align:right">Pts</th></tr></thead><tbody>
+      ${st.map(r => `<tr class="${r.isPlayer ? 'me' : r.isRival ? 'rival' : ''}"><td class="pos">${r.pos}</td>
+        <td><span class="swatch" style="background:${r.teamColor}"></span>${esc(r.name)}${r.isPlayer ? '<span class="tag you">YOU</span>' : ''}${r.isRival ? '<span class="tag rival">RIVAL</span>' : ''}</td>
+        ${isF ? `<td class="muted small">${esc(r.team || '')}</td>` : ''}<td>${r.wins}</td><td>${r.podiums}</td><td style="text-align:right"><b>${r.pts}</b></td></tr>`).join('')}
+      </tbody></table></div>
+      <p class="muted small" style="margin:10px 0 0">Points: 25-18-15-12-10-8-6-4-2-1, +1 for fastest lap in the top 10. Top 3 earns promotion. P4–5 can get a wildcard with enough reputation or fans.</p>
+    </div>
+    <div class="card"><h3>Calendar</h3><div class="table-wrap"><table><thead><tr><th>Rd</th><th>Circuit</th><th>Winner</th><th>You</th></tr></thead><tbody>${rounds}</tbody></table></div></div>
+  </div>`;
+}
+
+/* ---------- Career ---------- */
+function tabCareer() {
+  const t = S.totals;
+  const ladder = TIERS.map((T, i) => {
+    const done = S.history.some(h => h.tier === i) && i < S.tier;
+    const cur = i === S.tier;
+    const titles = S.trophies.filter(x => x.tier === i).length;
+    return `<div class="rung ${cur ? 'current' : done ? 'done' : i > S.tier ? 'locked' : ''}">
+      <span class="lvl">${i + 1}</span>
+      <div><div class="rn" style="color:${T.color}">${T.name}</div><div class="rd">${T.cls} • ${T.desc}</div></div>
+      <span class="st">${titles ? '🏆'.repeat(Math.min(titles, 5)) : cur ? 'YOU ARE HERE' : done ? '✓' : '🔒'}</span>
+    </div>`;
+  }).join('');
+  return `<div class="grid2">
+    <div class="card"><h3>Road to the Apex</h3><div class="ladder">${ladder}</div></div>
+    <div class="stack">
+      <div class="card"><h3>Career totals</h3><div class="kv">
+        <div><small>Starts</small><b>${t.starts}</b></div><div><small>Wins</small><b>${t.wins}</b></div>
+        <div><small>Podiums</small><b>${t.podiums}</b></div><div><small>Poles</small><b>${t.poles}</b></div>
+        <div><small>Fastest laps</small><b>${t.fastest}</b></div><div><small>Titles</small><b>${t.titles}</b></div>
+        <div><small>Legacy</small><b>${legacyScore()}</b></div>
+      </div></div>
+      <div class="card"><h3>Trophy cabinet</h3>${S.trophies.length ? S.trophies.map(x => `<div style="padding:6px 0">🏆 <b>${esc(x.name)}</b> <span class="muted small">Season ${x.season}</span></div>`).join('') : '<p class="muted" style="margin:0">Empty… for now.</p>'}</div>
+      <div class="card"><h3>Season history</h3>${S.history.length ? `<div class="table-wrap"><table><thead><tr><th>S</th><th>Series</th><th>Pos</th><th>Wins</th><th>Pts</th></tr></thead><tbody>
+        ${S.history.map(h => `<tr><td>${h.season}</td><td>${esc(h.tierName)}${h.team ? '<div class="muted small">' + esc(h.team) + '</div>' : ''}</td><td class="pos">P${h.pos}</td><td>${h.wins}</td><td>${h.pts}</td></tr>`).join('')}
+      </tbody></table></div>` : '<p class="muted" style="margin:0">Your first season is under way.</p>'}</div>
+    </div>
+  </div>`;
+}
+
+/* ---------- Settings ---------- */
+function tabSettings() {
+  const s = S.settings;
+  return `<div class="grid2"><div class="card">
+    <h3>Settings</h3>
+    <div class="toggle"><div><b>Difficulty</b><div class="muted small">How fast the AI drives.</div></div>
+      <div class="seg">${['easy', 'normal', 'hard'].map(d => `<button class="${s.difficulty === d ? 'on' : ''}" data-act="set" data-arg="difficulty:${d}">${d[0].toUpperCase() + d.slice(1)}</button>`).join('')}</div></div>
+    <div class="toggle"><div><b>Chaos mode</b><div class="muted small">Item boxes and drifting in the formula tiers too.</div></div>
+      <div class="seg"><button class="${!s.chaos ? 'on' : ''}" data-act="set" data-arg="chaos:0">Off</button><button class="${s.chaos ? 'on' : ''}" data-act="set" data-arg="chaos:1">On</button></div></div>
+    <div class="toggle"><div><b>Sound</b><div class="muted small">Engine and effects.</div></div>
+      <div class="seg"><button class="${!s.sound ? 'on' : ''}" data-act="set" data-arg="sound:0">Off</button><button class="${s.sound ? 'on' : ''}" data-act="set" data-arg="sound:1">On</button></div></div>
+  </div>
+  <div class="stack">
+    <div class="card"><h3>Career</h3>
+      <div class="btn-row"><button class="btn" data-act="help">How to play</button><button class="btn" data-act="menu">Main menu</button></div>
+      <div class="btn-row" style="margin-top:10px"><button class="btn danger" data-act="retire-now">Retire now</button></div>
+      <p class="muted small" style="margin:10px 0 0">Your career saves automatically in this browser.</p>
+    </div>
+  </div></div>`;
+}
+ACTIONS['set'] = a => {
+  const [k, v] = a.split(':');
+  S.settings[k] = k === 'difficulty' ? v : v === '1';
+  save(); renderHub();
+};
+ACTIONS['retire-now'] = () => confirmModal('Retire from racing?', 'Your career ends and goes into the Hall of Fame. This cannot be undone.', 'Retire', () => renderLegacy(retire()), true);
+
+/* ============================================================
+   Racing
+   ============================================================ */
+function hideRace() { $('#race-screen').classList.add('hidden'); $('#pause-menu').classList.add('hidden'); }
+
+function launchRace(cfg) {
+  UI.raceCfg = cfg;
+  closeModal();
+  appEl.innerHTML = '';
+  $('#race-screen').classList.remove('hidden');
+  $('#pause-menu').classList.add('hidden');
+  setTiltUI();
+  if (TILT.on) setTimeout(() => { TILT.zero = TILT.raw; }, 300); // re-centre at every race start
+  const track = buildTrack(cfg.trackName, cfg.tier);
+  UI.engine = new RaceEngine($('#race-canvas'), {
+    tier: cfg.tier, track, laps: cfg.laps,
+    racers: cfg.racers.map(r => Object.assign({}, r)),
+    items: cfg.items, ers: cfg.tier.vehicle === 'formula', difficulty: cfg.difficulty, sound: cfg.sound, tilt: TILT,
+    onPause: p => $('#pause-menu').classList.toggle('hidden', !p),
+    onEnd: out => {
+      UI.engine = null;
+      hideRace();
+      if (cfg.mode === 'career') { applyRaceResult(out); renderResults(); }
+      else renderQuickResults(out);
+    }
+  });
+}
+
+ACTIONS['race'] = () => {
+  const T = tier(), sd = S.seasonData;
+  launchRace({ mode: 'career', tier: T, trackName: sd.tracks[sd.round], laps: T.laps, racers: buildRacers(), items: T.items || S.settings.chaos, difficulty: S.settings.difficulty, sound: S.settings.sound });
+};
+ACTIONS['sim'] = () => {
+  confirmModal('Simulate this race?', 'The result is decided by ratings, machine and form. You earn 75% XP.', 'Simulate', () => {
+    applyRaceResult(simulateRace(buildRacers()));
+    renderResults();
+  });
+};
+ACTIONS['race-resume'] = () => { if (UI.engine && UI.engine.paused) UI.engine.togglePause(); };
+ACTIONS['race-pause'] = () => { if (UI.engine && !UI.engine.paused) UI.engine.togglePause(); };
+ACTIONS['race-restart'] = () => { if (UI.engine) { UI.engine.destroy(); UI.engine = null; launchRace(UI.raceCfg); } };
+ACTIONS['race-retire'] = () => { if (UI.engine) { UI.engine.paused = false; UI.engine.finish(true); } };
+
+/* ---------- tilt steering (phone gyro) ---------- */
+const TILT = { on: false, steer: 0, zero: 0, raw: 0, listening: false };
+const TILT_RANGE = 28;  // degrees of tilt for full lock
+const TILT_DEAD = 2.5;  // dead zone in degrees
+function tiltAngle(e) {
+  const ang = (screen.orientation && screen.orientation.angle) || window.orientation || 0;
+  if (ang === 90) return e.beta;          // landscape, top of phone to the left
+  if (ang === -90 || ang === 270) return -e.beta;
+  return e.gamma;                          // portrait
+}
+function onOrientation(e) {
+  if (e.beta == null && e.gamma == null) return;
+  TILT.raw = tiltAngle(e) || 0;
+  let d = TILT.raw - TILT.zero;
+  if (Math.abs(d) < TILT_DEAD) d = 0; else d -= Math.sign(d) * TILT_DEAD;
+  TILT.steer = clamp(d / (TILT_RANGE - TILT_DEAD), -1, 1);
+  const dot = document.querySelector('.tc-tilt-meter i');
+  if (dot) dot.style.left = (50 + TILT.steer * 45) + '%';
+}
+function setTiltUI() { $('#touch-controls').classList.toggle('tilt-on', TILT.on); }
+async function enableTilt() {
+  if (!window.DeviceOrientationEvent) { toast('This device has no tilt sensor.', 'bad'); return false; }
+  if (!window.isSecureContext) { toast('Tilt needs the game opened from an https:// link.', 'bad'); return false; }
+  try {
+    if (typeof DeviceOrientationEvent.requestPermission === 'function') { // iPhone
+      const r = await DeviceOrientationEvent.requestPermission();
+      if (r !== 'granted') { toast('Motion access was denied. Allow it in Safari settings.', 'bad'); return false; }
+    }
+  } catch (err) { toast('Could not access the tilt sensor.', 'bad'); return false; }
+  if (!TILT.listening) { window.addEventListener('deviceorientation', onOrientation); TILT.listening = true; }
+  return true;
+}
+ACTIONS['tilt-toggle'] = async () => {
+  if (TILT.on) { TILT.on = false; TILT.steer = 0; setTiltUI(); try { localStorage.setItem('k2c.tilt', '0'); } catch (e) { } toast('Tilt off — arrow buttons back'); return; }
+  if (!(await enableTilt())) return;
+  setTimeout(() => { TILT.zero = TILT.raw; }, 150); // calibrate: however you hold it now = straight
+  TILT.on = true; setTiltUI();
+  try { localStorage.setItem('k2c.tilt', '1'); } catch (e) { }
+  toast('Tilt on! Hold the phone how you like — tap TILT again to turn off.', 'good');
+};
+window.addEventListener('orientationchange', () => setTimeout(() => { TILT.zero = TILT.raw; }, 400));
+
+// touch controls
+document.querySelectorAll('[data-touch]').forEach(b => {
+  const key = b.dataset.touch;
+  const on = e => { e.preventDefault(); b.classList.add('active'); if (UI.engine) UI.engine.setTouch(key, true); };
+  const off = e => { e.preventDefault(); b.classList.remove('active'); if (UI.engine) UI.engine.setTouch(key, false); };
+  b.addEventListener('pointerdown', on);
+  b.addEventListener('pointerup', off);
+  b.addEventListener('pointercancel', off);
+  b.addEventListener('pointerleave', off);
+});
+
+/* ---------- results ---------- */
+function renderResults() {
+  const L = S.lastRace;
+  const field = L.rows.length;
+  const color = L.dnf ? 'var(--bad)' : L.pos === 1 ? 'var(--accent2)' : L.pos <= 3 ? 'var(--good)' : '#fff';
+  const rows = L.rows.slice().sort((a, b) => a.pos - b.pos);
+  const sd = S.seasonData;
+  const isRival = id => id === 'rival';
+  appEl.innerHTML = `
+  <div class="page">
+    <div class="card result-hero">
+      <div class="muted" style="font-family:var(--head);font-weight:700;letter-spacing:.08em">ROUND ${L.round} • ${esc(L.track.toUpperCase())}${L.simulated ? ' • SIMULATED' : ''}</div>
+      <div class="pbig" style="color:${color}">${L.dnf ? 'DNF' : 'P' + L.pos}</div>
+      <div style="font-size:18px">${L.dnf ? 'Retired from the race.' : L.pos === 1 ? 'Victory! 🏆' : L.pos <= 3 ? 'Podium finish!' : L.pos <= field / 2 ? 'Points in the bag.' : 'Back to work.'}</div>
+      ${L.rivalPos ? `<div class="muted" style="margin-top:6px">Rival ${esc(S.rival.name)} finished P${L.rivalPos} — ${L.beatRival ? '<b class="good">you beat them</b>' : '<b class="bad">they beat you</b>'}</div>` : ''}
+    </div>
+    <div class="grid2" style="margin-top:16px">
+      <div class="card"><h3>Classification</h3><div class="table-wrap"><table>
+        <thead><tr><th>#</th><th>Driver</th><th>Grid</th><th>Best lap</th><th style="text-align:right">Pts</th></tr></thead><tbody>
+        ${rows.map(r => `<tr class="${r.id === 'player' ? 'me' : isRival(r.id) ? 'rival' : ''}"><td class="pos">${r.dnf ? 'DNF' : r.pos}</td>
+          <td>${esc(r.name)}${r.fl ? '<span class="tag fl">FL</span>' : ''}${isRival(r.id) ? '<span class="tag rival">RIVAL</span>' : ''}</td>
+          <td class="muted">${r.grid || '—'}</td><td class="muted">${r.best && isFinite(r.best) ? fmtTime(r.best) : '—'}</td><td style="text-align:right"><b>${r.pts ? '+' + r.pts : ''}</b></td></tr>`).join('')}
+      </tbody></table></div></div>
+      <div class="stack">
+        <div class="card"><h3>Rewards</h3>
+          <div class="rewards">${L.rewards.map(([k, v]) => `<div><small>${esc(k)}</small><b>${esc(v)}</b></div>`).join('')}</div>
+          ${L.levels ? `<p class="gold" style="margin:14px 0 0;font-family:var(--head);font-weight:700;font-size:20px">⬆ LEVEL UP! +${L.levels * 3} skill points — spend them in the Driver tab.</p>` : ''}
+          ${L.notes.length ? `<ul class="notes">${L.notes.map(n => `<li>${esc(n)}</li>`).join('')}</ul>` : ''}
+        </div>
+        <div class="card"><h3>Championship</h3>${miniStandings(standings())}</div>
+        <button class="btn primary big" style="width:100%" data-act="after-race">${S.seasonOver ? 'Season finale →' : 'Continue →'}</button>
+      </div>
+    </div>
+  </div>`;
+  window.scrollTo(0, 0);
+}
+ACTIONS['after-race'] = () => { if (S.seasonOver) renderSeasonEnd(); else { UI.tab = 'home'; renderHub(); } };
+
+/* ---------- season end ---------- */
+function renderSeasonEnd() {
+  const E = S.seasonEnd;
+  if (!E) { renderHub(); return; }
+  appEl.innerHTML = `
+  <div class="page">
+    <div class="card result-hero">
+      <div class="trophy">${E.champ ? '🏆' : E.pos <= 3 ? '🥈' : '🏁'}</div>
+      <div class="muted" style="font-family:var(--head);font-weight:700;letter-spacing:.08em">${esc(E.tierName.toUpperCase())} • SEASON ${S.season}</div>
+      <h2 style="font-size:40px;margin-top:6px">${E.champ ? 'CHAMPION!' : 'Finished P' + E.pos}</h2>
+      <p class="muted">${E.pts} points${E.bonus ? ` • Championship bonus ${fmtMoney(E.bonus)}` : ''}${E.rivalPos ? ` • ${esc(S.rival.name)} finished P${E.rivalPos}` : ''}</p>
+    </div>
+    <div class="grid2" style="margin-top:16px">
+      <div class="card"><h3>Final standings</h3><div class="table-wrap"><table><tbody>
+        ${E.standings.map(r => `<tr class="${r.isPlayer ? 'me' : r.isRival ? 'rival' : ''}"><td class="pos">${r.pos}</td><td><span class="swatch" style="background:${r.teamColor}"></span>${esc(r.name)}</td><td class="muted small">${esc(r.team || '')}</td><td style="text-align:right"><b>${r.pts}</b></td></tr>`).join('')}
+      </tbody></table></div></div>
+      <div class="card"><h3>Your offers for next season</h3>
+        <p class="muted small" style="margin:0">You will be ${S.driver.age + 1} years old next season.</p>
+        ${S.offers.map((o, i) => {
+          if (o.type === 'retire') return `<div class="offer"><div class="o-main"><div class="o-name">Retire</div><div class="muted small">Hang up the helmet and enter the Hall of Fame.</div></div><button class="btn danger" data-act="offer" data-arg="${i}">Retire</button></div>`;
+          const NT = TIERS[o.tier];
+          return `<div class="offer ${o.type === 'promote' ? 'promote' : ''}">
+            ${o.team ? `<span class="swatch" style="background:${o.team.color};height:46px;width:6px"></span>` : ''}
+            <div class="o-main">
+              <div class="muted small">${o.type === 'promote' ? (o.wild ? '⭐ WILDCARD PROMOTION' : '⬆ PROMOTION') : 'STAY'} • ${NT.name}</div>
+              <div class="o-name">${esc(o.label)}</div>
+              ${o.team ? `<div class="muted small">Car rating <b style="color:#fff">${Math.round(o.team.car * 100)}</b> • Salary <b style="color:#fff">${fmtMoney(o.salary)}</b>/race</div>` : `<div class="muted small">${NT.cls} • ${NT.desc}</div>`}
+            </div>
+            <button class="btn ${o.type === 'promote' ? 'primary' : ''}" data-act="offer" data-arg="${i}">Sign</button>
+          </div>`;
+        }).join('')}
+        ${!S.offers.some(o => o.type === 'promote') && S.tier < TIERS.length - 1 ? `<p class="muted small" style="margin:12px 0 0">No promotion this year — you need a top-3 finish (or top 5 with strong reputation/fans).</p>` : ''}
+      </div>
+    </div>
+  </div>`;
+  window.scrollTo(0, 0);
+}
+ACTIONS['season-end'] = () => renderSeasonEnd();
+ACTIONS['offer'] = i => {
+  const o = S.offers[+i];
+  if (o.type === 'retire') { confirmModal('Retire?', 'Your career goes into the Hall of Fame.', 'Retire', () => renderLegacy(retire()), true); return; }
+  const r = acceptOffer(+i);
+  if (r === 'retire') { toast('At 40, it is time to hang up the helmet.'); renderLegacy(retire()); return; }
+  UI.tab = 'home';
+  renderHub();
+  toast(o.type === 'promote' ? `Welcome to the ${TIERS[o.tier].name}!` : 'Contract signed.', 'good');
+};
+
+/* ---------- legacy ---------- */
+function renderLegacy(sum) {
+  const t = sum.totals;
+  appEl.innerHTML = `<div class="page"><div class="card result-hero">
+    <div class="trophy">${sum.apexTitles ? '👑' : sum.trophies.length ? '🏆' : '🏁'}</div>
+    <h2 style="font-size:40px">${esc(sum.name)} retires</h2>
+    <p class="muted">${sum.apexTitles ? `${sum.apexTitles}× Apex Grand Prix World Champion. A legend of the sport.` : `Reached the ${TIERS[t.bestTier].name}.`}</p>
+    <div class="kv" style="max-width:620px;margin:16px auto">
+      <div><small>Seasons</small><b>${sum.history.length}</b></div><div><small>Wins</small><b>${t.wins}</b></div>
+      <div><small>Podiums</small><b>${t.podiums}</b></div><div><small>Titles</small><b>${t.titles}</b></div>
+      <div><small>Legacy score</small><b class="gold">${sum.score}</b></div>
+    </div>
+    <div class="btn-row" style="justify-content:center"><button class="btn primary" data-act="hof">Hall of Fame</button><button class="btn" data-act="menu">Main menu</button></div>
+  </div></div>`;
+}
+ACTIONS['hof'] = () => {
+  hideRace();
+  const hof = Store.load(HOF_KEY) || [];
+  appEl.innerHTML = `<div class="page"><div class="card">
+    <div class="card-title"><h2>Hall of Fame</h2><button class="btn ghost sm" data-act="menu">← Menu</button></div>
+    ${hof.length ? `<div class="table-wrap"><table><thead><tr><th>#</th><th>Driver</th><th>Best series</th><th>Seasons</th><th>Wins</th><th>Titles</th><th>Apex 👑</th><th style="text-align:right">Legacy</th></tr></thead><tbody>
+      ${hof.map((h, i) => `<tr><td class="pos">${i + 1}</td><td><span class="swatch" style="background:${h.color}"></span><b>${esc(h.name)}</b> <span class="muted small">#${h.number} ${esc(h.nation)}</span></td><td>${TIERS[h.bestTier].name}</td><td>${h.seasons}</td><td>${h.wins}</td><td>${h.titles}</td><td>${h.apexTitles}</td><td style="text-align:right"><b class="gold">${h.score}</b></td></tr>`).join('')}
+    </tbody></table></div>` : '<p class="muted">No retired drivers yet. Finish a career to be immortalised here.</p>'}
+  </div></div>`;
+};
+
+/* ============================================================
+   Quick race
+   ============================================================ */
+function renderQuick() {
+  hideRace();
+  const q = UI.quick, T = TIERS[q.tier];
+  const trackName = q.track && T.tracks.includes(q.track) ? q.track : (q.track = T.tracks[0]);
+  appEl.innerHTML = `<div class="page" style="max-width:720px"><div class="card">
+    <div class="card-title"><h2>Quick race</h2><button class="btn ghost sm" data-act="menu">← Menu</button></div>
+    <label class="f">Series</label>
+    <select data-qfield="tier">${TIERS.map((t, i) => `<option value="${i}" ${i === q.tier ? 'selected' : ''}>${t.name} — ${t.cls}</option>`).join('')}</select>
+    <label class="f">Circuit</label>
+    <select data-qfield="track">${T.tracks.map(t => `<option ${t === trackName ? 'selected' : ''}>${esc(t)}</option>`).join('')}</select>
+    <label class="f">Difficulty</label>
+    <select data-qfield="difficulty">${['easy', 'normal', 'hard'].map(d => `<option ${d === q.difficulty ? 'selected' : ''} value="${d}">${d[0].toUpperCase() + d.slice(1)}</option>`).join('')}</select>
+    <canvas class="track-preview" style="margin-top:14px" data-track="${esc(trackName)}" data-tier="${q.tier}"></canvas>
+    <p class="muted small">${T.laps} laps • ${T.field} drivers • ${T.items ? 'Item boxes + drift boosts' : 'ERS + slipstream'} • Your driver is rated at the series average.</p>
+    <button class="btn primary big" style="width:100%" data-act="quick-go">Start race</button>
+  </div></div>`;
+  drawPreviews();
+}
+ACTIONS['quick'] = () => renderQuick();
+ACTIONS['quick-go'] = () => {
+  const q = UI.quick, T = TIERS[q.tier];
+  const mid = Math.round((T.ratingMin + T.ratingMax) / 2);
+  const used = new Set();
+  const teams = T.vehicle === 'formula' ? genTeams(q.tier) : null;
+  const mk = (i, isP) => {
+    const name = isP ? 'You' : randomName(used);
+    const r = isP ? mid + 2 : Math.round(rand(T.ratingMin, T.ratingMax));
+    const tm = teams ? teams[Math.floor(i / 2) % teams.length] : null;
+    const m = tm ? tm.car : (T.aiMachine[0] + T.aiMachine[1]) / 2 + (isP ? 0 : rand(-0.1, 0.1));
+    return {
+      id: isP ? 'player' : 'q' + i, name, code: isP ? 'YOU' : codeOf(name), isPlayer: isP,
+      color: tm ? tm.color : isP ? '#e63946' : pick(BODY_COLORS), helmet: isP ? '#ffd60a' : pick(HELMET_COLORS), team: tm ? tm.color : null,
+      stats: isP ? statsAround(r, 0) : statsAround(r), machine: { eng: isP && tm ? 0.6 : m, chas: isP && tm ? 0.6 : m, tire: isP && tm ? 0.6 : m }, perf: 1
+    };
+  };
+  const racers = [];
+  for (let i = 0; i < T.field; i++) racers.push(mk(i, i === T.field - 1));
+  shuffle(racers);
+  UI.quickRacers = racers;
+  launchRace({ mode: 'quick', tier: T, trackName: q.track, laps: T.laps, racers, items: T.items, difficulty: q.difficulty, sound: S ? S.settings.sound : true });
+};
+function renderQuickResults(out) {
+  const by = Object.fromEntries(UI.quickRacers.map(r => [r.id, r]));
+  const me = out.results.find(r => r.id === 'player');
+  appEl.innerHTML = `<div class="page" style="max-width:720px">
+    <div class="card result-hero"><div class="pbig" style="color:${me.pos === 1 ? 'var(--accent2)' : '#fff'}">${me.dnf ? 'DNF' : 'P' + me.pos}</div>
+      <div class="muted">${esc(UI.raceCfg.trackName)}</div></div>
+    <div class="card"><table><thead><tr><th>#</th><th>Driver</th><th>Best lap</th></tr></thead><tbody>
+      ${out.results.map(r => `<tr class="${r.id === 'player' ? 'me' : ''}"><td class="pos">${r.dnf ? 'DNF' : r.pos}</td><td>${esc(by[r.id].name)}${out.fastestLap === r.id ? '<span class="tag fl">FL</span>' : ''}</td><td class="muted">${isFinite(r.best) ? fmtTime(r.best) : '—'}</td></tr>`).join('')}
+    </tbody></table>
+    <div class="btn-row" style="margin-top:16px"><button class="btn primary" data-act="quick-again">Race again</button><button class="btn" data-act="quick">Change race</button><button class="btn ghost" data-act="menu">Menu</button></div></div>
+  </div>`;
+}
+ACTIONS['quick-again'] = () => launchRace(UI.raceCfg);
+
+/* ============================================================
+   Help
+   ============================================================ */
+function showHelp(welcome) {
+  openModal(`<div class="help">
+    <h2 style="text-align:left">${welcome ? 'Welcome to the grid!' : 'How to play'}</h2>
+    ${welcome ? `<p class="muted">You are 12 years old with a kart and a dream. Your rival ${S ? esc(S.rival.name) : ''} has the same dream. Only one of you can wear the crown.</p>` : ''}
+    <h3>Driving</h3>
+    <ul>
+      <li><kbd>↑</kbd>/<kbd>W</kbd> gas, <kbd>↓</kbd>/<kbd>S</kbd> brake & reverse, <kbd>←</kbd><kbd>→</kbd>/<kbd>A</kbd><kbd>D</kbd> steer</li>
+      <li><b>Karts:</b> hold <kbd>Shift</kbd> while turning to drift. Hold it longer for blue → orange → purple sparks, then release for a boost.</li>
+      <li><b>Karts:</b> drive through <b>?</b> boxes for items, use them with <kbd>Space</kbd>: 🚀 Nitro, ⚡ homing Bolt, 🛢️ Oil slick, 🛡️ Shield, 🌩️ Storm (slows everyone ahead).</li>
+      <li><b>Formula cars:</b> hold <kbd>Space</kbd> for ERS (battery boost, recharges when braking). Tyres wear out over the race.</li>
+      <li>Sit right behind someone for a <b>slipstream</b> speed boost.</li>
+      <li><b>Rocket start:</b> press gas just as the five red lights go out. Hold it too early and you will bog down.</li>
+      <li><kbd>R</kbd> resets you onto the track, <kbd>Esc</kbd> pauses.</li>
+      <li><b>On a phone:</b> tap <b>TILT</b> during a race to steer by tilting (turn the phone sideways for the best feel). Brake is under your left thumb, gas under your right.</li>
+    </ul>
+    <h3>Career</h3>
+    <ul>
+      <li>Each week you get <b>3 activities</b>: training raises your stats, Media Day builds fans and money, Rest Day restores energy. <b>Energy and morale affect your race-day pace.</b></li>
+      <li>Story events ask you to make decisions. They can change your stats, fans, rival heat and more.</li>
+      <li>Races give XP → levels → skill points. Spend money on kart upgrades and support staff in the Garage.</li>
+      <li>Finish the season in the <b>top 3</b> to be promoted. Karts → Formula Junior → Formula Rising → Formula Elite → <b>Apex Grand Prix</b>.</li>
+      <li>In the formula tiers you drive for a team. Better results mean offers from faster teams.</li>
+    </ul>
+    <div style="text-align:right;margin-top:16px"><button class="btn primary" data-act="modal-close">Let's go</button></div>
+  </div>`);
+}
+
+/* ---------- boot ---------- */
+renderTitle();
+
+</script>
 </body>
 </html>
