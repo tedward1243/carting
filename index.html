@@ -2,7 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#0b0f1a">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Kart to Crown">
   <title>Kart to Crown</title>
   <meta name="description" content="Create a driver and race from backyard karts all the way to the Apex Grand Prix.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -286,11 +291,20 @@ input:focus, select:focus { outline: 2px solid rgba(255, 59, 92, 0.5); outline-o
   .touch-controls { display: block; }
   .touch-controls button { position: relative; background: rgba(255,255,255,0.12); border: 2px solid rgba(255,255,255,0.25); color: #fff; border-radius: 50%; width: 74px; height: 74px; font-family: var(--head); font-weight: 700; font-size: 18px; touch-action: none; }
   .touch-controls button.active { background: rgba(255,255,255,0.35); }
-  .tc-left { position: absolute; left: 16px; bottom: 110px; display: flex; gap: 14px; }
-  .tc-right { position: absolute; right: 16px; bottom: 110px; display: grid; grid-template-columns: 74px 74px; gap: 10px; }
-  .tc-right .tc-small { width: 74px; height: 52px; border-radius: 14px; font-size: 14px; }
-  .tc-right .tc-gas { background: rgba(123, 216, 143, 0.3); }
-  .tc-pause { position: absolute; top: 146px; right: 16px; width: 44px !important; height: 44px !important; font-size: 14px !important; }
+  .tc-steer { position: absolute; bottom: 110px; display: flex; gap: 14px; left: 16px; }
+  .hand-left .tc-steer { left: auto; right: 16px; }
+  /* gas / brake slider on the driver's dominant-hand side: push up for gas, pull down to brake, let go to coast */
+  .tc-pedal { position: absolute; right: 16px; bottom: 18px; width: 92px; height: min(300px, calc(100vh - 220px)); min-height: 150px; border-radius: 46px; touch-action: none;
+    background: linear-gradient(to bottom, rgba(123,216,143,0.5), rgba(123,216,143,0.18) calc(var(--line, 72%) - 1px), rgba(255,107,107,0.3) calc(var(--line, 72%) + 1px), rgba(255,107,107,0.55));
+    border: 2px solid rgba(255,255,255,0.28); }
+  .hand-left .tc-pedal { right: auto; left: 16px; }
+  .tc-pedal span { position: absolute; left: 0; right: 0; text-align: center; font-family: var(--head); font-weight: 700; font-size: 14px; color: rgba(255,255,255,0.85); pointer-events: none; }
+  .tc-pedal-gas { top: 14px; } .tc-pedal-brk { bottom: 14px; }
+  .tc-pedal-mid { top: var(--line, 72%); height: 2px; background: rgba(255,255,255,0.4); margin: 0 14px; }
+  .tc-knob { position: absolute; left: 50%; top: 50%; width: 70px; height: 70px; margin: -35px 0 0 -35px; border-radius: 50%; background: rgba(255,255,255,0.45); box-shadow: 0 4px 14px rgba(0,0,0,0.45); pointer-events: none; transition: transform 0.12s; }
+  .tc-pedal.active .tc-knob { transition: none; }
+  .tc-pedal.gas .tc-knob { background: #7bd88f; } .tc-pedal.brk .tc-knob { background: #ff6b6b; }
+  .touch-controls .tc-pause { position: absolute; top: 146px; right: calc(16px + env(safe-area-inset-right)); width: 44px !important; height: 44px !important; font-size: 14px !important; }
   .touch-controls .tc-tilt { position: absolute; top: 146px; right: 70px; width: 70px; height: 44px; border-radius: 12px; font-size: 13px; }
   .pit-btn { display: none; }
   .touch-controls .tc-pit { position: absolute; top: 146px; right: 218px; width: 60px; height: 44px; border-radius: 12px; font-size: 13px; background: rgba(255,159,28,0.35); }
@@ -300,10 +314,6 @@ input:focus, select:focus { outline: 2px solid rgba(255, 59, 92, 0.5); outline-o
   .touch-controls .tilt-only { display: none; }
   .touch-controls.tilt-on .tilt-only { display: block; }
   .touch-controls.tilt-on .steer-only { display: none; }
-  .touch-controls.tilt-on .tc-left { left: 16px; }
-  .touch-controls .tc-brake { width: 110px; height: 110px; background: rgba(255, 107, 107, 0.3); }
-  .touch-controls.tilt-on .tc-right { grid-template-columns: 110px; }
-  .touch-controls.tilt-on .tc-gas { width: 110px; height: 110px; }
   .tc-tilt-meter { position: absolute; bottom: 22px; left: 50%; transform: translateX(-50%); width: 160px; height: 8px; border-radius: 99px; background: rgba(255,255,255,0.15); }
   .tc-tilt-meter i { position: absolute; top: -4px; left: 50%; width: 16px; height: 16px; margin-left: -8px; border-radius: 50%; background: #4cc9f0; }
 }
@@ -324,6 +334,41 @@ input:focus, select:focus { outline: 2px solid rgba(255, 59, 92, 0.5); outline-o
 .seg button { border: none; background: none; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-weight: 600; color: var(--muted); }
 .seg button.on { background: var(--card2); color: #fff; }
 
+/* ---------- phone-first ---------- */
+html { -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%; }
+button, .btn { touch-action: manipulation; -webkit-user-select: none; user-select: none; }
+.phone-pitch { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 18px auto 0; max-width: 520px; }
+.phone-pitch span { padding: 8px 12px; border-radius: 999px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); font-family: var(--head); font-weight: 700; font-size: 15px; letter-spacing: .03em; }
+.phone-pitch.desk span { font-family: var(--body); font-weight: 500; font-size: 13px; color: var(--muted); border-radius: 12px; }
+.rotate-hint { display: none; }
+html.touch body { overscroll-behavior: none; -webkit-touch-callout: none; }
+html.touch .btn { min-height: 48px; font-size: 16px; }
+html.touch .btn.sm { min-height: 40px; }
+html.touch .seg button { min-height: 44px; }
+html.touch input, html.touch select { font-size: 16px; min-height: 46px; } /* 16px stops iOS zooming into fields */
+html.touch .title-menu .btn { min-height: 56px; font-size: 18px; }
+html.touch kbd { display: none; }
+/* app-style tab bar along the bottom of the screen */
+html.touch .tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; max-width: none; margin: 0; padding: 6px 6px calc(6px + env(safe-area-inset-bottom)); gap: 2px;
+  background: rgba(11,15,26,0.96); backdrop-filter: blur(10px); border-top: 1px solid var(--line); justify-content: space-around; overflow: visible; }
+html.touch .tab { flex: 1; min-width: 0; padding: 10px 2px; font-size: 12.5px; letter-spacing: .02em; border-bottom: none; border-top: 3px solid transparent; border-radius: 0 0 8px 8px; }
+html.touch .tab.active { border-top-color: var(--accent); background: rgba(255,59,92,0.08); }
+html.touch main.page { padding-bottom: calc(90px + env(safe-area-inset-bottom)); }
+/* race HUD respects the notch / rounded corners in landscape */
+html.touch .tc-pedal { right: calc(16px + env(safe-area-inset-right)); }
+html.touch .hand-left .tc-pedal { left: calc(16px + env(safe-area-inset-left)); right: auto; }
+html.touch .tc-steer { left: calc(16px + env(safe-area-inset-left)); }
+html.touch .hand-left .tc-steer { right: calc(16px + env(safe-area-inset-right)); left: auto; }
+@media (hover: none) and (pointer: coarse) and (orientation: portrait) {
+  #race-screen:not(.hidden) .rotate-hint { display: flex; position: absolute; inset: 0; z-index: 70; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 24px; text-align: center; background: rgba(5,8,15,0.92); color: #fff; }
+  .rotate-hint b { font-family: var(--head); font-size: 26px; }
+  .rotate-hint span { color: var(--muted); max-width: 280px; }
+  .rotate-phone { width: 54px; height: 92px; border: 4px solid #fff; border-radius: 12px; margin-bottom: 10px; animation: rot 1.8s ease-in-out infinite; }
+  @keyframes rot { 0%, 25% { transform: rotate(0); } 60%, 100% { transform: rotate(-90deg); } }
+}
+/* the header scrolls away on phones (the tabs live at the bottom); no backdrop-filter so the fixed tab bar is not trapped inside it */
+html.touch .topbar { position: relative; backdrop-filter: none; -webkit-backdrop-filter: none; background: var(--bg); }
+
 </style>
 </head>
 <body>
@@ -331,6 +376,7 @@ input:focus, select:focus { outline: 2px solid rgba(255, 59, 92, 0.5); outline-o
 
   <div id="race-screen" class="hidden">
     <canvas id="race-canvas"></canvas>
+    <div id="rotate-hint" class="rotate-hint"><div class="rotate-phone"></div><b>Turn your phone sideways</b><span>Racing is built for landscape: tilt to steer, slider to drive.</span></div>
     <div id="pause-menu" class="overlay hidden">
       <div class="overlay-card">
         <h2>Paused</h2>
@@ -349,14 +395,13 @@ input:focus, select:focus { outline: 2px solid rgba(255, 59, 92, 0.5); outline-o
       <button data-act="pit-req" data-arg="W" style="--c:#3a86ff">W Wet</button>
     </div>
     <div id="touch-controls" class="touch-controls">
-      <div class="tc-left">
-        <button data-touch="left" class="steer-only">◀</button>
-        <button data-touch="right" class="steer-only">▶</button>
-        <button data-touch="brk" class="tilt-only tc-brake">BRAKE</button>
+      <div class="tc-steer steer-only">
+        <button data-touch="left">◀</button>
+        <button data-touch="right">▶</button>
       </div>
-      <div class="tc-right">
-        <button data-touch="brk" class="steer-only">BRAKE</button>
-        <button data-touch="thr" class="tc-gas">GAS</button>
+      <div id="tc-pedal" class="tc-pedal">
+        <span class="tc-pedal-gas">GAS</span><span class="tc-pedal-mid"></span><span class="tc-pedal-brk">BRAKE</span>
+        <i class="tc-knob"></i>
       </div>
       <button class="tc-pause" data-act="race-pause">II</button>
       <button class="tc-tilt" data-act="tilt-center">CENTER</button>
@@ -2210,6 +2255,12 @@ class RaceEngine {
     window.addEventListener('keyup', this.onKeyUp);
     window.addEventListener('resize', this.onResize);
   }
+  buzz(p) { try { if (this.o.haptics && navigator.vibrate) navigator.vibrate(p); } catch (e) { } }
+  setPedal(v) {
+    if (v > 0.08 && !(this.touch.pedal > 0.08)) this.throttlePressAt = this.clock;
+    this.touch.pedal = v;
+    this.sfx.init();
+  }
   setTouch(key, on) {
     if (key === 'thr' && on && !this.touch.thr) this.throttlePressAt = this.clock;
     this.touch[key] = on;
@@ -2221,9 +2272,12 @@ class RaceEngine {
     if (k.ArrowLeft || k.KeyA || t.left) steer -= 1;
     if (k.ArrowRight || k.KeyD || t.right) steer += 1;
     if (steer === 0 && this.tilt && this.tilt.on) steer = this.tilt.steer; // analog phone tilt
+    const pd = t.pedal || 0, keyThr = !!(k.ArrowUp || k.KeyW || t.thr), keyBrk = !!(k.ArrowDown || k.KeyS || t.brk);
     return {
-      thr: !!(k.ArrowUp || k.KeyW || t.thr),
-      brk: !!(k.ArrowDown || k.KeyS || t.brk),
+      thr: keyThr || pd > 0.08,
+      brk: !keyThr && (keyBrk || pd < -0.08),
+      thrAmt: keyThr ? 1 : clamp((pd - 0.08) / 0.8, 0.15, 1),
+      brkAmt: keyBrk ? 1 : clamp((-pd - 0.08) / 0.8, 0.15, 1),
       steer,
       drift: !!(k.ShiftLeft || k.ShiftRight || k.KeyX || t.drift),
       item: !!(k.Space || k.KeyE || t.item)
@@ -2284,10 +2338,10 @@ class RaceEngine {
     const tr = this.track;
     if (this.state === 'countdown') {
       this.lights = Math.min(5, Math.floor(this.clock / 0.6));
-      if (this.lights !== this.prevLights) { if (this.lights > 0) this.sfx.beep(440, 0.15); this.prevLights = this.lights; }
+      if (this.lights !== this.prevLights) { if (this.lights > 0) { this.sfx.beep(440, 0.15); this.buzz(25); } this.prevLights = this.lights; }
       if (this.clock >= this.goAt) {
         this.state = 'race';
-        this.sfx.beep(880, 0.4);
+        this.sfx.beep(880, 0.4); this.buzz(120);
         this.flash('GO!', '#7CFF6B', 1.2, 64);
         this.flash('COLD TYRES - build up temperature', '#4cc9f0', 3, 24);
         // rocket start
@@ -2472,13 +2526,15 @@ class RaceEngine {
 
     // longitudinal
     let acc = c.accel * (c.boost > 0 ? 1.7 : 1) * (c.ersActive ? 1.25 : 1) * (0.8 + 0.2 * c.tg);
+    const thrAmt = inp.thrAmt == null ? 1 : inp.thrAmt, brkAmt = inp.brkAmt == null ? 1 : inp.brkAmt;
     if (inp.thr) {
-      if (vF < maxS) {
+      const cap = maxS * (0.35 + 0.65 * thrAmt); // part throttle holds a lower speed
+      if (vF < cap) {
         const f = Math.max(0, vF) / maxS;
-        vF += acc * (1 - f * f) * dt;
-      }
+        vF += acc * thrAmt * (1 - f * f) * dt;
+      } else if (vF > cap) vF -= Math.min(vF - cap, 60 * dt);
     } else if (inp.brk) {
-      if (vF > 15) vF -= c.brake * dt;
+      if (vF > 15) vF -= c.brake * brkAmt * dt;
       else vF = Math.max(vF - c.accel * 0.5 * dt, -80);
     } else {
       vF -= Math.sign(vF) * Math.min(Math.abs(vF), 80 * dt);
@@ -2556,7 +2612,7 @@ class RaceEngine {
         c.vx -= p.nx * vn * 1.3; c.vy -= p.ny * vn * 1.3;
         const impact = Math.abs(vn);
         c.vx *= 0.82; c.vy *= 0.82;
-        if (c.isPlayer && impact > 60) { this.shake = Math.min(1, impact / 250); this.sfx.hit(); }
+        if (c.isPlayer && impact > 60) { this.shake = Math.min(1, impact / 250); this.sfx.hit(); this.buzz(Math.min(90, 20 + impact / 4)); }
         if (c.drift) c.drift = false;
       }
     }
@@ -2601,7 +2657,7 @@ class RaceEngine {
           if (this.quali) this.flash('LAP ' + fmtTime(c.finishTime), '#ffd166', 6, 56);
           else this.flash(pos === 1 ? 'VICTORY!' : 'FINISHED P' + pos, pos === 1 ? '#ffd166' : '#ffffff', 6, 60);
           c.auto = true;
-          this.sfx.beep(660, 0.2); setTimeout(() => this.sfx.beep(990, 0.4), 200);
+          this.sfx.beep(660, 0.2); setTimeout(() => this.sfx.beep(990, 0.4), 200); this.buzz(pos === 1 ? [100, 60, 100, 60, 250] : [120]);
         }
       }
     }
@@ -2680,7 +2736,7 @@ class RaceEngine {
       seq.v = Math.min(vMax, seq.v > lim ? seq.v - 380 * dt : seq.v + 200 * dt);
       seq.v = Math.min(seq.v, vMax);
       seq.d += seq.v * dt;
-      if (toBox <= 1.5) { seq.d = seq.box; seq.v = 0; seq.phase = 'stop'; seq.t = 0; if (c.isPlayer) this.sfx.beep(330, 0.25, 'triangle'); }
+      if (toBox <= 1.5) { seq.d = seq.box; seq.v = 0; seq.phase = 'stop'; seq.t = 0; if (c.isPlayer) { this.sfx.beep(330, 0.25, 'triangle'); this.buzz(60); } }
     } else if (seq.phase === 'stop') {
       if (!seq.comp) { // crew waits until a tyre is chosen (the clock is still running for the race)
         seq.wait = (seq.wait || 0) + dt; seq.t = 0;
@@ -2787,7 +2843,7 @@ class RaceEngine {
             const j2 = -rv * 0.65;
             a.vx -= nx * j2; a.vy -= ny * j2;
             b.vx += nx * j2; b.vy += ny * j2;
-            if ((a.isPlayer || b.isPlayer) && -rv > 80) { this.shake = Math.max(this.shake, 0.3); this.sfx.beep(140, 0.08, 'square', 0.1); }
+            if ((a.isPlayer || b.isPlayer) && -rv > 80) { this.shake = Math.max(this.shake, 0.3); this.sfx.beep(140, 0.08, 'square', 0.1); this.buzz(35); }
           }
         }
       }
@@ -2954,7 +3010,7 @@ class RaceEngine {
     c.vx *= 0.45; c.vy *= 0.45;
     c.drift = false;
     this.burst(c.x, c.y, kind === 'oil' ? '#222' : '#ffd60a');
-    if (c.isPlayer) { this.shake = 0.6; this.sfx.hit(); this.flash(by && by !== c ? 'HIT BY ' + by.code : 'SPUN OUT', '#ff6b6b', 1.2, 30); }
+    if (c.isPlayer) { this.shake = 0.6; this.sfx.hit(); this.buzz([80, 40, 80]); this.flash(by && by !== c ? 'HIT BY ' + by.code : 'SPUN OUT', '#ff6b6b', 1.2, 30); }
     else if (by && by.isPlayer) { this.flash('HIT ' + c.code + '!', '#7CFF6B', 1, 30); this.sfx.beep(520, 0.12, 'triangle', 0.15); }
   }
 
@@ -3496,17 +3552,20 @@ class RaceEngine {
     ctx.beginPath(); ctx.arc(p.x, p.y, 7 / s, 0, TAU); ctx.fill(); ctx.stroke();
     ctx.restore();
 
-    // speed
+    // speed (bottom panels slide to the right when a left-handed pedal slider sits bottom-left)
+    const fx = this.o.hand === 'left' ? w - 14 - (small ? 300 : 438) : 0;
     const spd = Math.hypot(p.vx, p.vy);
+    ctx.save(); ctx.translate(fx, 0);
     panel(ctx, 14, h - 86, 150, 72);
     ctx.fillStyle = '#fff'; ctx.textAlign = 'left'; ctx.font = font(44);
     ctx.fillText(Math.round(spd * this.tier.kmh), 26, h - 36);
     ctx.font = font(15, 600); ctx.fillStyle = 'rgba(255,255,255,0.6)';
     ctx.fillText('KM/H', 110, h - 36);
     if (p.best < Infinity) { ctx.font = font(13, 600); ctx.fillText('BEST ' + fmtTime(p.best), 26, h - 20); }
+    ctx.restore();
     // weather / wind / pit
     if (!this.quali || this.wet > 0) {
-      const wx0 = small ? 14 : 310, wy0 = small ? 112 : h - 86;
+      const wx0 = small ? 14 : 310 + fx, wy0 = small ? 112 : h - 86;
       panel(ctx, wx0, wy0, 128, 72);
       ctx.textAlign = 'left'; ctx.fillStyle = '#fff'; ctx.font = font(15, 700);
       ctx.fillText(this.rain > 0.15 ? 'RAIN' : this.wet > 0.15 ? 'DRYING' : 'DRY', wx0 + 12, wy0 + 22);
@@ -3527,7 +3586,7 @@ class RaceEngine {
     }
     // tyres
     {
-      const TC = TYRES[p.compound], x0 = 172, y0 = h - 86;
+      const TC = TYRES[p.compound], x0 = 172 + fx, y0 = h - 86;
       panel(ctx, x0, y0, 128, 72);
       ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(x0 + 26, y0 + 36, 19, 0, TAU); ctx.fill();
       ctx.strokeStyle = TC.color; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(x0 + 26, y0 + 36, 15, 0, TAU); ctx.stroke();
@@ -4294,6 +4353,8 @@ function renderTitle() {
       <button class="btn" data-act="hof">Hall of Fame</button>
       <button class="btn ghost" data-act="help">How to play</button>
     </div>
+    ${IS_TOUCH ? `<div class="phone-pitch"><span>📱 Tilt to steer</span><span>👍 Thumb slider</span><span>📳 Feel every bump</span></div>`
+      : `<div class="phone-pitch desk"><span>📱 Best on your phone: open this page on your phone, turn it sideways and tilt to steer.</span></div>`}
     <div class="ladder-mini">${TIERS.map(t => `<span>${t.name}</span>`).join('')}</div>
     <div class="checker bottom"></div>
   </div>`;
@@ -4316,7 +4377,7 @@ function createStats(c) {
 }
 function renderCreate() {
   hideRace();
-  if (!UI.create) UI.create = { name: '', number: randi(2, 99), nation: 'USA', bg: 'family', color: BODY_COLORS[0], helmet: HELMET_COLORS[0], alloc: { spd: 0, acc: 0, hnd: 0, foc: 0, rc: 0, fit: 0 }, difficulty: 'normal' };
+  if (!UI.create) UI.create = { name: '', number: randi(2, 99), nation: 'USA', bg: 'family', color: BODY_COLORS[0], helmet: HELMET_COLORS[0], alloc: { spd: 0, acc: 0, hnd: 0, foc: 0, rc: 0, fit: 0 }, difficulty: 'normal', hand: getHand() };
   const c = UI.create;
   const used = STAT_KEYS.reduce((a, k) => a + c.alloc[k], 0);
   const st = createStats(c);
@@ -4333,6 +4394,9 @@ function renderCreate() {
             <div><label class="f">Number</label><input type="number" min="1" max="99" data-field="number" value="${c.number}"></div>
             <div><label class="f">Nation</label><select data-field="nation">${NATIONS.map(n => `<option ${n === c.nation ? 'selected' : ''}>${n}</option>`).join('')}</select></div>
           </div>
+          <label class="f">Which hand do you write with?</label>
+          <div class="seg" style="width:100%">${[['left', 'Left-handed'], ['right', 'Right-handed']].map(([v, l]) => `<button class="${c.hand === v ? 'on' : ''}" style="flex:1" data-act="c-hand" data-arg="${v}">${l}</button>`).join('')}</div>
+          <p class="muted small" style="margin:4px 0 10px">The gas / brake slider goes on that side of the screen.</p>
           <label class="f">Kart colour</label>
           <div class="swatches">${BODY_COLORS.map(col => `<button class="sw ${col === c.color ? 'sel' : ''}" style="background:${col}" data-act="c-color" data-arg="${col}" aria-label="colour ${col}"></button>`).join('')}</div>
           <label class="f">Helmet colour</label>
@@ -4381,13 +4445,18 @@ ACTIONS['c-color'] = a => { UI.create.color = a; renderCreate(); };
 ACTIONS['c-helmet'] = a => { UI.create.helmet = a; renderCreate(); };
 ACTIONS['c-bg'] = a => { UI.create.bg = a; renderCreate(); };
 ACTIONS['c-diff'] = a => { UI.create.difficulty = a; renderCreate(); };
+ACTIONS['c-hand'] = a => { UI.create.hand = a; setHand(a); renderCreate(); };
+// dominant hand: decides which side the gas / brake slider sits on
+function getHand() { if (typeof S !== 'undefined' && S && S.settings && S.settings.hand) return S.settings.hand; try { return localStorage.getItem('k2c.hand') || 'right'; } catch (e) { return 'right'; } }
+function setHand(h) { try { localStorage.setItem('k2c.hand', h); } catch (e) { } }
+function applyHand() { const tc = $('#touch-controls'), h = getHand(); tc.classList.toggle('hand-left', h === 'left'); tc.classList.toggle('hand-right', h !== 'left'); return h; }
 ACTIONS['c-plus'] = k => { UI.create.alloc[k]++; renderCreate(); };
 ACTIONS['c-minus'] = k => { UI.create.alloc[k]--; renderCreate(); };
 ACTIONS['c-start'] = () => {
   const c = UI.create;
   const name = (c.name || '').trim();
   if (name.length < 2) { toast('Give your driver a name first.', 'bad'); return; }
-  newCareer({ name, number: c.number, nation: c.nation, color: c.color, helmet: c.helmet, bg: c.bg, stats: createStats(c), settings: { difficulty: c.difficulty } });
+  newCareer({ name, number: c.number, nation: c.nation, color: c.color, helmet: c.helmet, bg: c.bg, stats: createStats(c), settings: { difficulty: c.difficulty, hand: c.hand } });
   UI.create = null;
   UI.tab = 'home';
   renderHub();
@@ -4705,6 +4774,10 @@ function tabSettings() {
     <h3>Settings</h3>
     <div class="toggle"><div><b>Difficulty</b><div class="muted small">How fast the AI drives.</div></div>
       <div class="seg">${['easy', 'normal', 'hard'].map(d => `<button class="${s.difficulty === d ? 'on' : ''}" data-act="set" data-arg="difficulty:${d}">${d[0].toUpperCase() + d.slice(1)}</button>`).join('')}</div></div>
+    <div class="toggle"><div><b>Pedal slider side</b><div class="muted small">Put gas / brake under your dominant hand.</div></div>
+      <div class="seg"><button class="${getHand() === 'left' ? 'on' : ''}" data-act="set" data-arg="hand:left">Left</button><button class="${getHand() !== 'left' ? 'on' : ''}" data-act="set" data-arg="hand:right">Right</button></div></div>
+    ${IS_TOUCH ? `<div class="toggle"><div><b>Vibration</b><div class="muted small">Buzz on the start lights, contact and the finish.</div></div>
+      <div class="seg"><button class="${s.haptics === false ? 'on' : ''}" data-act="set" data-arg="haptics:0">Off</button><button class="${s.haptics !== false ? 'on' : ''}" data-act="set" data-arg="haptics:1">On</button></div></div>` : ''}
     <div class="toggle"><div><b>Sound</b><div class="muted small">Engine and effects.</div></div>
       <div class="seg"><button class="${!s.sound ? 'on' : ''}" data-act="set" data-arg="sound:0">Off</button><button class="${s.sound ? 'on' : ''}" data-act="set" data-arg="sound:1">On</button></div></div>
   </div>
@@ -4718,7 +4791,8 @@ function tabSettings() {
 }
 ACTIONS['set'] = a => {
   const [k, v] = a.split(':');
-  S.settings[k] = k === 'difficulty' ? v : v === '1';
+  S.settings[k] = k === 'difficulty' || k === 'hand' ? v : v === '1';
+  if (k === 'hand') setHand(v);
   save(); renderHub();
 };
 ACTIONS['retire-now'] = () => confirmModal('Retire from racing?', 'Your career ends and goes into the Hall of Fame. This cannot be undone.', 'Retire', () => renderLegacy(retire()), true);
@@ -4726,7 +4800,21 @@ ACTIONS['retire-now'] = () => confirmModal('Retire from racing?', 'Your career e
 /* ============================================================
    Racing
    ============================================================ */
-function hideRace() { $('#race-screen').classList.add('hidden'); $('#pause-menu').classList.add('hidden'); }
+function hideRace() {
+  $('#race-screen').classList.add('hidden'); $('#pause-menu').classList.add('hidden');
+  if (IS_TOUCH) try { if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(() => { }); } catch (e) { }
+}
+// phones: go fullscreen and try to lock landscape for racing (Android; iOS shows the rotate hint instead)
+function phoneRaceMode() {
+  if (!IS_TOUCH) return;
+  try {
+    const el = document.documentElement;
+    const fs = !document.fullscreenElement && (el.requestFullscreen || el.webkitRequestFullscreen);
+    const p = fs ? fs.call(el, { navigationUI: 'hide' }) : null;
+    const lock = () => { try { screen.orientation && screen.orientation.lock && screen.orientation.lock('landscape').catch(() => { }); } catch (e) { } };
+    if (p && p.then) p.then(lock).catch(() => { }); else lock();
+  } catch (e) { }
+}
 
 /* Race weekend: qualifying (one lap each, fastest on pole) -> grid -> race */
 function launchRace(cfg) {
@@ -4763,6 +4851,9 @@ function startSession(kind) {
   $('#race-screen').classList.remove('hidden');
   $('#pause-menu').classList.add('hidden');
   startTilt();
+  phoneRaceMode();
+  const hand = applyHand();
+  if (UI.resetPedal) UI.resetPedal();
   const track = buildTrack(cfg.trackName, cfg.tier);
   const racers = quali ? [Object.assign({}, cfg.racers.find(r => r.isPlayer), { compound: cfg.weather.start > 0.3 ? 'W' : 'S' })]
     : UI.grid.map(r => Object.assign({}, r, { compound: r.isPlayer ? (UI.compound || 'M') : aiCompound(r, cfg.weather) }));
@@ -4777,7 +4868,7 @@ function startSession(kind) {
       else if (cmd === 'on' || cmd === 'off') document.querySelectorAll('[data-act="pit-open"]').forEach(b => b.classList.toggle('on', cmd === 'on'));
       else { m.classList.add('hidden'); m.classList.remove('choosing'); document.querySelectorAll('[data-act="pit-open"]').forEach(b => b.classList.remove('on')); }
     },
-    racers, items: false, ers: false, difficulty: cfg.difficulty, sound: cfg.sound, tilt: TILT,
+    racers, items: false, ers: false, hand: IS_TOUCH ? hand : 'right', haptics: IS_TOUCH && (!S || S.settings.haptics !== false), difficulty: cfg.difficulty, sound: cfg.sound, tilt: TILT,
     view: getViewPref(), onView: m => { try { localStorage.setItem('k2c.view', m); } catch (e) { } },
     onPause: p => $('#pause-menu').classList.toggle('hidden', !p),
     onEnd: out => {
@@ -4815,7 +4906,7 @@ function renderQualiResults() {
           <span class="tyre-badge" style="border-color:${t.color};color:${t.color}">${t.key}</span>
           <b>${t.name}</b><small>${t.desc}</small>
         </button>`).join('')}</div>
-      <p class="muted small">All tyres start cold and need a lap or so of hard driving to reach full grip. Tap <b>PIT</b> (or press <kbd>B</kbd>) during the race to box at the end of the lap, then pick your tyres in the pit lane.</p>
+      <p class="muted small">All tyres start cold and need a lap or so of hard driving to reach full grip. Tap <b>PIT</b> ${IS_TOUCH ? '' : '(or press <kbd>B</kbd>) '}during the race to box at the end of the lap, then pick your tyres in the pit lane.</p>
       <div class="btn-row" style="margin-top:16px">
         <button class="btn primary big" data-act="quali-race">Start the race (${raceLaps(cfg.trackName, cfg.tier)} laps)</button>
         <button class="btn" data-act="quali-redo">Redo qualifying</button>
@@ -4867,6 +4958,7 @@ ACTIONS['race-retire'] = () => { if (UI.engine) { UI.engine.paused = false; UI.e
 /* ---------- tilt steering (phone gyro) ---------- */
 // On phones, tilt is THE steering. Arrow buttons only appear if the sensor can't be used.
 const IS_TOUCH = !!(window.matchMedia && window.matchMedia('(hover: none) and (pointer: coarse)').matches);
+if (IS_TOUCH) document.documentElement.classList.add('touch');
 const TILT = { on: false, steer: 0, zero: 0, raw: 0, listening: false, got: false, asking: false, told: false };
 const TILT_RANGE = 26;  // degrees of tilt for full lock
 const TILT_DEAD = 2;    // dead zone in degrees
@@ -4936,6 +5028,30 @@ if (IS_TOUCH) document.addEventListener('click', function first() {
 }, true);
 window.addEventListener('orientationchange', () => setTimeout(() => { TILT.zero = TILT.raw; }, 400));
 
+// gas / brake slider: the bottom zone is brake, anything above it is gas (more the higher you go), let go to coast
+{
+  const pad = $('#tc-pedal'), knob = pad.querySelector('.tc-knob');
+  const BRAKE_ZONE = 0.28; // bottom share of the slider that brakes
+  let id = null;
+  const setY = y => { // y: 0 = bottom, 1 = top, null = released
+    const r = pad.clientHeight, travel = r - 76;
+    const ky = y == null ? BRAKE_ZONE : y;
+    knob.style.transform = `translateY(${(0.5 - ky) * travel}px)`;
+    pad.style.setProperty('--line', (100 - (38 + BRAKE_ZONE * travel) / r * 100).toFixed(1) + '%');
+    let pd = 0;
+    if (y != null && y < BRAKE_ZONE) pd = -(0.08 + 0.8 * (0.6 + 0.4 * (1 - y / BRAKE_ZONE)));
+    else if (y != null) pd = 0.08 + 0.8 * clamp(0.55 + 0.45 * (y - BRAKE_ZONE) / 0.45, 0, 1);
+    pad.classList.toggle('gas', pd > 0); pad.classList.toggle('brk', pd < 0);
+    if (UI.engine) UI.engine.setPedal(pd);
+  };
+  const fromEvent = e => { const r = pad.getBoundingClientRect(); return clamp((r.bottom - 38 - e.clientY) / (r.height - 76), 0, 1); };
+  UI.resetPedal = () => { id = null; pad.classList.remove('active'); setY(null); };
+  window.addEventListener('resize', () => { if (id == null) setY(null); });
+  pad.addEventListener('pointerdown', e => { e.preventDefault(); id = e.pointerId; try { pad.setPointerCapture(id); } catch (x) { } pad.classList.add('active'); setY(fromEvent(e)); });
+  pad.addEventListener('pointermove', e => { if (e.pointerId === id) { e.preventDefault(); setY(fromEvent(e)); } });
+  const end = e => { if (e.pointerId !== id) return; id = null; pad.classList.remove('active'); setY(null); };
+  pad.addEventListener('pointerup', end); pad.addEventListener('pointercancel', end);
+}
 // touch controls
 document.querySelectorAll('[data-touch]').forEach(b => {
   const key = b.dataset.touch;
@@ -5126,15 +5242,15 @@ function showHelp(welcome) {
     ${welcome ? `<p class="muted">You are 12 years old with a kart and a dream. Your rival ${S ? esc(S.rival.name) : ''} has the same dream. Only one of you can wear the crown.</p>` : ''}
     <h3>Driving</h3>
     <ul>
-      <li><kbd>↑</kbd>/<kbd>W</kbd> gas, <kbd>↓</kbd>/<kbd>S</kbd> brake & reverse, <kbd>←</kbd><kbd>→</kbd>/<kbd>A</kbd><kbd>D</kbd> steer</li>
+      ${IS_TOUCH ? `<li><b>Hold your phone sideways and tilt it to steer.</b> The slider under your dominant thumb drives: the bottom is brake, anything above is gas (higher = more), let go to coast.</li>
+      <li>Tap <b>CENTER</b> to re-level the steering, <b>VIEW</b> to switch cameras, <b>II</b> to pause.</li>` : `<li><kbd>↑</kbd>/<kbd>W</kbd> gas, <kbd>↓</kbd>/<kbd>S</kbd> brake & reverse, <kbd>←</kbd><kbd>→</kbd>/<kbd>A</kbd><kbd>D</kbd> steer</li>`}
       <li><b>Qualifying:</b> one lap each before the race. Fastest lap starts on pole.</li>
       <li><b>Weather:</b> it can rain, even mid-race. A wet track has far less grip on slick tyres: pit for <b>Wets</b>. Wind helps you on stretches where it is behind you (TAILWIND) and slows you into a headwind.</li>
-      <li><b>Pit stops:</b> tap <b>PIT</b> (or press <kbd>B</kbd>), pick tyres, and you stop when you next cross the line.</li>
+      <li><b>Pit stops:</b> tap <b>PIT</b>${IS_TOUCH ? '' : ' (or press <kbd>B</kbd>)'} to box at the end of the lap, then pick your tyres in the pit lane. The crew waits for you, so choose fast.</li>
       <li><b>Tyres:</b> pick Soft (fastest, wears out about halfway), Medium (balanced) or Hard (slowest, lasts the whole race). Tyres start cold: drive hard for a lap to warm them up. Watch the TEMP and LIFE bars.</li>
       <li>Sit right behind someone for a <b>slipstream</b> speed boost.</li>
       <li><b>Rocket start:</b> press gas just as the five red lights go out. Hold it too early and you will bog down.</li>
-      <li><kbd>R</kbd> resets you onto the track, <kbd>Esc</kbd> pauses.</li>
-      <li><b>On a phone:</b> tilt the phone to steer (turn it sideways for the best feel). Brake is under your left thumb, gas under your right. Tap <b>CENTER</b> to re-level the steering, <b>VIEW</b> to switch between the driver's-eye and overhead cameras.</li>
+      ${IS_TOUCH ? '' : `<li><kbd>R</kbd> resets you onto the track, <kbd>Esc</kbd> pauses. <b>Best on a phone:</b> tilt to steer with a thumb slider for gas and brake.</li>`}
     </ul>
     <h3>Career</h3>
     <ul>
