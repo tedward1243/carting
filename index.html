@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Kart to Crown</title>
+  <meta name="description" content="Create a driver and race from backyard karts all the way to the Apex Grand Prix.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="app"></div>
+
+  <div id="race-screen" class="hidden">
+    <canvas id="race-canvas"></canvas>
+    <div id="pause-menu" class="overlay hidden">
+      <div class="overlay-card">
+        <h2>Paused</h2>
+        <button class="btn primary" data-act="race-resume">Resume</button>
+        <button class="btn" data-act="race-restart">Restart race</button>
+        <button class="btn danger" data-act="race-retire">Retire (DNF)</button>
+      </div>
+    </div>
+    <div id="touch-controls" class="touch-controls">
+      <div class="tc-left">
+        <button data-touch="left" class="steer-only">◀</button>
+        <button data-touch="right" class="steer-only">▶</button>
+        <button data-touch="brk" class="tilt-only tc-brake">BRAKE</button>
+      </div>
+      <div class="tc-right">
+        <button data-touch="item" class="tc-small">ITEM</button>
+        <button data-touch="drift" class="tc-small">DRIFT</button>
+        <button data-touch="brk" class="steer-only">BRAKE</button>
+        <button data-touch="thr" class="tc-gas">GAS</button>
+      </div>
+      <button class="tc-pause" data-act="race-pause">II</button>
+      <button class="tc-tilt" data-act="tilt-toggle">TILT</button>
+      <div class="tc-tilt-meter tilt-only"><i></i></div>
+    </div>
+  </div>
+
+  <div id="toasts"></div>
+  <div id="modal" class="overlay hidden"><div class="overlay-card wide" id="modal-body"></div></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/track.js"></script>
+  <script src="js/race.js"></script>
+  <script src="js/career.js"></script>
+  <script src="js/ui.js"></script>
+</body>
+</html>
