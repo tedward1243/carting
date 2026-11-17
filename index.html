@@ -474,66 +474,66 @@ html.pad-mode, html.pad-mode body { background: #070a12; overflow: hidden; heigh
 const TIERS = [
   {
     id: 0, name: 'Backyard Karts', short: 'CLUB', vehicle: 'kart', cls: '60cc Cadet',
-    races: 4, field: 8, laps: 3, ratingMin: 30, ratingMax: 44, aiMachine: [0.05, 0.25],
+    races: 10, field: 8, laps: 3, ratingMin: 30, ratingMax: 44, aiMachine: [0.05, 0.25],
     baseSpeed: 290, baseAcc: 250, baseTurn: 3.0, width: 124, runoff: 56, radius: 820,
     view: 620, kmh: 0.30, items: true, prize: 300, fansBase: 8, upgradeMult: 1,
     color: '#7bd88f',
     desc: 'Weekend club races at the local track. Everyone starts somewhere.',
-    tracks: ['Maple Lane Kartway', 'Rusty Pines Circuit', 'Harbor Lot Speedway', 'Cornfield Ring', 'Duckpond Raceway']
+    tracks: ['Maple Lane Kartway', 'Rusty Pines Circuit', 'Harbor Lot Speedway', 'Cornfield Ring', 'Duckpond Raceway', 'Willow Creek Karts', 'Pebble Bay Kartway', 'Brickyard Junior Track', 'Hilltop Kart Club', 'Orchard Lane Circuit']
   },
   {
     id: 1, name: 'Regional Kart Series', short: 'REG', vehicle: 'kart', cls: '100cc Junior',
-    races: 5, field: 10, laps: 3, ratingMin: 40, ratingMax: 54, aiMachine: [0.2, 0.45],
+    races: 11, field: 10, laps: 3, ratingMin: 40, ratingMax: 54, aiMachine: [0.2, 0.45],
     baseSpeed: 320, baseAcc: 270, baseTurn: 3.0, width: 128, runoff: 58, radius: 900,
     view: 660, kmh: 0.30, items: true, prize: 700, fansBase: 20, upgradeMult: 1.6,
     color: '#5cc8ff',
     desc: 'Bigger grids, travelling teams and the first scouts in the paddock.',
-    tracks: ['Lakeside Kart Park', 'Granite Hill Raceway', 'Sunset Mesa', 'Riverbend Kartdrome', 'Old Mill Circuit', 'Foxglove Fields']
+    tracks: ['Lakeside Kart Park', 'Granite Hill Raceway', 'Sunset Mesa', 'Riverbend Kartdrome', 'Old Mill Circuit', 'Foxglove Fields', 'Westgate Kart Arena', 'Copperfield Raceway', 'Bluewater Kart Park', 'Elmstead Circuit', 'Stonebridge Kartway']
   },
   {
     id: 2, name: 'National Kart Championship', short: 'NAT', vehicle: 'kart', cls: '125cc Shifter',
-    races: 5, field: 10, laps: 4, ratingMin: 48, ratingMax: 62, aiMachine: [0.4, 0.7],
+    races: 12, field: 10, laps: 4, ratingMin: 48, ratingMax: 62, aiMachine: [0.4, 0.7],
     baseSpeed: 350, baseAcc: 290, baseTurn: 3.0, width: 130, runoff: 60, radius: 980,
     view: 700, kmh: 0.31, items: true, prize: 1500, fansBase: 45, upgradeMult: 2.4,
     color: '#ffd166',
     desc: 'The best karters in the country. Win here and the formula teams call.',
-    tracks: ['Thunder Valley', 'Coastline Kart Center', 'Ironwood Raceway', 'Silver Creek', 'Desert Bloom Kartplex', 'Blackrock Bowl']
+    tracks: ['Thunder Valley', 'Coastline Kart Center', 'Ironwood Raceway', 'Silver Creek', 'Desert Bloom Kartplex', 'Blackrock Bowl', 'Redline Kart Complex', 'Northpoint Raceway', 'Highmoor Kart Circuit', 'Saltmarsh Speedway', 'Pinecrest Kartdrome', 'Eagle Ridge Karting']
   },
   {
     id: 3, name: 'Formula Junior', short: 'FJR', vehicle: 'formula', cls: 'Single-seater',
-    races: 6, field: 12, laps: 4, ratingMin: 55, ratingMax: 69, aiMachine: null,
+    races: 12, field: 12, laps: 4, ratingMin: 55, ratingMax: 69, aiMachine: null,
     baseSpeed: 420, baseAcc: 320, baseTurn: 2.75, width: 150, runoff: 76, radius: 1250,
     view: 820, kmh: 0.52, items: false, prize: 4000, fansBase: 110, salary: 1500,
     color: '#ff9f43',
     desc: 'Your first real race car. Wings, slicks and team engineers.',
-    tracks: ['Ashford Park', 'Montvale Ring', 'Port Lorne', 'Velden Circuit', 'Sierra Alta', 'Kingsbridge', 'Cedar Falls Raceway']
+    tracks: ['Ashford Park', 'Montvale Ring', 'Port Lorne', 'Velden Circuit', 'Sierra Alta', 'Kingsbridge', 'Cedar Falls Raceway', 'Brookhaven Circuit', 'Torrent Bay', 'Halden Park', 'Westmoor Raceway', 'Lindgard Ring']
   },
   {
     id: 4, name: 'Formula Rising', short: 'FRS', vehicle: 'formula', cls: 'Junior Formula',
-    races: 6, field: 12, laps: 5, ratingMin: 62, ratingMax: 76, aiMachine: null,
+    races: 13, field: 12, laps: 5, ratingMin: 62, ratingMax: 76, aiMachine: null,
     baseSpeed: 460, baseAcc: 340, baseTurn: 2.7, width: 150, runoff: 78, radius: 1320,
     view: 860, kmh: 0.56, items: false, prize: 8000, fansBase: 260, salary: 4000,
     color: '#ff6b6b',
     desc: 'The feeder series where future champions are made — or broken.',
-    tracks: ['Circuit Valtora', 'Marisol Bay', 'Nordhavn Ring', 'Lakemont', 'Hakone Ridge', 'Autodromo Serrano', 'Ostrava Grand Circuit']
+    tracks: ['Circuit Valtora', 'Marisol Bay', 'Nordhavn Ring', 'Lakemont', 'Hakone Ridge', 'Autodromo Serrano', 'Ostrava Grand Circuit', 'Monte Carrara', 'Kirkwall Circuit', 'Baie Rouge', 'Tamsin Valley', 'Rotterhaven Ring', 'Puerto Lumbre']
   },
   {
     id: 5, name: 'Formula Elite', short: 'FEL', vehicle: 'formula', cls: 'Second tier',
-    races: 7, field: 12, laps: 5, ratingMin: 68, ratingMax: 83, aiMachine: null,
+    races: 14, field: 12, laps: 5, ratingMin: 68, ratingMax: 83, aiMachine: null,
     baseSpeed: 500, baseAcc: 360, baseTurn: 2.65, width: 152, runoff: 80, radius: 1400,
     view: 900, kmh: 0.6, items: false, prize: 15000, fansBase: 600, salary: 10000,
     color: '#c77dff',
     desc: 'One step from the top. Every Apex team boss is watching.',
-    tracks: ['Al Qamar Circuit', 'Sao Bento', 'Kingsbridge Park', 'Port Lorne Street Circuit', 'Montvale GP', 'Velden Ring', 'Ashford National', 'Sierra Alta GP']
+    tracks: ['Al Qamar Circuit', 'Sao Bento', 'Kingsbridge Park', 'Port Lorne Street Circuit', 'Montvale GP', 'Velden Ring', 'Ashford National', 'Sierra Alta GP', 'Nordhavn Grand Prix Circuit', 'Marisol Coast Circuit', 'Hakone Ridge National', 'Lakemont Ring', 'Valtora International', 'Ostrava Park']
   },
   {
     id: 6, name: 'Apex Grand Prix', short: 'APEX', vehicle: 'formula', cls: 'World Championship',
-    races: 8, field: 12, laps: 5, ratingMin: 75, ratingMax: 93, aiMachine: null,
+    races: 15, field: 12, laps: 5, ratingMin: 75, ratingMax: 93, aiMachine: null,
     baseSpeed: 540, baseAcc: 380, baseTurn: 2.6, width: 156, runoff: 84, radius: 1480,
     view: 940, kmh: 0.6, items: false, prize: 40000, fansBase: 1500, salary: 40000,
     color: '#f9f871',
     desc: 'The pinnacle. Twelve of the fastest humans alive. One crown.',
-    tracks: ['Grand Prix of Valtora', 'Marisol Bay GP', 'Nordhavn GP', 'Hakone Ridge GP', 'Autodromo Serrano GP', 'Al Qamar Night Race', 'Sao Bento GP', 'Kingsbridge Grand Prix', 'Ostrava GP', 'Lakemont GP']
+    tracks: ['Grand Prix of Valtora', 'Marisol Bay GP', 'Nordhavn GP', 'Hakone Ridge GP', 'Autodromo Serrano GP', 'Al Qamar Night Race', 'Sao Bento GP', 'Kingsbridge Grand Prix', 'Ostrava GP', 'Lakemont GP', 'Monte Carrara GP', 'Torrent Bay GP', 'Baie Rouge GP', 'Puerto Lumbre Night GP', 'Kirkwall GP']
   }
 ];
 
@@ -786,7 +786,15 @@ function buildTrack(name, tier) {
   const AMP = [0, 0, 0.26, 0.2, 0.13, 0.08, 0.05];
   let scale = 1, best = null;
 
-  for (let attempt = 0; attempt < 16; attempt++) {
+  // Proper circuits: straights joined by corners of every kind (hairpins, sweepers, chicanes, esses)
+  for (let attempt = 0; attempt < 40 && !best; attempt++) {
+    const raw = circuitLayout(rnd, R, W, attempt);
+    if (!raw) continue;
+    const pts = resample(raw.rx, raw.ry, spacing);
+    computeGeometry(pts, spacing);
+    if (validate(pts, spacing, W, runoff)) best = pts;
+  }
+  for (let attempt = 0; attempt < 16 && !best; attempt++) {
     const harm = [];
     for (let k = 2; k <= 6; k++) harm.push({ k, a: (0.35 + rnd() * 0.65) * AMP[k] * scale, p: rnd() * TAU });
     const sx = 1 + rnd() * 0.45, rot = rnd() * TAU;
@@ -806,7 +814,7 @@ function buildTrack(name, tier) {
     const ok = validate(pts, spacing, W, runoff);
     if (ok) { best = pts; break; }
     scale *= 0.85;
-    best = pts;
+    if (attempt === 15) best = pts;
   }
 
   const pts = best;
@@ -872,6 +880,74 @@ function buildTrack(name, tier) {
   const track = { name, pts: rot, n, spacing, L, W, runoff, path, linePath, trees, tires, stand, boxRows, bounds: { minX, minY, maxX, maxY } };
   TRACK_CACHE[key] = track;
   return track;
+}
+
+/* A star-shaped polygon of corner points (so it never crosses itself), some pushed in to make
+   tight infield sections, the odd chicane on long straights, then every corner rounded with its
+   own radius: tight hairpins, medium corners and fast sweepers, joined by real straights. */
+function circuitLayout(rnd, R, W, attempt) {
+  const M = 11 + Math.floor(rnd() * 6) - (attempt > 20 ? 2 : 0) - (attempt > 30 ? 2 : 0);
+  R *= 1.12;
+  const ang = [];
+  for (let i = 0; i < M; i++) ang.push((i + 0.5 + (rnd() - 0.5) * 0.55) / M * TAU);
+  let P = [];
+  const sx = 1.05 + rnd() * 0.4, rot = rnd() * TAU, cr = Math.cos(rot), sr = Math.sin(rot);
+  for (let i = 0; i < M; i++) {
+    let r = R * (0.82 + rnd() * 0.42);
+    if (rnd() < 0.34) r = R * (0.4 + rnd() * 0.22);      // pulled into the infield
+    const x = Math.cos(ang[i]) * r * sx, y = Math.sin(ang[i]) * r;
+    P.push({ x: x * cr - y * sr, y: x * sr + y * cr });
+  }
+  // chicanes / kinks on the longest straights
+  const Q = [];
+  for (let i = 0; i < P.length; i++) {
+    const a = P[i], b = P[(i + 1) % P.length];
+    Q.push(a);
+    const len = Math.hypot(b.x - a.x, b.y - a.y);
+    if (len > W * 8 && rnd() < 0.5) {
+      const ux = (b.x - a.x) / len, uy = (b.y - a.y) / len, side = rnd() < 0.5 ? 1 : -1, off = W * (0.9 + rnd() * 0.6);
+      const t = 0.4 + rnd() * 0.2;
+      Q.push({ x: a.x + ux * len * t - uy * off * side, y: a.y + uy * len * t + ux * off * side });
+    }
+  }
+  P = Q;
+  const n = P.length, out = [];
+  const tan = [];
+  for (let i = 0; i < n; i++) {
+    const a = P[(i - 1 + n) % n], b = P[i], c = P[(i + 1) % n];
+    const l1 = Math.hypot(b.x - a.x, b.y - a.y), l2 = Math.hypot(c.x - b.x, c.y - b.y);
+    const d1 = { x: (b.x - a.x) / l1, y: (b.y - a.y) / l1 }, d2 = { x: (c.x - b.x) / l2, y: (c.y - b.y) / l2 };
+    const turn = Math.abs(angDiff(Math.atan2(d2.y, d2.x), Math.atan2(d1.y, d1.x)));
+    if (turn > 2.75) return null;                         // too close to a U-turn on itself
+    // corner character: some tight, some fast
+    const kind = rnd();
+    let rc = W * (kind < 0.35 ? 1.05 + rnd() * 0.55 : kind < 0.75 ? 1.8 + rnd() * 1.6 : 3.5 + rnd() * 3);
+    let t = rc * Math.tan(turn / 2);
+    const maxT = 0.47 * Math.min(l1, l2);
+    if (t > maxT) { t = maxT; rc = t / Math.max(1e-6, Math.tan(turn / 2)); }
+    if (rc < W * 1.0 && turn > 0.12) return null;
+    tan.push({ b, d1, d2, t, rc, turn, sgn: Math.sign(d1.x * d2.y - d1.y * d2.x) });
+  }
+  for (const q of tan) {
+    const t1 = { x: q.b.x - q.d1.x * q.t, y: q.b.y - q.d1.y * q.t };
+    if (q.turn < 0.02) { out.push(t1); continue; }
+    // arc from t1 around the centre
+    const nx = -q.d1.y * q.sgn, ny = q.d1.x * q.sgn;
+    const cx = t1.x + nx * q.rc, cy = t1.y + ny * q.rc;
+    const a0 = Math.atan2(t1.y - cy, t1.x - cx), steps = Math.max(4, Math.ceil(q.turn * q.rc / 4));
+    for (let k = 0; k <= steps; k++) {
+      const a = a0 + q.sgn * q.turn * k / steps;
+      out.push({ x: cx + Math.cos(a) * q.rc, y: cy + Math.sin(a) * q.rc });
+    }
+  }
+  // the polygon must run counter-clockwise like the old generator (start line / pit side rely on it)
+  let area = 0;
+  for (let i = 0; i < out.length; i++) { const a = out[i], b = out[(i + 1) % out.length]; area += a.x * b.y - b.x * a.y; }
+  if (area < 0) out.reverse();
+  // drop duplicate points
+  const rx = [], ry = [];
+  for (const p of out) { if (rx.length && Math.hypot(p.x - rx[rx.length - 1], p.y - ry[ry.length - 1]) < 0.5) continue; rx.push(p.x); ry.push(p.y); }
+  return { rx: Float64Array.from(rx), ry: Float64Array.from(ry) };
 }
 
 function resample(rx, ry, spacing) {
@@ -989,7 +1065,7 @@ const RACE_TARGET_SECONDS = 300;
 function raceLaps(trackOrName, tier) {
   const tr = typeof trackOrName === 'string' ? buildTrack(trackOrName, tier) : trackOrName;
   const avgSpeed = tier.baseSpeed * (tier.vehicle === 'kart' ? 0.9 : 1.0); // measured average lap pace
-  const lapTime = tr.L / avgSpeed;
+  const lapTime = tr.L / avgSpeed * 1.07; // pit stop + corners
   return Math.max(3, Math.round(RACE_TARGET_SECONDS / lapTime));
 }
 
@@ -2406,9 +2482,9 @@ const ITEM_KEYS = Object.keys(ITEM_DEFS);
 /* Tyre compounds. grip: peak grip. life: share of the race distance before they fall off a cliff.
    warm: how fast they come up to temperature (cold tyres only give ~80% grip). */
 const TYRES = {
-  S: { key: 'S', name: 'Soft', color: '#ff3b3b', grip: 1.12, life: 0.5, warm: 0.13, desc: 'Most grip, warms up fast, but worn out about halfway.' },
-  M: { key: 'M', name: 'Medium', color: '#ffd60a', grip: 1.0, life: 0.85, warm: 0.085, desc: 'Balanced. Starts to fade near the end of the race.' },
-  H: { key: 'H', name: 'Hard', color: '#f1f1f1', grip: 0.93, life: 1.4, warm: 0.05, desc: 'Least grip and slow to warm up, but lasts the whole race.' },
+  S: { key: 'S', name: 'Soft', color: '#ff3b3b', grip: 1.12, life: 0.36, warm: 0.13, desc: 'Most grip, warms up fast, but only lasts about a third of the race.' },
+  M: { key: 'M', name: 'Medium', color: '#ffd60a', grip: 1.0, life: 0.56, warm: 0.085, desc: 'Balanced. Lasts a bit over half the race.' },
+  H: { key: 'H', name: 'Hard', color: '#f1f1f1', grip: 0.93, life: 0.82, warm: 0.05, desc: 'Least grip and slow to warm up. Lasts longest, but not the whole race.' },
   W: { key: 'W', name: 'Wet', color: '#3a86ff', grip: 0.9, life: 0.45, warm: 0.15, wet: true, desc: 'For rain. Grips on a wet track, but wears out fast once it dries.' }
 };
 // How often AI drivers make mistakes (per second spent in a corner, before modifiers)
@@ -2424,9 +2500,20 @@ function genWeather(seed) {
   if (x < 0.55) { start = 0; to = 0; }                                   // dry
   else if (x < 0.72) { start = 0.6 + rng() * 0.4; to = rng() < 0.5 ? 0 : start; at = 0.4 + rng() * 0.3; } // wet start, may dry
   else { start = 0; to = 0.5 + rng() * 0.5; at = 0.25 + rng() * 0.35; } // rain arrives mid-race
-  return { start, to, at, windDir: rng() * TAU, wind: 0.3 + rng() * 0.7 };
+  let at2 = 0, to2 = 0;
+  if (to > 0 && start === 0 && rng() < 0.45) { at2 = Math.min(0.92, at + 0.22 + rng() * 0.2); to2 = 0; } // a passing shower
+  const temp = Math.round(start > 0 ? 12 + rng() * 8 : 17 + rng() * 15);
+  return { start, to, at, at2, to2, temp, windDir: rng() * TAU, wind: 0.3 + rng() * 0.7 };
 }
+// How many laps a set lasts in a race of `laps` laps. Never the whole race, so everyone has to stop.
+function tyreLaps(k, laps) {
+  const TC = TYRES[k];
+  return clamp(Math.round(TC.life * laps), 1, Math.max(1, laps - 1));
+}
+// rain intensity the sky is heading for at a given share of race distance
+function wxTarget(wx, f) { return f < wx.at ? wx.start : (wx.at2 && f >= wx.at2 ? wx.to2 : wx.to); }
 function weatherText(wx) {
+  if (wx.at2 && wx.to > 0) return 'Dry start, a passing shower around ' + Math.round(wx.at * 100) + '% distance';
   if (wx.start > 0 && wx.to > 0) return 'Rain all race';
   if (wx.start > 0) return 'Wet start, drying later';
   if (wx.to > 0) return 'Dry start, rain expected around ' + Math.round(wx.at * 100) + '% distance';
@@ -2512,6 +2599,8 @@ class RaceEngine {
     this.endTimer = -1;
     this.done = false;
     this.messages = [];
+    this.radioQ = []; this.radio = null; this.radioSaid = {};
+    this.mustPit = !opts.qualifying && opts.laps >= 2 && opts.mustPit !== false;
     this.cam = { x: 0, y: 0, z: 1 };
     this.diffK = { easy: 0.8, normal: 0.88, hard: 0.95 }[opts.difficulty] || 0.88;
     this.cars = opts.racers.map((r, i) => this.makeCar(r, i));
@@ -2588,7 +2677,7 @@ class RaceEngine {
       aiK: clamp(this.diffK + (s.rc - 60) / 100 * 0.04 + (s.foc - 60) / 100 * 0.02, 0.7, 0.985),
       rubber: 1, prevItemKey: false, lastHitBy: null, wrongWay: 0, auto: false, bog: 0,
       compound: TYRES[r.compound] ? r.compound : 'M', temp: 0.3, tg: 0.85, tyreWarned: false,
-      stint: 0, pitReq: null, pitTimer: 0, pits: 0, pitThresh: 0.4 + Math.random() * 0.3
+      lifeLaps: tyreLaps(TYRES[r.compound] ? r.compound : 'M', this.laps), stint: 0, pitReq: null, pitTimer: 0, pits: 0, pitThresh: 0.4 + Math.random() * 0.3
     });
     return c;
   }
@@ -2698,6 +2787,7 @@ class RaceEngine {
     this.clock += dt;
     const tr = this.track;
     if (this.state === 'countdown') {
+      if (!this.briefed && !this.quali && this.clock > 0.2) { this.briefed = true; this.weatherBriefing(); }
       this.lights = Math.min(5, Math.floor(this.clock / 0.6));
       if (this.lights !== this.prevLights) { if (this.lights > 0) { this.sfx.beep(440, 0.15); this.buzz(25); } this.prevLights = this.lights; }
       if (this.clock >= this.goAt) {
@@ -2722,12 +2812,15 @@ class RaceEngine {
     // weather: rain intensity follows the leader's race distance; the track soaks / dries with a lag
     if (racing && !this.quali) {
       const lead = this.order && this.order[0] ? clamp(this.order[0].total / (this.track.L * this.laps), 0, 1) : 0;
-      const target = lead < this.wx.at ? this.wx.start : this.wx.to;
+      const target = wxTarget(this.wx, lead);
       this.rain += (target - this.rain) * Math.min(1, dt * 0.15);
       const wetRate = this.rain > this.wet ? 0.035 : 0.012;
       this.wet = clamp(this.wet + Math.sign(this.rain - this.wet) * Math.min(Math.abs(this.rain - this.wet), wetRate * dt), 0, 1);
-      if (!this.rainAnnounced && this.rain > 0.25 && this.wx.start === 0) { this.rainAnnounced = true; this.flash('RAIN IS FALLING - consider wet tyres', '#8ecae6', 3, 26); }
+      if (!this.rainAnnounced && this.rain > 0.25 && this.wx.start === 0) { this.rainAnnounced = true; this.flash('RAIN IS FALLING', '#8ecae6', 2.5, 30); }
+      this.updateRadio(lead);
     }
+    if (this.radio) { this.radio.t -= dt; if (this.radio.t <= 0) this.radio = null; }
+    if (!this.radio && this.radioQ.length) { const m = this.radioQ.shift(); this.radio = { text: m.text, color: m.color, t: 6, max: 6 }; this.sfx.beep(1250, 0.06, 'square'); setTimeout(() => this.sfx.beep(1250, 0.06, 'square'), 110); this.buzz([30, 50, 30]); }
     // rubber banding & order
     this.computeOrder();
     for (const c of this.cars) {
@@ -2819,8 +2912,10 @@ class RaceEngine {
     const spdF = clamp(Math.hypot(c.vx, c.vy) / T.baseSpeed, 0, 1.3);
     const tTarget = 0.22 + 0.55 * spdF + 0.5 * Math.abs(inp.steer || 0) * spdF + (inp.brk && spdF > 0.3 ? 0.2 : 0);
     c.temp += (tTarget - c.temp) * TC.warm * dt * (tTarget > c.temp ? 1 : 0.3);
-    const life = TC.wet ? TC.life + 1.1 * this.wet : TC.life;
-    c.wear = this.quali ? 0 : clamp(((c.total - c.stint) / (tr.L * this.laps)) / life, 0, 3);
+    // wear counts laps on this set against the set's lap life (wets last longer while it is wet)
+    const lifeLaps = tyreLaps(c.compound, this.laps) * (TC.wet ? 1 + 2.4 * this.wet : 1);
+    c.lifeLaps = lifeLaps;
+    c.wear = this.quali ? 0 : clamp(((c.total - c.stint) / tr.L) / lifeLaps, 0, 3);
     const tempGrip = 0.75 + 0.25 * clamp((c.temp - 0.3) / 0.45, 0, 1);
     const wearGrip = 1 - 0.06 * Math.min(c.wear, 1) - 0.35 * clamp(c.wear - 1, 0, 1);
     c.tg = TC.grip * tempGrip * wearGrip * wetGrip(TC, this.wet);
@@ -3076,6 +3171,10 @@ class RaceEngine {
     };
     if (c.pitSeq.stopT > 4.5) this.announce(c, '- SLOW PIT STOP');
     c.pitReq = null; c.inPit = true; c.drift = false;
+    if (c.isPlayer && typeof document !== 'undefined' && document.querySelectorAll) document.querySelectorAll('[data-act="pit-req"]').forEach(b => {
+      const k = b.dataset.arg, left = Math.max(1, Math.ceil(this.laps - c.total / this.track.L));
+      b.innerHTML = k + ' ' + TYRES[k].name + '<small style="display:block;opacity:.75;font-size:.75em">' + (TYRES[k].wet ? 'rain tyre' : tyreLaps(k, this.laps) + ' laps' + (tyreLaps(k, this.laps) >= left ? ' \u2714 to the end' : '')) + '</small>';
+    });
     if (c.isPlayer) { this.flash('PIT LANE', '#ffd166', 1.5, 34); if (this.o.onPit) this.o.onPit(c.pitSeq.comp ? null : 'choose'); }
   }
   // tyre the player picks from the menu shown during the pit-lane cutscene
@@ -3171,10 +3270,69 @@ class RaceEngine {
     if (this.quali || c.pitReq || c.finished) return;
     const remaining = 1 - clamp(c.total / (this.track.L * this.laps), 0, 1);
     if (remaining < 0.1) return;
-    const TC = TYRES[c.compound];
+    const TC = TYRES[c.compound], done = 1 - remaining;
+    if (c.stopAt == null) {
+      const life = TC.wet ? 0.7 : TC.life;
+      const lifeF = TC.wet ? life : tyreLaps(c.compound, this.laps) / this.laps;
+      c.stopAt = clamp(Math.min(lifeF * (0.85 + Math.random() * 0.12), 0.28 + Math.random() * 0.3), 0.15, 1 - 1.4 / this.laps);
+    }
     if (!TC.wet && this.wet > c.pitThresh) c.pitReq = 'W';
-    else if (TC.wet && this.wet < 0.2 && this.rain < 0.1) c.pitReq = remaining < 0.45 ? 'S' : 'M';
-    else if (c.wear > 1.02 && remaining > 0.15) c.pitReq = TC.wet ? 'W' : remaining < 0.45 ? 'S' : 'M';
+    else if (TC.wet && this.wet < 0.2 && this.rain < 0.1) c.pitReq = this.dryPick(remaining);
+    else if (c.wear > 0.97 && remaining > 0.12) c.pitReq = TC.wet ? 'W' : this.dryPick(remaining);
+    else if (this.mustPit && c.pits === 0 && done > c.stopAt) c.pitReq = TC.wet && this.wet > 0.3 ? 'W' : this.dryPick(remaining);
+  }
+  // softest dry tyre that should last to the flag
+  dryPick(rem) {
+    const left = rem * this.laps;
+    return left <= tyreLaps('S', this.laps) ? 'S' : left <= tyreLaps('M', this.laps) ? 'M' : 'H';
+  }
+
+  /* ---------- crew radio ---------- */
+  say(key, text, color) {
+    if (key && this.radioSaid[key]) return;
+    if (key) this.radioSaid[key] = true;
+    this.radioQ.push({ text, color: color || '#ffffff' });
+    if (this.o.onRadio) this.o.onRadio(text);
+  }
+  lapOf(f) { return clamp(Math.floor(f * this.laps) + 1, 1, this.laps); }
+  weatherBriefing() {
+    const wx = this.wx, wind = Math.round(wx.wind * 40);
+    const now = (wx.start > 0.3 ? 'Wet track, raining' : 'Dry track') + ', ' + (wx.temp || 20) + '\u00B0C, wind ' + wind + ' km/h.';
+    let fc;
+    if (wx.start > 0 && wx.to > 0) fc = 'Rain all race. Wets are the tyre today.';
+    else if (wx.start > 0) fc = 'Rain should stop around lap ' + this.lapOf(wx.at) + ', then the track dries.';
+    else if (wx.to > 0 && wx.at2) fc = 'Shower due around lap ' + this.lapOf(wx.at) + ', clearing by lap ' + this.lapOf(wx.at2) + '.';
+    else if (wx.to > 0) fc = 'Radar shows rain arriving around lap ' + this.lapOf(wx.at) + '.';
+    else fc = 'No rain expected.';
+    this.say('brief', 'Radio check. ' + now + ' ' + fc, '#8ecae6');
+    if (this.mustPit) this.say('rule', 'Reminder: at least one pit stop is mandatory today.', '#ffd166');
+  }
+  updateRadio(lead) {
+    const p = this.player, wx = this.wx, L = this.laps;
+    if (!p || p.finished) return;
+    // weather changes coming: warn about 2 laps out, then again when it is close
+    const changes = [[wx.at, wx.start, wx.to], [wx.at2 || 0, wx.to, wx.to2 || 0]];
+    changes.forEach(([at, from, to], i) => {
+      if (!at || Math.abs(to - from) < 0.25) return;
+      const lapsAway = (at - lead) * L, n = Math.max(1, Math.round(lapsAway)), pl = n > 1 ? 's' : '';
+      const rainIn = to > from;
+      if (lapsAway > 0 && lapsAway < 2.2) this.say('wx' + i + 'a', rainIn ? 'Weather update: rain expected around lap ' + this.lapOf(at) + ' (about ' + n + ' lap' + pl + ' away).' : 'Weather update: rain should stop around lap ' + this.lapOf(at) + '. Track will dry.', '#8ecae6');
+      if (lapsAway > 0 && lapsAway < 0.6) this.say('wx' + i + 'b', rainIn ? 'Rain is minutes away. Get ready to box for wets.' : 'Rain is easing off now.', '#8ecae6');
+    });
+    // tyre calls for the conditions
+    const TC = TYRES[p.compound];
+    if (!p.pitSeq && !p.pitReq) {
+      if (!TC.wet && this.wet > 0.35 && this.rain > 0.2) this.say('wetcall' + p.pits, 'Track is wet. Box, box! Wets will be much faster.', '#4cc9f0');
+      else if (TC.wet && this.wet < 0.2 && this.rain < 0.1) this.say('drycall' + p.pits, 'Track is drying. Slicks will be quicker now, box when ready.', '#ffd166');
+      else if (p.wear > 0.85) this.say('wear' + p.pits, 'Tyres are nearly gone. Box soon.', '#ff9f1c');
+    }
+    // the mandatory stop
+    if (this.mustPit && p.pits === 0 && !p.pitSeq && !p.pitReq) {
+      const pf = clamp(p.total / (this.track.L * L), 0, 1);
+      if (pf > 0.45) this.say('stop1', 'You still need to make your pit stop. Box when it suits you.', '#ffd166');
+      if (p.maxLap === L - 2) { if (!this.radioSaid.stop2) this.flash('LAST CHANCE TO PIT', '#ff6b6b', 2.5, 30); this.say('stop2', 'Last chance! Box THIS lap or you will be classified last.', '#ff6b6b'); }
+      if (p.maxLap >= L - 1) this.say('stop3', 'No pit stop made. You will be classified behind everyone who stopped.', '#ff6b6b');
+    }
   }
 
   resetToTrack(c) {
@@ -3497,6 +3655,12 @@ class RaceEngine {
       results.splice(results.indexOf(pr), 1);
       results.push(pr);
       results.forEach((r, i) => r.pos = i + 1);
+    }
+    if (this.mustPit) {
+      const byId = {}; this.cars.forEach(c => byId[c.id] = c);
+      const pen = r => !r.dnf && byId[r.id] && byId[r.id].pits === 0;
+      const sorted = results.filter(r => !r.dnf && !pen(r)).concat(results.filter(pen), results.filter(r => r.dnf));
+      results.length = 0; sorted.forEach((r, i) => { r.pos = i + 1; r.pen = pen(r); results.push(r); });
     }
     let fl = null;
     for (const c of this.cars) if (c.best < Infinity && (!fl || c.best < fl.best)) fl = c;
@@ -3944,6 +4108,7 @@ class RaceEngine {
       ctx.textAlign = 'left';
       if (p.pitReq) { ctx.fillStyle = TYRES[p.pitReq] ? TYRES[p.pitReq].color : '#ffd166'; ctx.font = font(12, 700); ctx.fillText(TYRES[p.pitReq] ? 'BOX: ' + TYRES[p.pitReq].name.toUpperCase() : 'BOX THIS LAP', wx0 + 12, wy0 + 60); }
       else if (p.pitTimer > 0) { ctx.fillStyle = '#ffd166'; ctx.font = font(12, 700); ctx.fillText('IN PIT ' + p.pitTimer.toFixed(1), wx0 + 12, wy0 + 60); }
+      else if (this.mustPit && p.pits === 0) { ctx.fillStyle = (this.clock % 1 < 0.5 || p.maxLap < this.laps - 2) ? '#ff9f1c' : '#ff6b6b'; ctx.font = font(12, 700); ctx.fillText('1 STOP REQUIRED', wx0 + 12, wy0 + 60); }
     }
     // tyres
     {
@@ -3959,7 +4124,9 @@ class RaceEngine {
       ctx.fillText(warm < 1 ? 'WARMING' : 'TEMP OK', bx, y0 + 20);
       ctx.fillStyle = 'rgba(255,255,255,0.12)'; ctx.fillRect(bx, y0 + 25, bw, 7);
       ctx.fillStyle = warm < 0.5 ? '#4cc9f0' : warm < 1 ? '#8ecae6' : '#7bd88f'; ctx.fillRect(bx, y0 + 25, bw * warm, 7);
-      ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.fillText(p.wear > 1 ? 'WORN OUT' : 'LIFE', bx, y0 + 48);
+      const lapsLeft = Math.max(0, Math.ceil((p.lifeLaps || 1) * (1 - p.wear) - 0.05));
+      ctx.fillStyle = p.wear > 1 ? '#ff6b6b' : lapsLeft <= 1 ? '#ffd166' : 'rgba(255,255,255,0.6)';
+      ctx.fillText(this.quali ? 'LIFE' : p.wear > 1 ? 'WORN OUT' : lapsLeft + (lapsLeft === 1 ? ' LAP LEFT' : ' LAPS LEFT'), bx, y0 + 48);
       ctx.fillStyle = 'rgba(255,255,255,0.12)'; ctx.fillRect(bx, y0 + 53, bw, 7);
       ctx.fillStyle = life > 0.5 ? '#7bd88f' : life > 0.2 ? '#ffd166' : '#ff6b6b'; ctx.fillRect(bx, y0 + 53, bw * Math.max(life, p.wear > 1 ? 1 : 0), 7);
       if (p.wear > 1) { ctx.fillStyle = '#ff6b6b'; ctx.fillRect(bx, y0 + 53, bw, 7); }
@@ -4023,11 +4190,35 @@ class RaceEngine {
         if (on) { ctx.fillStyle = 'rgba(255,80,80,0.3)'; ctx.beginPath(); ctx.arc(lx + 33 + i * 46, ly + 32, 22, 0, TAU); ctx.fill(); }
       }
       if (this.state === 'countdown') {
+        const bw2 = Math.min(w - 20, small ? 560 : 760);
+        ctx.fillStyle = 'rgba(8,12,22,0.72)'; ctx.fillRect(cx - bw2 / 2, h * 0.33 - (small ? 32 : 42), bw2, this.quali ? (small ? 74 : 86) : (small ? 122 : 136));
         ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.font = font(small ? 26 : 36);
         ctx.fillText(tr.name.toUpperCase(), cx, h * 0.33);
         ctx.font = font(18, 600); ctx.fillStyle = 'rgba(255,255,255,0.75)';
         ctx.fillText(this.quali ? 'QUALIFYING  •  one lap  •  fastest lap takes pole' : `Starting P${p.grid}  •  ${this.laps} laps  •  Time the GO for a rocket start`, cx, h * 0.33 + 30);
+        if (!this.quali) {
+          ctx.font = font(small ? 14 : 18, 700); ctx.fillStyle = this.wx.start > 0.3 ? '#8ecae6' : '#ffd166';
+          ctx.fillText((this.wx.start > 0.3 ? 'RAIN' : 'DRY') + '  ' + (this.wx.temp || 20) + '\u00B0C  •  WIND ' + Math.round(this.wx.wind * 40) + ' KM/H  •  1 PIT STOP REQUIRED', cx, h * 0.33 + 56);
+          ctx.font = font(small ? 13 : 16, 600); ctx.fillStyle = 'rgba(255,255,255,0.7)';
+          ctx.fillText('Forecast: ' + weatherText(this.wx), cx, h * 0.33 + (small ? 76 : 80));
+        }
       }
+    }
+
+    // crew radio
+    if (this.radio) {
+      const r = this.radio, a = clamp(Math.min(r.t, r.max - r.t) / 0.3, 0, 1);
+      const rw = Math.min(w - 28, small ? 520 : 680), rx = cx - rw / 2, rh = small ? 40 : 46;
+      const ry = (this.state === 'countdown' || this.time < 1) ? 96 : (cockpit && !small ? 104 : 14);
+      ctx.globalAlpha = a;
+      ctx.fillStyle = 'rgba(8,12,22,0.86)'; ctx.fillRect(rx, ry, rw, rh);
+      ctx.fillStyle = r.color; ctx.fillRect(rx, ry, 5, rh);
+      ctx.textAlign = 'left'; ctx.font = font(small ? 12 : 13, 700); ctx.fillStyle = '#ffd166';
+      ctx.fillText('RADIO \u2022 CREW', rx + 14, ry + (small ? 15 : 17));
+      let fs = small ? 15 : 18; ctx.font = font(fs, 600);
+      while (fs > 10 && ctx.measureText(r.text).width > rw - 28) { fs--; ctx.font = font(fs, 600); }
+      ctx.fillStyle = r.color; ctx.fillText(r.text, rx + 14, ry + (small ? 33 : 38));
+      ctx.globalAlpha = 1;
     }
 
     // wrong way
@@ -4201,12 +4392,19 @@ function startSeason() {
   }
   S.nextTeams = null;
 
+  // The field is built around YOU: a new series is never a walkover. If you arrive better than the
+  // series' usual level, the best drivers there are still quicker than you, and the pack sits around you.
+  const me = ovr(S.driver.stats);
+  const promoted = S.lastTier != null && S.tier > S.lastTier;
+  const lo = Math.max(T.ratingMin, me - 7), hi = clamp(Math.max(T.ratingMax, me + (promoted ? 7 : 5)), 20, 98);
+  S.lastTier = S.tier;
   // rival: always near the top of whatever series you are in
-  const rivalRating = clamp(T.ratingMax - 3 + randi(-1, 3), 20, 97);
+  const rivalRating = clamp(hi - 2 + randi(-1, 2), 20, 98);
   grid.push({ id: 'rival', name: S.rival.name, code: S.rival.code, nation: S.rival.nation, rating: rivalRating, stats: statsAround(rivalRating, 4), color: S.rival.color, helmet: S.rival.helmet, isRival: true });
   for (let i = 0; i < T.field - 2; i++) {
     const name = randomName(used);
-    const r = Math.round(rand(T.ratingMin, T.ratingMax));
+    // a few front-runners, a midfield, and some backmarkers
+    const r = Math.round(i < 3 ? rand(hi - 4, hi) : rand(lo, hi - 2));
     grid.push({ id: 'ai' + i, name, code: codeOf(name), nation: pick(NATIONS), rating: r, stats: statsAround(r), color: pick(BODY_COLORS), helmet: pick(HELMET_COLORS) });
   }
   // machines / seats
@@ -4310,7 +4508,7 @@ function applyRaceResult(out) {
     sd.points[r.id] = (sd.points[r.id] || 0) + pts;
     if (r.pos === 1 && !r.dnf) sd.wins[r.id] = (sd.wins[r.id] || 0) + 1;
     if (r.pos <= 3 && !r.dnf) sd.podiums[r.id] = (sd.podiums[r.id] || 0) + 1;
-    rows.push({ id: r.id, name: nameOf(r.id), pos: r.pos, pts, fl, time: r.time, best: r.best, grid: r.grid, dnf: r.dnf });
+    rows.push({ id: r.id, name: nameOf(r.id), pos: r.pos, pts, fl, time: r.time, best: r.best, grid: r.grid, dnf: r.dnf, pen: r.pen });
   }
   const me = out.results.find(r => r.id === 'player');
   const rv = out.results.find(r => r.id === 'rival');
@@ -4389,6 +4587,15 @@ function applyRaceResult(out) {
 
   sd.results.push({ track, rows });
   sd.round++;
+  // the other drivers keep improving through the season too
+  for (const g of sd.grid) {
+    for (const k of STAT_KEYS) if (Math.random() < 0.35) g.stats[k] = clamp(g.stats[k] + 1, 20, 99);
+    g.rating = ovr(g.stats);
+  }
+  if (S.team && T.vehicle === 'formula' && sd.teams) {
+    // rival teams bring upgrades during the year
+    for (const g of sd.grid) if (g.machine) { const up = Math.random() * 0.012; g.machine.eng += up; g.machine.chas += up; g.machine.tire += up; }
+  }
   S.lastRace = { track, round: sd.round, rows, pos, rewards, notes, levels, beatRival, rivalPos: rv ? rv.pos : null, simulated: !!out.simulated, fastest: out.fastestLap, dnf };
   if (sd.round >= T.races) { S.seasonOver = true; prepareSeasonEnd(); }
   else newWeek(false);
@@ -5270,8 +5477,9 @@ function renderQualiResults() {
       <div class="tyre-pick">${Object.values(TYRES).map(t => `
         <button class="tyre-opt ${(UI.compound || 'M') === t.key ? 'on' : ''}" data-act="tyre" data-arg="${t.key}">
           <span class="tyre-badge" style="border-color:${t.color};color:${t.color}">${t.key}</span>
-          <b>${t.name}</b><small>${t.desc}</small>
+          <b>${t.name}</b><small><b style="color:#fff">${t.wet ? 'Lasts longer the wetter it is' : 'Lasts ' + tyreLaps(t.key, raceLaps(cfg.trackName, cfg.tier)) + ' of ' + raceLaps(cfg.trackName, cfg.tier) + ' laps'}</b><br>${t.desc}</small>
         </button>`).join('')}</div>
+      <p class="muted small"><b style="color:var(--accent2)">At least one pit stop is mandatory.</b> No tyre lasts the whole race, and a driver who never stops is classified behind everyone who did. Your crew will radio you about the weather.</p>
       <p class="muted small">All tyres start cold and need a lap or so of hard driving to reach full grip. Tap <b>PIT</b> ${IS_TOUCH ? '' : '(or press <kbd>B</kbd>) '}during the race to box at the end of the lap, then pick your tyres in the pit lane.</p>
       <div class="btn-row" style="margin-top:16px">
         <button class="btn primary big" data-act="quali-race">Start the race (${raceLaps(cfg.trackName, cfg.tier)} laps)</button>
@@ -5445,13 +5653,14 @@ function renderResults() {
       <div class="muted" style="font-family:var(--head);font-weight:700;letter-spacing:.08em">ROUND ${L.round} • ${esc(L.track.toUpperCase())}${L.simulated ? ' • SIMULATED' : ''}</div>
       <div class="pbig" style="color:${color}">${L.dnf ? 'DNF' : 'P' + L.pos}</div>
       <div style="font-size:18px">${L.dnf ? 'Retired from the race.' : L.pos === 1 ? 'Victory! 🏆' : L.pos <= 3 ? 'Podium finish!' : L.pos <= field / 2 ? 'Points in the bag.' : 'Back to work.'}</div>
+      ${(L.rows.find(r => r.id === 'player') || {}).pen ? `<div class="bad" style="margin-top:6px;font-weight:700">Penalty: you never made the mandatory pit stop, so you were classified behind everyone who did.</div>` : ''}
       ${L.rivalPos ? `<div class="muted" style="margin-top:6px">Rival ${esc(S.rival.name)} finished P${L.rivalPos} — ${L.beatRival ? '<b class="good">you beat them</b>' : '<b class="bad">they beat you</b>'}</div>` : ''}
     </div>
     <div class="grid2" style="margin-top:16px">
       <div class="card"><h3>Classification</h3><div class="table-wrap"><table>
         <thead><tr><th>#</th><th>Driver</th><th>Grid</th><th>Best lap</th><th style="text-align:right">Pts</th></tr></thead><tbody>
         ${rows.map(r => `<tr class="${r.id === 'player' ? 'me' : isRival(r.id) ? 'rival' : ''}"><td class="pos">${r.dnf ? 'DNF' : r.pos}</td>
-          <td>${esc(r.name)}${r.fl ? '<span class="tag fl">FL</span>' : ''}${isRival(r.id) ? '<span class="tag rival">RIVAL</span>' : ''}</td>
+          <td>${esc(r.name)}${r.fl ? '<span class="tag fl">FL</span>' : ''}${isRival(r.id) ? '<span class="tag rival">RIVAL</span>' : ''}${r.pen ? ' <span class="tag">NO PIT STOP</span>' : ''}</td>
           <td class="muted">${r.grid || '—'}</td><td class="muted">${r.best && isFinite(r.best) ? fmtTime(r.best) : '—'}</td><td style="text-align:right"><b>${r.pts ? '+' + r.pts : ''}</b></td></tr>`).join('')}
       </tbody></table></div></div>
       <div class="stack">
@@ -5594,7 +5803,7 @@ function renderQuickResults(out) {
     <div class="card result-hero"><div class="pbig" style="color:${me.pos === 1 ? 'var(--accent2)' : '#fff'}">${me.dnf ? 'DNF' : 'P' + me.pos}</div>
       <div class="muted">${esc(UI.raceCfg.trackName)}</div></div>
     <div class="card"><table><thead><tr><th>#</th><th>Driver</th><th>Best lap</th></tr></thead><tbody>
-      ${out.results.map(r => `<tr class="${r.id === 'player' ? 'me' : ''}"><td class="pos">${r.dnf ? 'DNF' : r.pos}</td><td>${esc(by[r.id].name)}${out.fastestLap === r.id ? '<span class="tag fl">FL</span>' : ''}</td><td class="muted">${isFinite(r.best) ? fmtTime(r.best) : '—'}</td></tr>`).join('')}
+      ${out.results.map(r => `<tr class="${r.id === 'player' ? 'me' : ''}"><td class="pos">${r.dnf ? 'DNF' : r.pos}</td><td>${esc(by[r.id].name)}${out.fastestLap === r.id ? '<span class="tag fl">FL</span>' : ''}${r.pen ? ' <span class="tag">NO PIT STOP</span>' : ''}</td><td class="muted">${isFinite(r.best) ? fmtTime(r.best) : '—'}</td></tr>`).join('')}
     </tbody></table>
     <div class="btn-row" style="margin-top:16px"><button class="btn primary" data-act="quick-again">Race again</button><button class="btn" data-act="quick">Change race</button><button class="btn ghost" data-act="menu">Menu</button></div></div>
   </div>`;
