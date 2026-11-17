@@ -5531,7 +5531,9 @@ ACTIONS['race-retire'] = () => { if (UI.engine) { UI.engine.paused = false; UI.e
 
 /* ---------- tilt steering (phone gyro) ---------- */
 // On phones, tilt is THE steering. Arrow buttons only appear if the sensor can't be used.
-const IS_TOUCH = !!(window.matchMedia && window.matchMedia('(hover: none) and (pointer: coarse)').matches);
+const IS_TOUCH = !!(window.matchMedia && (window.matchMedia('(hover: none) and (pointer: coarse)').matches
+  || (window.matchMedia('(pointer: coarse)').matches && navigator.maxTouchPoints > 0)))
+  || (navigator.maxTouchPoints > 1 && Math.min(screen.width, screen.height) < 900 && /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent));
 if (IS_TOUCH) document.documentElement.classList.add('touch');
 const TILT = { on: false, steer: 0, zero: 0, raw: 0, listening: false, got: false, asking: false, told: false };
 const TILT_RANGE = 26;  // degrees of tilt for full lock
@@ -5550,14 +5552,17 @@ function tiltAngle(e) {
 }
 function onOrientation(e) {
   if (e.beta == null && e.gamma == null) return;
-  if (!TILT.got) { TILT.got = true; TILT.zero = tiltAngle(e) || 0; }
+  if (!TILT.got) {
+    TILT.got = true; TILT.zero = tiltAngle(e) || 0;
+    if (TILT.wanted && !TILT.on) { TILT.on = true; setTiltUI(); toast('Tilt steering is on.', 'good'); }
+  }
   TILT.raw = tiltAngle(e) || 0;
   let d = TILT.raw - TILT.zero;
   if (Math.abs(d) < TILT_DEAD) d = 0; else d -= Math.sign(d) * TILT_DEAD;
   TILT.steer = clamp(d / (TILT_RANGE - TILT_DEAD), -1, 1);
   document.querySelectorAll('.tc-tilt-meter i').forEach(dot => { dot.style.left = (50 + TILT.steer * 45) + '%'; });
 }
-function setTiltUI() { $('#touch-controls').classList.toggle('tilt-on', TILT.on); }
+function setTiltUI() { const tc = $('#touch-controls'); if (tc) tc.classList.toggle('tilt-on', TILT.on); }
 // Must be called straight from a tap (iPhone only shows the motion prompt for a tap).
 function enableTilt(quiet) {
   if (TILT.listening) return Promise.resolve(true);
@@ -5577,13 +5582,13 @@ function enableTilt(quiet) {
 }
 // Turn tilt on for a race (phones only). Falls back to arrow buttons if no readings arrive.
 function startTilt() {
-  if (!IS_TOUCH) { TILT.on = false; setTiltUI(); return; }
-  TILT.on = true; setTiltUI();
+  if (!IS_TOUCH) { TILT.on = false; TILT.wanted = false; setTiltUI(); return; }
+  TILT.on = true; TILT.wanted = true; setTiltUI();
   enableTilt().then(ok => {
-    if (!ok) { TILT.on = false; setTiltUI(); return; }
+    if (!ok) { TILT.on = false; setTiltUI(); toast('Tilt is off - tap CENTER to turn it on.', 'bad'); return; }
     setTimeout(() => { if (TILT.got) TILT.zero = TILT.raw; }, 350); // however you hold it at the start = straight
     setTimeout(() => {
-      if (!TILT.got) { TILT.on = false; setTiltUI(); toast('No tilt readings - using arrow buttons. Tap CENTER to try again.', 'bad'); }
+      if (!TILT.got) { TILT.on = false; setTiltUI(); toast('No tilt readings yet - using arrow buttons. Tap CENTER to try again.', 'bad'); }
       else if (!TILT.told) { TILT.told = true; toast('Tilt the phone to steer. Tap CENTER to re-level.', 'good'); }
     }, 1800);
   });
@@ -5595,10 +5600,11 @@ ACTIONS['tilt-center'] = () => {
   toast('Steering centred');
 };
 // Ask for motion access on the first tap anywhere, so the iPhone prompt shows in the menus, not mid-race.
-if (IS_TOUCH) document.addEventListener('click', function first() {
-  document.removeEventListener('click', first, true);
+function tiltOnTap() {
+  if (TILT.listening) { document.removeEventListener('click', tiltOnTap, true); document.removeEventListener('touchend', tiltOnTap, true); return; }
   enableTilt(true);
-}, true);
+}
+if (IS_TOUCH) { document.addEventListener('click', tiltOnTap, true); document.addEventListener('touchend', tiltOnTap, true); }
 window.addEventListener('orientationchange', () => setTimeout(() => { TILT.zero = TILT.raw; }, 400));
 
 // gas / brake slider: the bottom zone is brake, anything above it is gas (more the higher you go), let go to coast
@@ -6052,15 +6058,19 @@ function renderPad(code) {
     b.addEventListener('pointerdown', on); b.addEventListener('pointerup', off); b.addEventListener('pointercancel', off); b.addEventListener('pointerleave', off);
   });
   // tilt: needs a tap first on iPhone; arrows appear if no readings come in
-  const tryTilt = () => enableTilt(true).then(ok => {
-    setTimeout(() => {
-      const has = TILT.got;
-      steerEl.classList.toggle('hidden', has); $('#pad-tilt').classList.toggle('hidden', !has);
-      if (has && !REMOTE.leveled) { REMOTE.leveled = true; TILT.zero = TILT.raw; }
-    }, 1200);
-  });
-  document.addEventListener('pointerdown', function first() { document.removeEventListener('pointerdown', first, true); tryTilt(); }, true);
-  tryTilt();
+  // keep the screen in sync with the sensor: tilt meter when readings arrive, arrows when they don't
+  clearInterval(REMOTE.tiltTimer);
+  REMOTE.tiltTimer = setInterval(() => {
+    const has = TILT.got, pt = $('#pad-tilt');
+    if (!pt) return;
+    steerEl.classList.toggle('hidden', has); pt.classList.toggle('hidden', !has);
+    if (has && !REMOTE.leveled) { REMOTE.leveled = true; TILT.zero = TILT.raw; }
+  }, 500);
+  // iPhone asks for motion access only from a real tap; Android needs no prompt
+  const needsPrompt = window.DeviceOrientationEvent && typeof DeviceOrientationEvent.requestPermission === 'function';
+  if (!needsPrompt) enableTilt(true);
+  const onTap = () => { if (TILT.listening) { document.removeEventListener('click', onTap, true); document.removeEventListener('touchend', onTap, true); return; } enableTilt(true); };
+  document.addEventListener('click', onTap, true); document.addEventListener('touchend', onTap, true);
   try { if (navigator.wakeLock) navigator.wakeLock.request('screen').then(w => REMOTE.wake = w).catch(() => { }); } catch (e) { }
   clearInterval(REMOTE.sendTimer);
   REMOTE.sendTimer = setInterval(() => {
@@ -6122,7 +6132,7 @@ document.addEventListener('click', e => {
   if (t.id === 'pad-status') { if (!remoteConnected()) connectPad(REMOTE.code); return; }
   if (t.dataset.padClick != null) remoteSend({ t: 'click', i: +t.dataset.padClick });
   else if (t.dataset.padAct) remoteSend({ t: 'act', a: t.dataset.padAct });
-  else if (t.dataset.pad === 'center') { TILT.zero = TILT.raw; toast('Steering re-levelled', 'good'); }
+  else if (t.dataset.pad === 'center') { if (!TILT.listening || !TILT.got) { enableTilt(false); toast('Turning tilt on - hold the phone like a wheel', 'good'); } else { TILT.zero = TILT.raw; toast('Steering re-levelled', 'good'); } }
   else if (t.dataset.pad === 'hand') {
     const h = getHand() === 'left' ? 'right' : 'left'; setHand(h); if (S) { S.settings.hand = h; }
     const pad = $('#pad'); pad.classList.toggle('hand-left', h === 'left'); pad.classList.toggle('hand-right', h !== 'left');
