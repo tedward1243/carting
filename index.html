@@ -420,6 +420,23 @@ html.pad-mode, html.pad-mode body { background: #070a12; overflow: hidden; heigh
 .pad-ov-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; }
 @media (orientation: portrait) { .pad-overlay { inset: 70px 10px 40% 10px; } }
 
+/* ---------- multiplayer ---------- */
+.mp-lobby .topbar { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; position: static; }
+.mp-seg { flex-wrap: wrap; }
+.mp-seg button { min-width: 40px; }
+.mp-lobby select { width: 100%; }
+.mp-players { display: flex; flex-direction: column; gap: 6px; }
+.mp-player { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 10px; background: rgba(255,255,255,0.05); }
+.mp-player i, .mp-dot { width: 14px; height: 14px; border-radius: 50%; display: inline-block; flex: none; }
+.mp-dot { margin-right: 8px; vertical-align: -2px; }
+.mp-player b { flex: 1; }
+.tyre-badge.sm { width: 26px; height: 26px; font-size: 13px; border-width: 3px; display: inline-grid; place-items: center; border-radius: 50%; border-style: solid; font-weight: 700; }
+.mp-host { position: fixed; inset: 0; z-index: 40; background: #16241a; }
+.mp-host canvas { width: 100%; height: 100%; display: block; }
+.mp-host-btns { position: absolute; left: 14px; bottom: 14px; display: flex; gap: 8px; opacity: 0.6; }
+.mp-host-btns:hover { opacity: 1; }
+html.mp-client #pause-menu [data-act="race-restart"] { display: none; }
+
 </style>
 </head>
 <body>
@@ -2604,7 +2621,9 @@ class RaceEngine {
     this.cam = { x: 0, y: 0, z: 1 };
     this.diffK = { easy: 0.8, normal: 0.88, hard: 0.95 }[opts.difficulty] || 0.88;
     this.cars = opts.racers.map((r, i) => this.makeCar(r, i));
-    this.player = this.cars.find(c => c.isPlayer);
+    // multiplayer: the host runs every car (humans drive from their phones), a client just draws its own car
+    this.mpHost = !!opts.mpHost; this.client = !!opts.client;
+    this.player = this.cars.find(c => c.isPlayer) || this.cars[0];
     this.computeOrder();
     this.boxes = [];
     if (this.itemsOn) {
@@ -2784,6 +2803,7 @@ class RaceEngine {
   }
 
   update(dt) {
+    if (this.client) { this.clientUpdate(dt); return; }
     this.clock += dt;
     const tr = this.track;
     if (this.state === 'countdown') {
@@ -2817,10 +2837,9 @@ class RaceEngine {
       const wetRate = this.rain > this.wet ? 0.035 : 0.012;
       this.wet = clamp(this.wet + Math.sign(this.rain - this.wet) * Math.min(Math.abs(this.rain - this.wet), wetRate * dt), 0, 1);
       if (!this.rainAnnounced && this.rain > 0.25 && this.wx.start === 0) { this.rainAnnounced = true; this.flash('RAIN IS FALLING', '#8ecae6', 2.5, 30); }
-      this.updateRadio(lead);
+      if (!this.mpHost) this.updateRadio(lead);
     }
-    if (this.radio) { this.radio.t -= dt; if (this.radio.t <= 0) this.radio = null; }
-    if (!this.radio && this.radioQ.length) { const m = this.radioQ.shift(); this.radio = { text: m.text, color: m.color, t: 6, max: 6 }; this.sfx.beep(1250, 0.06, 'square'); setTimeout(() => this.sfx.beep(1250, 0.06, 'square'), 110); this.buzz([30, 50, 30]); }
+    this.tickRadio(dt);
     // rubber banding & order
     this.computeOrder();
     for (const c of this.cars) {
@@ -2836,13 +2855,15 @@ class RaceEngine {
         if (c.pitTimer <= 0) { c.inPit = false; if (c.isPlayer) this.flash('GO GO GO!', '#7CFF6B', 1, 30); }
         continue;
       }
-      if (!c.isPlayer || c.auto) this.aiPitPlan(c);
-      if (c.isPlayer && !c.auto) inp = this.playerInput();
+      const ai = (!c.isPlayer && !c.human) || c.auto;
+      if (ai) this.aiPitPlan(c);
+      if (c.human && !c.auto) inp = this.humanInput(c);
+      else if (c.isPlayer && !c.auto) inp = this.playerInput();
       else inp = this.aiInput(c, dt);
       if (c.isPlayer) this.steerVis += ((inp.steer || 0) - this.steerVis) * Math.min(1, dt * 14);
-      if (!c.isPlayer && racing && this.time < c.startDelay) inp.thr = false;
+      if (!c.isPlayer && !c.human && racing && this.time < c.startDelay) inp.thr = false;
       if (c.bog > 0) { c.bog -= dt; inp.thr = false; }
-      if (!c.isPlayer) this.updateRubber(c, dt);
+      if (!c.isPlayer && !c.human && !this.mpHost) this.updateRubber(c, dt);
       this.updateCar(c, dt, inp);
     }
     this.collideCars();
@@ -2851,7 +2872,7 @@ class RaceEngine {
     this.updateParticles(dt);
 
     // end of race
-    if (this.player.finished) {
+    if (this.mpHost ? this.cars.filter(c => c.human).every(c => c.finished) : this.player.finished) {
       if (this.endTimer < 0) this.endTimer = 0;
       this.endTimer += dt;
       if (this.quali ? this.endTimer > 2.5 : (this.endTimer > 7 || this.cars.every(c => c.finished))) this.finish(false);
@@ -3107,6 +3128,7 @@ class RaceEngine {
       if (lap >= this.laps) {
         c.finished = true;
         c.finishTime = this.time;
+        if (c.human) { c.auto = true; if (this.o.onCarEvent) this.o.onCarEvent(c, { t: 'fin' }); }
         if (c.isPlayer) {
           this.computeOrder();
           const pos = c.pos;
@@ -3166,8 +3188,8 @@ class RaceEngine {
     const slot = this.cars.indexOf(c) % 5;
     c.pitSeq = {
       phase: 'in', t: 0, d, v: Math.hypot(c.vx, c.vy), lat0: c.lat,
-      comp: c.pitReq === '?' ? null : c.pitReq, box: this.pit.boxD + (c.isPlayer ? 0 : [-138, -92, -46, 46, 92][slot]),
-      stopT: (this.isKart ? 2.6 : 2.3) + Math.random() * 0.7 + (!c.isPlayer && Math.random() < 0.15 ? 2 + Math.random() * 3 : 0)
+      comp: c.pitReq === '?' ? null : c.pitReq, box: this.pit.boxD + (c.isPlayer || c.human ? 0 : [-138, -92, -46, 46, 92][slot]),
+      stopT: (this.isKart ? 2.6 : 2.3) + Math.random() * 0.7 + (!c.isPlayer && !c.human && Math.random() < 0.15 ? 2 + Math.random() * 3 : 0)
     };
     if (c.pitSeq.stopT > 4.5) this.announce(c, '- SLOW PIT STOP');
     c.pitReq = null; c.inPit = true; c.drift = false;
@@ -3176,12 +3198,16 @@ class RaceEngine {
       b.innerHTML = k + ' ' + TYRES[k].name + '<small style="display:block;opacity:.75;font-size:.75em">' + (TYRES[k].wet ? 'rain tyre' : tyreLaps(k, this.laps) + ' laps' + (tyreLaps(k, this.laps) >= left ? ' \u2714 to the end' : '')) + '</small>';
     });
     if (c.isPlayer) { this.flash('PIT LANE', '#ffd166', 1.5, 34); if (this.o.onPit) this.o.onPit(c.pitSeq.comp ? null : 'choose'); }
+    if (c.human && this.o.onCarEvent) this.o.onCarEvent(c, { t: 'pit', cmd: c.pitSeq.comp ? 'in' : 'choose' });
   }
   // tyre the player picks from the menu shown during the pit-lane cutscene
-  choosePitTyre(k) {
-    const seq = this.player.pitSeq;
+  choosePitTyre(k, car) {
+    if (this.client) { if (this.o.send) this.o.send({ t: 'tyre', k }); if (this.o.onPit) this.o.onPit(null); this.flash(TYRES[k].name.toUpperCase() + 'S READY', TYRES[k].color, 1.2, 30); return; }
+    const c = car || this.player, seq = c.pitSeq;
     if (!seq || seq.comp || !TYRES[k]) return;
     seq.comp = k;
+    if (c.human && this.o.onCarEvent) this.o.onCarEvent(c, { t: 'pit', cmd: 'chosen', k });
+    if (c !== this.player || this.mpHost) return;
     if (this.o.onPit) this.o.onPit(null);
     this.flash(TYRES[k].name.toUpperCase() + 'S READY', TYRES[k].color, 1.2, 30);
   }
@@ -3200,7 +3226,7 @@ class RaceEngine {
     } else if (seq.phase === 'stop') {
       if (!seq.comp) { // crew waits until a tyre is chosen (the clock is still running for the race)
         seq.wait = (seq.wait || 0) + dt; seq.t = 0;
-        if (seq.wait > 6) this.choosePitTyre(this.defaultTyre());
+        if (seq.wait > 6) this.choosePitTyre(this.defaultTyre(), c);
       } else if (seq.t >= seq.stopT) {
         c.compound = seq.comp; c.stint = c.total; c.wear = 0; c.temp = 0.5; c.tyreWarned = false; c.pits++;
         seq.phase = 'out'; seq.t = 0;
@@ -3253,9 +3279,11 @@ class RaceEngine {
     c.stint = c.total; c.wear = 0; c.temp = 0.5; c.tyreWarned = false; c.pits++;
     if (c.isPlayer) { this.flash('PIT STOP - ' + TYRES[c.compound].name.toUpperCase() + 'S', TYRES[c.compound].color, 2.5, 32); this.sfx.beep(330, 0.3, 'triangle'); if (this.o.onPit) this.o.onPit(null); }
   }
-  requestPit(k) {
-    const p = this.player;
+  requestPit(k, car) {
+    if (this.client) { if (this.o.send) this.o.send({ t: 'pit' }); return; }
+    const p = car || this.player;
     if (this.quali || p.finished) return;
+    if (car && car !== this.player) { if (!p.pitSeq) p.pitReq = p.pitReq ? null : '?'; return; }
     if (p.pitSeq) return;
     if (k === 'box') {
       p.pitReq = p.pitReq ? null : '?';
@@ -3266,6 +3294,93 @@ class RaceEngine {
     }
     if (this.o.onPit) this.o.onPit(p.pitReq ? 'on' : 'off');
   }
+  tickRadio(dt) {
+    if (this.radio) { this.radio.t -= dt; if (this.radio.t <= 0) this.radio = null; }
+    if (!this.radio && this.radioQ.length) { const m = this.radioQ.shift(); this.radio = { text: m.text, color: m.color, t: 6, max: 6 }; this.sfx.beep(1250, 0.06, 'square'); setTimeout(() => this.sfx.beep(1250, 0.06, 'square'), 110); this.buzz([30, 50, 30]); }
+  }
+  /* ---------- multiplayer ---------- */
+  // a phone's latest steering + pedal (let go if the phone goes quiet)
+  humanInput(c) {
+    const n = c.net || (c.net = { s: 0, p: 0, at: 0 });
+    if (performance.now() - n.at > 800) { n.s = 0; n.p = 0; }
+    const pd = n.p || 0;
+    return { thr: pd > 0.08, brk: pd < -0.08, thrAmt: clamp((pd - 0.08) / 0.8, 0.15, 1), brkAmt: clamp((-pd - 0.08) / 0.8, 0.15, 1), steer: clamp(n.s || 0, -1, 1), drift: false, item: false };
+  }
+  // compact race state sent to every phone ~20 times a second
+  snapshot() {
+    const r = v => Math.round(v * 10) / 10;
+    const lead = this.order && this.order[0] ? clamp(this.order[0].total / (this.track.L * this.laps), 0, 1) : 0;
+    return {
+      t: 's', st: this.state, lt: this.lights || 0, tm: r(this.time), rn: r(this.rain * 100) / 100, wt: r(this.wet * 100) / 100, ld: Math.round(lead * 1000) / 1000,
+      c: this.cars.map(c => {
+        const ps = c.pitSeq;
+        return [r(c.x), r(c.y), Math.round(c.h * 1000) / 1000, r(c.vx), r(c.vy), r(c.total), c.pos, c.maxLap, c.compound, Math.round(c.wear * 100) / 100,
+          r(c.lifeLaps || 1), c.pits, c.finished ? 1 : 0, isFinite(c.best) ? Math.round(c.best * 1000) / 1000 : 0, c.pitReq ? 1 : 0, c.inPit ? 1 : 0,
+          ps ? { phase: ps.phase, t: r(ps.t), d: r(ps.d), comp: ps.comp, stopT: ps.stopT, wait: ps.wait || 0, box: ps.box, v: r(ps.v), lat0: ps.lat0 } : 0,
+          c.offroad ? 1 : 0, r(c.finishTime || 0), Math.round((c.temp || 0) * 100) / 100];
+      })
+    };
+  }
+  applySnapshot(m) {
+    this.net = m; this.netAt = performance.now();
+    m.c.forEach((a, i) => {
+      const c = this.cars[i]; if (!c) return;
+      c.sx = a[0]; c.sy = a[1]; c.sh = a[2]; c.vx = a[3]; c.vy = a[4]; c.total = a[5]; c.pos = a[6];
+      c.maxLap = a[7]; c.compound = a[8]; c.wear = a[9]; c.lifeLaps = a[10]; c.pits = a[11]; c.finished = !!a[12];
+      c.best = a[13] || Infinity; c.pitReq = a[14] ? '?' : null; c.inPit = !!a[15]; c.pitSeq = a[16] || null; c.offroad = !!a[17]; c.finishTime = a[18]; c.temp = a[19] || 0.6;
+      if (c.x === undefined || c.netInit !== true) { c.x = c.sx; c.y = c.sy; c.h = c.sh; c.netInit = true; }
+      const tr = this.track; c.s = ((c.total % tr.L) + tr.L) % tr.L; c.idx = Math.floor(c.s / tr.spacing) % tr.n;
+    });
+    this.order = this.cars.slice().sort((a, b) => a.pos - b.pos);
+  }
+  clientUpdate(dt) {
+    this.clock += dt;
+    const m = this.net, p = this.player;
+    if (!this.briefed && this.clock > 0.2) { this.briefed = true; this.weatherBriefing(); }
+    if (m) {
+      // state from the host
+      if (m.lt !== this.lights) { if (m.lt > 0 && this.state === 'countdown') { this.sfx.beep(440, 0.15); this.buzz(25); } this.lights = m.lt; }
+      if (m.st === 'race' && this.state === 'countdown') { this.state = 'race'; this.goAt = this.clock; this.sfx.beep(880, 0.4); this.buzz(120); this.flash('GO!', '#7CFF6B', 1.2, 64); }
+      const age = (performance.now() - this.netAt) / 1000;
+      this.time = m.tm + (this.state === 'race' ? Math.min(age, 0.5) : 0);
+      this.rain = m.rn; this.wet = m.wt;
+      // glide every car towards where the host says it is now
+      for (const c of this.cars) {
+        if (c.sx === undefined) continue;
+        const a2 = Math.min(age, 0.25), tx = c.sx + c.vx * a2, ty = c.sy + c.vy * a2;
+        const k = Math.min(1, dt * 14);
+        if (Math.hypot(tx - c.x, ty - c.y) > 400) { c.x = tx; c.y = ty; } else { c.x += (tx - c.x) * k; c.y += (ty - c.y) * k; }
+        c.h += angDiff(c.sh, c.h) * k;
+      }
+      if (this.state === 'race') this.updateRadio(m.ld);
+      // lap / finish cues for this phone's car
+      if (p.maxLap !== this.lastLapSeen) {
+        if (this.lastLapSeen !== undefined && p.maxLap >= 1 && p.maxLap < this.laps) this.flash(p.maxLap === this.laps - 1 ? 'FINAL LAP' : 'LAP ' + (p.maxLap + 1), p.maxLap === this.laps - 1 ? '#ffd166' : '#fff', 1.6);
+        this.lastLapSeen = p.maxLap;
+      }
+      if (p.finished && !this.finSeen) { this.finSeen = true; this.flash(p.pos === 1 ? 'VICTORY!' : 'FINISHED P' + p.pos, p.pos === 1 ? '#ffd166' : '#fff', 6, 60); this.buzz(p.pos === 1 ? [100, 60, 100, 60, 250] : [120]); }
+    }
+    this.tickRadio(dt);
+    const inp = this.playerInput();
+    this.steerVis += ((inp.steer || 0) - this.steerVis) * Math.min(1, dt * 14);
+    // camera + effects
+    const lead = 0.35, tx = p.x + p.vx * lead, ty = p.y + p.vy * lead;
+    this.cam.x += (tx - this.cam.x) * Math.min(1, dt * 6); this.cam.y += (ty - this.cam.y) * Math.min(1, dt * 6);
+    const sp = Math.hypot(p.vx, p.vy);
+    this.cam.z += (this.targetZoom(sp) - this.cam.z) * Math.min(1, dt * 2);
+    this.shake = Math.max(0, this.shake - dt * 3);
+    for (const f of this.flashes) f.t -= dt;
+    this.flashes = this.flashes.filter(f => f.t > 0);
+    this.updateParticles(dt);
+    this.sfx.engine(clamp(sp / (this.tier.baseSpeed * 1.1), 0, 1.2), !this.paused);
+  }
+  // what this phone sends to the host
+  clientInput() {
+    const inp = this.playerInput();
+    const pd = this.touch.pedal || (inp.thr && !this.touch.pedal ? 1 : inp.brk ? -1 : 0);
+    return { t: 'in', s: Math.round((inp.steer || 0) * 1000) / 1000, p: Math.round(pd * 1000) / 1000 };
+  }
+
   aiPitPlan(c) {
     if (this.quali || c.pitReq || c.finished) return;
     const remaining = 1 - clamp(c.total / (this.track.L * this.laps), 0, 1);
@@ -3336,6 +3451,7 @@ class RaceEngine {
   }
 
   resetToTrack(c) {
+    if (this.client) { if (this.o.send) this.o.send({ t: 'reset' }); return; }
     const tr = this.track;
     const p = tr.pts[c.idx];
     c.x = p.x; c.y = p.y; c.h = p.a; c.vx = Math.cos(p.a) * 40; c.vy = Math.sin(p.a) * 40;
@@ -3656,7 +3772,7 @@ class RaceEngine {
       results.push(pr);
       results.forEach((r, i) => r.pos = i + 1);
     }
-    if (this.mustPit) {
+    if (this.mustPit && !this.endedEarly) {
       const byId = {}; this.cars.forEach(c => byId[c.id] = c);
       const pen = r => !r.dnf && byId[r.id] && byId[r.id].pits === 0;
       const sorted = results.filter(r => !r.dnf && !pen(r)).concat(results.filter(pen), results.filter(r => r.dnf));
@@ -4918,6 +5034,8 @@ function renderTitle() {
       ${has ? `<button class="btn primary big" data-act="continue">Continue career</button>` : ''}
       <button class="btn ${has ? '' : 'primary big'}" data-act="new">New career</button>
       <button class="btn" data-act="quick">Quick race</button>
+      ${IS_TOUCH ? `<button class="btn" data-act="mp-join">👥 Join a multiplayer race</button><button class="btn ghost" data-act="mp-host">Host multiplayer on this device</button>`
+        : `<button class="btn" data-act="mp-host">👥 Multiplayer (up to 10 phones)</button>`}
       <button class="btn" data-act="hof">Hall of Fame</button>
       <button class="btn ghost" data-act="help">How to play</button>
     </div>
@@ -6149,6 +6267,522 @@ document.addEventListener('click', e => {
 {
   const code = new URLSearchParams(location.search).get('pad');
   if (code && /^[A-Za-z0-9]{5}$/.test(code)) renderPad(code.toUpperCase());
+}
+
+</script>
+  <script>
+/* ============================================================
+   Multiplayer: up to 10 friends race each other from their phones.
+   The HOST device (a computer, TV or tablet) shows a QR code. Everyone scans it,
+   types a name and picks a starting tyre. The host runs the race for every car and
+   shows a live overview: the whole track with every car on it, positions, gaps,
+   tyres and laps left, and every pit stop. Each phone shows its own car (3D or top
+   view) and drives it with tilt + the thumb slider, PIT, tyre choice in the pit lane.
+   Connection: WebRTC via PeerJS (only the random race code goes to the signalling server).
+   ============================================================ */
+const MP = { role: null, peer: null, code: null, players: [], max: 6, tier: 3, track: null, ai: true, engine: null, raf: 0, sendT: 0, log: [], conn: null, me: null, lobby: null, results: null, hostCanvas: null };
+const mpPeerId = code => 'kart2crown-mp-' + String(code).toLowerCase();
+const mpURL = code => location.origin + location.pathname + '?mp=' + code;
+const MP_COLORS = ['#e63946', '#4cc9f0', '#ffd60a', '#06d6a0', '#ff8500', '#c77dff', '#f72585', '#f1f1f1', '#4361ee', '#8ac926'];
+function mpSendAll(m) { for (const p of MP.players) { try { if (p.conn && p.conn.open) p.conn.send(m); } catch (e) { } } }
+function mpSend(m) { try { if (MP.conn && MP.conn.open) MP.conn.send(m); } catch (e) { } }
+function mpLapsFor() { const T = TIERS[MP.tier]; return raceLaps(MP.track, T); }
+
+/* ======================= HOST ======================= */
+ACTIONS['mp-host'] = () => {
+  if (MP.role === 'phone') return;
+  MP.role = 'host';
+  if (!MP.track || !TIERS[MP.tier].tracks.includes(MP.track)) MP.track = TIERS[MP.tier].tracks[0];
+  renderMpLobby();
+  mpStartHost();
+};
+async function mpStartHost() {
+  if (MP.peer && !MP.peer.destroyed) return mpLobbyUpdate();
+  try { await loadScriptOnce(PEERJS_URL); } catch (e) { mpStatus('Could not load the connection library. Check your internet connection.'); return; }
+  MP.code = newPadCode();
+  const peer = new Peer(mpPeerId(MP.code));
+  MP.peer = peer;
+  mpShowCode();
+  mpStatus('Connecting…');
+  peer.on('open', () => mpStatus('Ready. Scan the code to join.', true));
+  peer.on('error', err => {
+    if (err && err.type === 'unavailable-id') { try { peer.destroy(); } catch (e) { } MP.peer = null; mpStartHost(); return; }
+    mpStatus('Connection problem: ' + (err && err.type || 'unknown'));
+  });
+  peer.on('disconnected', () => { try { peer.reconnect(); } catch (e) { } });
+  peer.on('connection', conn => {
+    conn.on('data', m => mpHostData(conn, m));
+    conn.on('close', () => {
+      const p = MP.players.find(x => x.conn === conn);
+      if (!p) return;
+      p.gone = true;
+      if (!MP.engine) { MP.players = MP.players.filter(x => x !== p); mpLobbyUpdate(); }
+      toast(p.name + ' disconnected', 'bad');
+    });
+  });
+}
+function mpHostData(conn, m) {
+  if (!m || typeof m !== 'object') return;
+  let p = MP.players.find(x => x.conn === conn);
+  if (m.t === 'join') {
+    const name = String(m.name || '').replace(/[<>]/g, '').trim().slice(0, 16) || 'Player';
+    if (p) { p.name = name; mpLobbyUpdate(); return; }
+    // reconnect with the same name during a race takes the car back
+    const back = MP.players.find(x => x.gone && x.name === name);
+    if (back) { back.conn = conn; back.gone = false; mpLobbyUpdate(); if (MP.engine) conn.send(mpStartMsg(back)); return; }
+    if (MP.engine) { conn.send({ t: 'full', why: 'A race is already running. Wait for it to finish.' }); return; }
+    if (MP.players.length >= MP.max) { conn.send({ t: 'full', why: 'The race is full (' + MP.max + ' players).' }); return; }
+    const used = new Set(MP.players.map(x => x.color));
+    p = { conn, name, color: MP_COLORS.find(c => !used.has(c)) || pick(BODY_COLORS), tyre: 'M', id: 'h' + Math.random().toString(36).slice(2, 7) };
+    MP.players.push(p);
+    toast(name + ' joined', 'good');
+    mpLobbyUpdate();
+    return;
+  }
+  if (!p) return;
+  const e = MP.engine, car = e && e.cars.find(c => c.id === p.id);
+  if (m.t === 'in') { if (car) { car.net = car.net || {}; car.net.s = clamp(+m.s || 0, -1, 1); car.net.p = clamp(+m.p || 0, -1, 1); car.net.at = performance.now(); } }
+  else if (m.t === 'tyre' && TYRES[m.k]) {
+    if (car && car.pitSeq) e.choosePitTyre(m.k, car);
+    else if (!e) { p.tyre = m.k; mpLobbyUpdate(); }
+  }
+  else if (m.t === 'pit') { if (car && e.state === 'race' && !car.finished) { e.requestPit('box', car); try { p.conn.send({ t: 'ev', t2: 'box', on: !!car.pitReq }); } catch (x) { } } }
+  else if (m.t === 'reset') { if (car && e.state === 'race' && !car.finished && !car.pitSeq) e.resetToTrack(car); }
+  else if (m.t === 'leave') { p.gone = true; if (car) car.auto = true; if (!e) { MP.players = MP.players.filter(x => x !== p); mpLobbyUpdate(); } }
+}
+function mpStatus(text, good) { const el = document.getElementById('mp-status'); if (el) { el.textContent = text; el.classList.toggle('good', !!good); } }
+function mpShowCode() {
+  const c = MP.code, el = document.getElementById('mp-code'), qr = document.getElementById('mp-qr');
+  if (el) el.textContent = c || '…';
+  if (qr && c && qr.dataset.code !== c) {
+    qr.innerHTML = ''; qr.dataset.code = c;
+    loadScriptOnce(QRJS_URL).then(() => { new QRCode(qr, { text: mpURL(c), width: 220, height: 220, colorDark: '#0b0f1a', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M }); })
+      .catch(() => { qr.innerHTML = '<div class="muted small" style="padding:20px">QR code unavailable. Use the code below.</div>'; });
+  }
+}
+function renderMpLobby() {
+  hideRace();
+  const T = TIERS[MP.tier];
+  appEl.innerHTML = `<div class="page mp-lobby">
+    <div class="topbar"><button class="btn ghost sm" data-act="mp-quit">‹ Back</button><h2 style="margin:0">Multiplayer race</h2></div>
+    <div class="grid2">
+      <div class="card">
+        <h3>Race setup</h3>
+        <div class="field"><label>Players (up to 10)</label>
+          <div class="seg mp-seg">${[2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => `<button class="${MP.max === n ? 'on' : ''}" data-act="mp-max" data-arg="${n}">${n}</button>`).join('')}</div></div>
+        <div class="field"><label>Series</label>
+          <select id="mp-tier">${TIERS.map((t, i) => `<option value="${i}" ${i === MP.tier ? 'selected' : ''}>${esc(t.name)} (${t.vehicle === 'kart' ? 'karts' : 'formula'})</option>`).join('')}</select></div>
+        <div class="field"><label>Track</label>
+          <select id="mp-track">${T.tracks.map(n => `<option ${n === MP.track ? 'selected' : ''}>${esc(n)}</option>`).join('')}</select></div>
+        <div class="toggle"><div><b>Fill the grid with AI drivers</b><div class="muted small">Up to ${Math.max(T.field, 2)} cars in total</div></div>
+          <button class="btn sm ${MP.ai ? 'primary' : ''}" data-act="mp-ai">${MP.ai ? 'On' : 'Off'}</button></div>
+        <canvas class="track-preview" data-track="${esc(MP.track)}" data-tier="${MP.tier}"></canvas>
+        <p class="muted small" id="mp-laps">${mpLapsFor()} laps &nbsp;•&nbsp; weather is decided at the start &nbsp;•&nbsp; one pit stop is mandatory</p>
+      </div>
+      <div class="card mp-join">
+        <h3>Scan to join</h3>
+        <div class="remote-qr-wrap"><div id="mp-qr" class="remote-qr"></div></div>
+        <p class="muted small" style="text-align:center">Or open the game on a phone, tap <b>Join a multiplayer race</b> and enter</p>
+        <div id="mp-code" class="remote-code" style="text-align:center">${MP.code || '…'}</div>
+        <div id="mp-status" class="remote-status" style="text-align:center">Starting…</div>
+        <div id="mp-players" class="mp-players"></div>
+        <button class="btn primary big" style="width:100%;margin-top:12px" data-act="mp-go" id="mp-go">Start the race</button>
+      </div>
+    </div></div>`;
+  $('#mp-tier').onchange = ev => { MP.tier = +ev.target.value; MP.track = TIERS[MP.tier].tracks[0]; renderMpLobby(); mpLobbyUpdate(); };
+  $('#mp-track').onchange = ev => { MP.track = ev.target.value; renderMpLobby(); mpLobbyUpdate(); };
+  drawPreviews();
+  mpShowCode();
+  if (MP.peer && MP.peer.open) mpStatus('Ready. Scan the code to join.', true);
+  mpLobbyUpdate();
+}
+function mpLobbyUpdate() {
+  const box = document.getElementById('mp-players');
+  if (box) {
+    box.innerHTML = `<div class="muted small" style="margin:10px 0 6px">${MP.players.length} / ${MP.max} players</div>` +
+      (MP.players.length ? MP.players.map(p => `<div class="mp-player"><i style="background:${p.color}"></i><b>${esc(p.name)}</b>
+        <span class="tyre-badge sm" style="border-color:${TYRES[p.tyre].color};color:${TYRES[p.tyre].color}">${p.tyre}</span>
+        <button class="btn ghost sm" data-act="mp-kick" data-arg="${p.id}">✕</button></div>`).join('')
+        : '<div class="muted" style="padding:10px 0">Waiting for players to scan the code…</div>');
+    const go = document.getElementById('mp-go'); if (go) go.disabled = !MP.players.length;
+  }
+  const laps = mpLapsFor();
+  mpSendAll({ t: 'lobby', players: MP.players.map(p => ({ name: p.name, color: p.color, tyre: p.tyre })), max: MP.max, track: MP.track, tier: MP.tier, laps, tl: { S: tyreLaps('S', laps), M: tyreLaps('M', laps), H: tyreLaps('H', laps) } });
+  for (const p of MP.players) { try { if (p.conn.open) p.conn.send({ t: 'you', color: p.color, tyre: p.tyre }); } catch (e) { } }
+}
+ACTIONS['mp-max'] = n => {
+  MP.max = clamp(+n, 2, 10);
+  while (MP.players.length > MP.max) { const p = MP.players.pop(); try { p.conn.send({ t: 'full', why: 'The host made the race smaller.' }); p.conn.close(); } catch (e) { } }
+  renderMpLobby();
+};
+ACTIONS['mp-ai'] = () => { MP.ai = !MP.ai; renderMpLobby(); };
+ACTIONS['mp-kick'] = id => {
+  const p = MP.players.find(x => x.id === id); if (!p) return;
+  try { p.conn.send({ t: 'full', why: 'The host removed you from the race.' }); setTimeout(() => p.conn.close(), 200); } catch (e) { }
+  MP.players = MP.players.filter(x => x !== p); mpLobbyUpdate();
+};
+ACTIONS['mp-quit'] = () => {
+  mpStopHostRace();
+  mpSendAll({ t: 'full', why: 'The host closed the race.' });
+  setTimeout(() => { try { if (MP.peer) MP.peer.destroy(); } catch (e) { } MP.peer = null; MP.players = []; MP.role = null; }, 300);
+  renderTitle();
+};
+
+/* ----- the race on the host ----- */
+function mpStartMsg(p) {
+  const e = MP.engine;
+  return { t: 'start', cfg: Object.assign({}, MP.raceCfg, { you: p.id }), late: e ? e.state === 'race' : false };
+}
+ACTIONS['mp-go'] = () => {
+  MP.players = MP.players.filter(p => !p.gone && p.conn && p.conn.open);
+  if (!MP.players.length) { toast('Nobody has joined yet', 'bad'); return; }
+  const T = TIERS[MP.tier], track = buildTrack(MP.track, T), laps = raceLaps(track, T);
+  const weather = genWeather(Math.floor(Math.random() * 1e9));
+  const used = new Set();
+  const codeFor = name => { let c = codeOf(name), i = 2; while (used.has(c)) c = codeOf(name).slice(0, 2) + i++; used.add(c); return c; };
+  const even = { spd: 70, acc: 70, hnd: 70, foc: 70, rc: 70, fit: 70 }, mach = { eng: 0.6, chas: 0.6, tire: 0.6 };
+  const racers = MP.players.map((p, i) => ({ id: p.id, name: p.name, code: codeFor(p.name), color: p.color, helmet: '#ffffff', team: T.vehicle === 'formula' ? p.color : null, stats: Object.assign({}, even), machine: Object.assign({}, mach), perf: 1, compound: p.tyre, human: true, number: i + 1 }));
+  if (MP.ai) {
+    const n = Math.max(0, Math.max(T.field, racers.length) - racers.length), names = new Set(racers.map(r => r.name));
+    for (let i = 0; i < n; i++) {
+      const name = randomName(names), col = BODY_COLORS[i % BODY_COLORS.length];
+      racers.push({ id: 'ai' + i, name, code: codeFor(name), color: col, helmet: pick(HELMET_COLORS), team: T.vehicle === 'formula' ? col : null, stats: statsAround(64, 5), machine: Object.assign({}, mach), perf: 1, compound: aiCompound(null, weather) });
+    }
+  }
+  shuffle(racers);
+  MP.raceCfg = { tier: MP.tier, track: MP.track, laps, weather, racers: racers.map(r => ({ id: r.id, name: r.name, code: r.code, color: r.color, helmet: r.helmet, team: r.team, stats: r.stats, machine: r.machine, compound: r.compound, human: !!r.human })) };
+  for (const p of MP.players) { try { p.conn.send(mpStartMsg(p)); } catch (e) { } }
+  // the host engine runs headless; the overview below draws it
+  const cv = document.createElement('canvas'); cv.width = 4; cv.height = 4;
+  MP.log = []; MP.results = null;
+  MP.engine = new RaceEngine(cv, {
+    tier: T, track, laps, racers, items: false, ers: false, difficulty: 'normal', sound: false, headless: true, mpHost: true, weather,
+    onCarEvent: (c, ev) => {
+      const p = MP.players.find(x => x.id === c.id);
+      if (p && p.conn && p.conn.open) { try { p.conn.send(Object.assign({ t: 'ev', t2: ev.t }, ev, { t: 'ev' })); } catch (e) { } }
+    },
+    onEnd: out => mpHostEnd(out)
+  });
+  MP.prevPits = {};
+  renderMpHostRace();
+};
+function renderMpHostRace() {
+  appEl.innerHTML = `<div class="mp-host"><canvas id="mp-canvas"></canvas>
+    <div class="mp-host-btns"><button class="btn sm" data-act="mp-end">End race</button></div></div>`;
+  MP.hostCanvas = $('#mp-canvas');
+  let last = performance.now(), acc = 0, sendAcc = 0;
+  cancelAnimationFrame(MP.raf);
+  const frame = now => {
+    const e = MP.engine;
+    if (!e || e.done) return;
+    MP.raf = requestAnimationFrame(frame);
+    const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    acc += dt; let n = 0;
+    while (acc >= 1 / 120 && n < 10 && !e.done) { e.update(1 / 120); acc -= 1 / 120; n++; }
+    if (n >= 10) acc = 0;
+    if (e.done) return;
+    sendAcc += dt;
+    if (sendAcc >= 0.05) { sendAcc = 0; mpSendAll(e.snapshot()); }
+    // pit stop log
+    for (const c of e.cars) {
+      const before = MP.prevPits[c.id] || 0;
+      if (c.pits > before) MP.log.unshift({ t: e.time, text: `${c.code} pits for ${TYRES[c.compound].name}s`, color: TYRES[c.compound].color });
+      MP.prevPits[c.id] = c.pits;
+    }
+    if (MP.log.length > 6) MP.log.length = 6;
+    drawMpOverview();
+  };
+  MP.raf = requestAnimationFrame(frame);
+}
+function mpStopHostRace() { cancelAnimationFrame(MP.raf); if (MP.engine && !MP.engine.done) MP.engine.destroy(); MP.engine = null; }
+ACTIONS['mp-end'] = () => confirmModal('End the race now?', 'Everyone is classified where they are right now.', 'End race', () => { if (MP.engine && !MP.engine.done) { MP.engine.endedEarly = true; MP.engine.finish(false); } }, true);
+function mpHostEnd(out) {
+  const e = MP.engine;
+  cancelAnimationFrame(MP.raf);
+  const by = {}; e.cars.forEach(c => by[c.id] = c);
+  const rows = out.results.map(r => ({ pos: r.pos, id: r.id, name: by[r.id].name, code: by[r.id].code, color: by[r.id].color, human: !!by[r.id].human, finished: r.finished, time: r.time, best: r.best, pits: by[r.id].pits, pen: !!r.pen }));
+  MP.results = rows; MP.engine = null;
+  MP.players = MP.players.filter(p => !p.gone);
+  mpSendAll({ t: 'end', rows });
+  const win = rows[0];
+  appEl.innerHTML = `<div class="page" style="max-width:820px">
+    <div class="card result-hero"><div class="muted">${esc(MP.raceCfg.track)} • ${MP.raceCfg.laps} laps</div>
+      <div class="pbig" style="color:${win.color}">${esc(win.name)}</div><div style="font-size:20px">wins the race! 🏆</div></div>
+    <div class="card"><table><thead><tr><th>#</th><th>Driver</th><th>Time</th><th>Best lap</th><th>Stops</th></tr></thead><tbody>
+      ${rows.map(r => `<tr class="${r.human ? 'me' : ''}"><td class="pos">${r.pos}</td><td><i class="mp-dot" style="background:${r.color}"></i>${esc(r.name)}${r.human ? ' 📱' : ''}${r.pen ? ' <span class="tag">NO PIT STOP</span>' : ''}</td>
+        <td>${r.finished ? fmtTime(r.time) : '—'}</td><td class="muted">${r.best && isFinite(r.best) ? fmtTime(r.best) : '—'}</td><td>${r.pits}</td></tr>`).join('')}
+    </tbody></table>
+    <div class="btn-row" style="margin-top:16px"><button class="btn primary big" data-act="mp-again">Back to the lobby</button><button class="btn ghost" data-act="mp-quit">Close multiplayer</button></div></div></div>`;
+}
+ACTIONS['mp-again'] = () => { renderMpLobby(); mpLobbyUpdate(); };
+
+/* ----- the overview the host shows during the race ----- */
+function drawMpOverview() {
+  const e = MP.engine, cv = MP.hostCanvas;
+  if (!e || !cv || !cv.isConnected) return;
+  const dpr = Math.min(2, window.devicePixelRatio || 1), W = cv.clientWidth, H = cv.clientHeight;
+  if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const tr = e.track, narrow = W < 900;
+  const panelW = narrow ? 0 : Math.min(470, W * 0.42);
+  const mapH = narrow ? H * 0.55 : H;
+  ctx.fillStyle = '#16241a'; ctx.fillRect(0, 0, W, H);
+  // map transform
+  const b = tr.bounds, pad = tr.W + tr.runoff + 60, bw = b.maxX - b.minX + pad * 2, bh = b.maxY - b.minY + pad * 2;
+  const top = 64, aw = W - panelW - 24, ah = mapH - top - 70;
+  const sc = Math.min(aw / bw, ah / bh);
+  const ox = 12 + (aw - bw * sc) / 2 - (b.minX - pad) * sc, oy = top + (ah - bh * sc) / 2 - (b.minY - pad) * sc;
+  ctx.save(); ctx.translate(ox, oy); ctx.scale(sc, sc);
+  ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+  ctx.strokeStyle = '#2c3a2f'; ctx.lineWidth = tr.W + tr.runoff * 1.4; ctx.stroke(tr.path);
+  ctx.strokeStyle = '#e8e8e8'; ctx.lineWidth = tr.W + 10; ctx.stroke(tr.path);
+  ctx.strokeStyle = e.wet > 0.3 ? '#3b4250' : '#474b54'; ctx.lineWidth = tr.W; ctx.stroke(tr.path);
+  // pit lane
+  if (e.pit) {
+    const P = e.pit; ctx.beginPath();
+    for (let d = P.entryD; d <= P.exitD; d += 10) { const q = e.lanePoint(d, e.laneLat({ lat0: 0 }, d)); d === P.entryD ? ctx.moveTo(q.x, q.y) : ctx.lineTo(q.x, q.y); }
+    ctx.strokeStyle = '#5a5f6b'; ctx.lineWidth = tr.W * 0.4; ctx.stroke();
+    const bx = e.lanePoint(P.boxD, P.side * P.lat);
+    ctx.fillStyle = '#ffd166'; ctx.beginPath(); ctx.arc(bx.x, bx.y, tr.W * 0.28, 0, TAU); ctx.fill();
+  }
+  // start line
+  const s0 = tr.pts[0];
+  ctx.strokeStyle = '#fff'; ctx.lineWidth = 12; ctx.lineCap = 'butt'; ctx.beginPath();
+  ctx.moveTo(s0.x + s0.nx * tr.W / 2, s0.y + s0.ny * tr.W / 2); ctx.lineTo(s0.x - s0.nx * tr.W / 2, s0.y - s0.ny * tr.W / 2); ctx.stroke();
+  ctx.restore();
+  // cars (leader drawn last, on top)
+  const order = e.order.slice();
+  const R = clamp(tr.W * sc * 0.42, 7, 15);
+  for (let i = order.length - 1; i >= 0; i--) {
+    const c = order[i], x = ox + c.x * sc, y = oy + c.y * sc;
+    ctx.beginPath(); ctx.arc(x, y, c.human ? R * 1.25 : R, 0, TAU);
+    ctx.fillStyle = c.color; ctx.fill();
+    ctx.lineWidth = c.human ? 3 : 1.5; ctx.strokeStyle = c.human ? '#fff' : 'rgba(0,0,0,0.6)'; ctx.stroke();
+    ctx.fillStyle = '#0b0f1a'; ctx.font = `700 ${Math.round(R * 0.95)}px Rajdhani, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(c.pos, x, y + 1);
+    if (c.human || c.pos <= 3) {
+      ctx.font = `700 ${c.human ? 15 : 12}px Rajdhani, sans-serif`; ctx.textBaseline = 'alphabetic';
+      ctx.lineWidth = 4; ctx.strokeStyle = 'rgba(0,0,0,0.7)'; ctx.strokeText(c.code, x, y - R * 1.4); ctx.fillStyle = '#fff'; ctx.fillText(c.code, x, y - R * 1.4);
+    }
+  }
+  ctx.textBaseline = 'alphabetic';
+  // header
+  const leader = order[0], lap = clamp(Math.floor(leader.total / tr.L) + 1, 1, e.laps);
+  ctx.textAlign = 'left'; ctx.fillStyle = '#fff'; ctx.font = '700 30px Rajdhani, sans-serif';
+  ctx.fillText(tr.name.toUpperCase(), 18, 40);
+  ctx.font = '700 22px Rajdhani, sans-serif'; ctx.fillStyle = '#ffd166';
+  const head = e.state === 'countdown' ? 'GET READY' : leader.finished ? 'CHEQUERED FLAG' : 'LAP ' + lap + ' / ' + e.laps;
+  ctx.fillText(head, 18 + ctx.measureText(tr.name.toUpperCase()).width * 1.35 + 30, 40);
+  ctx.textAlign = 'right'; ctx.fillStyle = e.rain > 0.15 ? '#8ecae6' : '#ddd'; ctx.font = '700 18px Rajdhani, sans-serif';
+  ctx.fillText((e.rain > 0.15 ? 'RAIN' : e.wet > 0.15 ? 'DRYING' : 'DRY') + '  •  TRACK ' + Math.round(e.wet * 100) + '% WET  •  ' + (e.wx.temp || 20) + '°C', W - panelW - 18, 40);
+  // countdown lights
+  if (e.state === 'countdown' || e.time < 1) {
+    const lw = 5 * 60 + 24, lx = (W - panelW) / 2 - lw / 2, ly = mapH / 2 - 40;
+    ctx.fillStyle = 'rgba(0,0,0,0.75)'; ctx.fillRect(lx, ly, lw, 80);
+    for (let i = 0; i < 5; i++) { ctx.fillStyle = e.state === 'countdown' && i < e.lights ? '#ff2d2d' : '#2a2a2a'; ctx.beginPath(); ctx.arc(lx + 42 + i * 60, ly + 40, 21, 0, TAU); ctx.fill(); }
+  }
+  // pit log (bottom-left of the map)
+  ctx.textAlign = 'left'; ctx.font = '600 16px Rajdhani, sans-serif';
+  MP.log.slice(0, narrow ? 2 : 4).forEach((l, i) => { ctx.fillStyle = l.color; ctx.fillText('● ' + l.text + '   (' + fmtTime(l.t).replace(/\.\d+$/, '') + ')', 18, mapH - 18 - i * 22); });
+  // timing table
+  const tx = narrow ? 0 : W - panelW, ty = narrow ? mapH : 0, tw = narrow ? W : panelW, th = narrow ? H - mapH : H;
+  ctx.fillStyle = 'rgba(8,12,22,0.92)'; ctx.fillRect(tx, ty, tw, th);
+  const rows = order.length, rh = clamp((th - 56) / rows, 18, 46), fs = Math.round(clamp(rh * 0.5, 11, 20));
+  ctx.font = `700 ${Math.round(fs * 0.8)}px Rajdhani, sans-serif`; ctx.fillStyle = 'rgba(255,255,255,0.5)';
+  const col = { pos: tx + 14, name: tx + 52, gap: tx + tw * 0.47, tyre: tx + tw * 0.66, stops: tx + tw * 0.88 };
+  ctx.textAlign = 'left';
+  ctx.fillText('POS   DRIVER', col.pos, ty + 30); ctx.fillText('GAP', col.gap, ty + 30); ctx.fillText('TYRE', col.tyre, ty + 30); ctx.fillText('STOPS', col.stops, ty + 30);
+  order.forEach((c, i) => {
+    const y = ty + 46 + i * rh, mid = y + rh * 0.62;
+    if (c.human) { ctx.fillStyle = 'rgba(255,255,255,0.06)'; ctx.fillRect(tx + 4, y, tw - 8, rh - 2); }
+    ctx.fillStyle = c.color; ctx.fillRect(tx + 40, y + 4, 5, rh - 10);
+    ctx.font = `700 ${fs}px Rajdhani, sans-serif`; ctx.fillStyle = '#fff';
+    ctx.fillText(c.pos, col.pos, mid);
+    const nm = (c.human ? '\u{1F4F1} ' : '') + c.name;
+    ctx.fillStyle = c.human ? '#fff' : 'rgba(255,255,255,0.75)';
+    let nmFs = fs; ctx.font = `700 ${nmFs}px Rajdhani, sans-serif`;
+    while (nmFs > 9 && ctx.measureText(nm).width > col.gap - col.name - 8) { nmFs--; ctx.font = `700 ${nmFs}px Rajdhani, sans-serif`; }
+    ctx.fillText(nm, col.name, mid);
+    ctx.font = `600 ${fs}px Rajdhani, sans-serif`;
+    // gap / status
+    let gap, gc = 'rgba(255,255,255,0.8)';
+    if (c.pitSeq) { gap = c.pitSeq.phase === 'stop' ? (c.pitSeq.comp ? 'PIT STOP' : 'CHOOSING') : 'PIT LANE'; gc = '#ffd166'; }
+    else if (c.finished) { gap = i === 0 ? 'WINNER' : 'FINISHED'; gc = '#7bd88f'; }
+    else if (i === 0) gap = 'LEADER';
+    else { const d = (order[0].total - c.total); gap = d > tr.L ? '+' + Math.floor(d / tr.L) + ' LAP' : '+' + (d / (c.maxSpeed * 0.78)).toFixed(1); }
+    if (c.pitReq && !c.pitSeq) { gap += ' • BOX'; gc = '#ffd166'; }
+    ctx.fillStyle = gc; let gFs = fs; while (gFs > 9 && ctx.measureText(gap).width > col.tyre - col.gap - 6) { gFs--; ctx.font = `600 ${gFs}px Rajdhani, sans-serif`; }
+    ctx.fillText(gap, col.gap, mid);
+    // tyre
+    const TC = TYRES[c.compound], r = Math.min(rh * 0.32, 11), cx = col.tyre + r, cy = mid - fs * 0.32;
+    ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(cx, cy, r + 2, 0, TAU); ctx.fill();
+    ctx.strokeStyle = TC.color; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.arc(cx, cy, r - 1, 0, TAU); ctx.stroke();
+    ctx.fillStyle = TC.color; ctx.font = `700 ${Math.round(r * 1.2)}px Rajdhani, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(TC.key, cx, cy + 1);
+    ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+    const left = Math.max(0, Math.ceil((c.lifeLaps || 1) * (1 - c.wear) - 0.05));
+    ctx.font = `600 ${fs}px Rajdhani, sans-serif`;
+    ctx.fillStyle = c.wear > 1 ? '#ff6b6b' : left <= 1 ? '#ffd166' : 'rgba(255,255,255,0.8)';
+    ctx.fillText(c.wear > 1 ? 'WORN' : left + (left === 1 ? ' lap' : ' laps'), cx + r + 8, mid);
+    ctx.fillStyle = c.pits === 0 && !c.finished ? '#ff9f1c' : '#fff';
+    ctx.fillText(c.pits, col.stops + 14, mid);
+  });
+}
+
+/* ======================= PHONE ======================= */
+ACTIONS['mp-join'] = () => {
+  openModal(`<h2>Join a multiplayer race</h2>
+    <p class="muted">Scan the QR code on the host screen with your camera, or type the code shown under it.</p>
+    <input id="mp-join-code" class="code-input" maxlength="5" placeholder="CODE" autocomplete="off" style="text-transform:uppercase;font-size:28px;letter-spacing:.3em;text-align:center;width:100%">
+    <div class="btn-row" style="margin-top:14px"><button class="btn primary" data-act="mp-join-go">Join</button><button class="btn ghost" data-act="modal-close">Cancel</button></div>`);
+  setTimeout(() => { const i = $('#mp-join-code'); if (i) i.focus(); }, 50);
+};
+ACTIONS['mp-join-go'] = () => {
+  const c = ($('#mp-join-code').value || '').trim().toUpperCase();
+  if (!/^[A-Z0-9]{5}$/.test(c)) { toast('The code has 5 letters and numbers', 'bad'); return; }
+  closeModal(); renderMpPhone(c);
+};
+function mpSavedName() { try { return localStorage.getItem('k2c.mpname') || (S && S.driver ? S.driver.name : ''); } catch (e) { return ''; } }
+function renderMpPhone(code) {
+  MP.role = 'phone'; MP.code = code;
+  hideRace();
+  appEl.innerHTML = `<div class="page" style="max-width:520px">
+    <div class="card"><div class="round">MULTIPLAYER • RACE ${esc(code)}</div>
+      <h2>Join the race</h2>
+      <div class="field"><label>Your name</label><input id="mp-name" maxlength="16" value="${esc(mpSavedName())}" placeholder="Your name"></div>
+      <button class="btn primary big" style="width:100%" data-act="mp-phone-join">Join</button>
+      <button class="btn ghost" style="width:100%;margin-top:8px" data-act="mp-phone-quit">Cancel</button>
+    </div></div>`;
+}
+ACTIONS['mp-phone-join'] = () => {
+  const name = ($('#mp-name').value || '').trim().slice(0, 16);
+  if (!name) { toast('Type your name first', 'bad'); return; }
+  try { localStorage.setItem('k2c.mpname', name); } catch (e) { }
+  MP.myName = name;
+  enableTilt(true); // this tap is the iPhone's chance to ask for motion access
+  mpConnectPhone();
+  renderMpWait('Connecting…');
+};
+async function mpConnectPhone() {
+  try { await loadScriptOnce(PEERJS_URL); } catch (e) { renderMpWait('Could not load the connection library. Check your internet.'); return; }
+  if (MP.peer) { try { MP.peer.destroy(); } catch (e) { } }
+  const peer = new Peer(); MP.peer = peer;
+  peer.on('open', () => {
+    const conn = peer.connect(mpPeerId(MP.code), { serialization: 'json', reliable: false });
+    MP.conn = conn;
+    conn.on('open', () => { conn.send({ t: 'join', name: MP.myName }); if (navigator.vibrate) navigator.vibrate(40); });
+    conn.on('data', mpPhoneData);
+    conn.on('close', () => { if (MP.role !== 'phone') return; mpPhoneStopRace(); renderMpWait('Disconnected from the host.', true); });
+  });
+  peer.on('error', err => { if (MP.role !== 'phone') return; renderMpWait(err && err.type === 'peer-unavailable' ? 'No race with code ' + MP.code + '. Check the code on the host screen.' : 'Connection problem: ' + (err && err.type || 'unknown'), true); });
+  peer.on('disconnected', () => { try { peer.reconnect(); } catch (e) { } });
+}
+function renderMpWait(msg, retry) {
+  if (UI.engine) return;
+  const L = MP.lobby;
+  appEl.innerHTML = `<div class="page" style="max-width:560px"><div class="card">
+    <div class="round">MULTIPLAYER • RACE ${esc(MP.code || '')}</div>
+    <h2>${L ? esc(L.track) : 'Multiplayer'}</h2>
+    <p class="${retry ? 'bad' : 'muted'}" id="mp-wait-msg">${esc(msg || (L ? 'You are in! Waiting for the host to start the race…' : 'Connecting…'))}</p>
+    ${L ? `<p class="muted small">${esc(TIERS[L.tier].name)} • ${L.laps} laps • one pit stop is mandatory</p>
+      <h3>Starting tyre</h3>
+      <div class="tyre-pick">${['S', 'M', 'H', 'W'].map(k => `<button class="tyre-opt ${MP.myTyre === k ? 'on' : ''}" data-act="mp-tyre" data-arg="${k}">
+        <span class="tyre-badge" style="border-color:${TYRES[k].color};color:${TYRES[k].color}">${k}</span><b>${TYRES[k].name}</b>
+        <small>${TYRES[k].wet ? 'For rain' : 'Lasts ' + L.tl[k] + ' laps'}</small></button>`).join('')}</div>
+      <h3>Drivers (${L.players.length}/${L.max})</h3>
+      <div class="mp-players">${L.players.map(p => `<div class="mp-player"><i style="background:${p.color}"></i><b>${esc(p.name)}${p.name === MP.myName ? ' (you)' : ''}</b><span class="tyre-badge sm" style="border-color:${TYRES[p.tyre].color};color:${TYRES[p.tyre].color}">${p.tyre}</span></div>`).join('')}</div>
+      <p class="muted small">Turn your phone sideways when the race starts. Tilt to steer, thumb slider for gas and brake, PIT to box.</p>` : ''}
+    ${retry ? `<button class="btn primary" data-act="mp-phone-retry">Try again</button>` : ''}
+    <button class="btn ghost" data-act="mp-phone-quit" style="margin-top:8px">Leave</button>
+  </div></div>`;
+}
+ACTIONS['mp-tyre'] = k => { MP.myTyre = k; mpSend({ t: 'tyre', k }); renderMpWait(); };
+ACTIONS['mp-phone-retry'] = () => { mpConnectPhone(); renderMpWait('Connecting…'); };
+ACTIONS['mp-phone-quit'] = () => {
+  mpSend({ t: 'leave' });
+  mpPhoneStopRace();
+  setTimeout(() => { try { if (MP.conn) MP.conn.close(); if (MP.peer) MP.peer.destroy(); } catch (e) { } MP.conn = MP.peer = null; }, 150);
+  MP.role = null; MP.lobby = null;
+  document.documentElement.classList.remove('mp-client');
+  history.replaceState(null, '', location.pathname); renderTitle();
+};
+function mpPhoneData(m) {
+  if (!m || typeof m !== 'object') return;
+  if (m.t === 's') { if (UI.engine && UI.engine.client) UI.engine.applySnapshot(m); return; }
+  if (m.t === 'lobby') { MP.lobby = m; if (!UI.engine && !MP.results) renderMpWait(); return; }
+  if (m.t === 'you') { MP.myColor = m.color; MP.myTyre = m.tyre; return; }
+  if (m.t === 'full') { mpPhoneStopRace(); MP.role = 'phone'; renderMpWait(m.why || 'Could not join.', true); return; }
+  if (m.t === 'start') { MP.results = null; mpPhoneRace(m.cfg); return; }
+  if (m.t === 'ev') {
+    const e = UI.engine; if (!e) return;
+    if (m.t2 === 'pit') {
+      if (m.cmd === 'choose') { mpPitLabels(); e.flash('PIT LANE', '#ffd166', 1.5, 34); e.o.onPit('choose'); }
+      else if (m.cmd === 'chosen') { e.o.onPit(null); if (m.k) e.flash(TYRES[m.k].name.toUpperCase() + 'S ON', TYRES[m.k].color, 1.2, 30); }
+      else if (m.cmd === 'in') e.flash('PIT LANE', '#ffd166', 1.5, 34);
+      e.buzz(60);
+    } else if (m.t2 === 'box') {
+      e.flash(m.on ? 'BOX THIS LAP - PICK TYRES IN THE PIT' : 'STAYING OUT', m.on ? '#ffd166' : '#ffffff', 2, 26);
+      e.o.onPit(m.on ? 'on' : 'off');
+    }
+    return;
+  }
+  if (m.t === 'end') { MP.results = m.rows; mpPhoneStopRace(); renderMpPhoneResults(); }
+}
+function mpPitLabels() {
+  const e = UI.engine; if (!e) return;
+  const left = Math.max(1, Math.ceil(e.laps - e.player.total / e.track.L));
+  document.querySelectorAll('[data-act="pit-req"]').forEach(b => {
+    const k = b.dataset.arg, n = tyreLaps(k, e.laps);
+    b.innerHTML = k + ' ' + TYRES[k].name + '<small style="display:block;opacity:.75;font-size:.75em">' + (TYRES[k].wet ? 'rain tyre' : n + ' laps' + (n >= left ? ' ✔ to the end' : '')) + '</small>';
+  });
+}
+function mpPhoneRace(cfg) {
+  mpPhoneStopRace();
+  const T = TIERS[cfg.tier], track = buildTrack(cfg.track, T);
+  closeModal(); appEl.innerHTML = '';
+  document.documentElement.classList.add('mp-client');
+  $('#race-screen').classList.remove('hidden', 'race-quali');
+  $('#pause-menu').classList.add('hidden'); $('#pit-menu').classList.add('hidden');
+  startTilt(); phoneRaceMode();
+  const hand = applyHand();
+  if (UI.resetPedal) UI.resetPedal();
+  const racers = cfg.racers.map(r => Object.assign({}, r, { isPlayer: r.id === cfg.you, human: false, perf: 1 }));
+  UI.engine = new RaceEngine($('#race-canvas'), {
+    tier: T, track, laps: cfg.laps, racers, items: false, ers: false, weather: cfg.weather, client: true, send: mpSend,
+    onPit: cmd => {
+      const pm = $('#pit-menu');
+      if (cmd === 'choose') { pm.classList.remove('hidden'); pm.classList.add('choosing'); }
+      else if (cmd === 'on' || cmd === 'off') document.querySelectorAll('[data-act="pit-open"]').forEach(b => b.classList.toggle('on', cmd === 'on'));
+      else { pm.classList.add('hidden'); pm.classList.remove('choosing'); document.querySelectorAll('[data-act="pit-open"]').forEach(b => b.classList.remove('on')); }
+    },
+    hand: IS_TOUCH ? hand : 'right', haptics: IS_TOUCH, difficulty: 'normal', sound: !S || S.settings.sound !== false, tilt: TILT,
+    view: getViewPref(), onView: v => { try { localStorage.setItem('k2c.view', v); } catch (e) { } },
+    onPause: p => $('#pause-menu').classList.toggle('hidden', !p),
+    onEnd: () => { ACTIONS['mp-phone-quit'](); }
+  });
+  clearInterval(MP.sendT);
+  MP.sendT = setInterval(() => { const e = UI.engine; if (e && e.client && !e.done) mpSend(e.clientInput()); }, 33);
+}
+function mpPhoneStopRace() {
+  clearInterval(MP.sendT);
+  if (UI.engine && UI.engine.client) { UI.engine.destroy(); UI.engine = null; hideRace(); }
+  document.documentElement.classList.remove('mp-client');
+}
+function renderMpPhoneResults() {
+  const rows = MP.results || [], me = rows.find(r => r.name === MP.myName && r.human);
+  appEl.innerHTML = `<div class="page" style="max-width:560px">
+    <div class="card result-hero"><div class="muted">RACE RESULT</div>
+      <div class="pbig" style="color:${me && me.pos === 1 ? 'var(--accent2)' : '#fff'}">${me ? 'P' + me.pos : '—'}</div>
+      <div>${me && me.pos === 1 ? 'You won! 🏆' : rows[0] ? esc(rows[0].name) + ' won the race' : ''}</div></div>
+    <div class="card"><table><tbody>${rows.map(r => `<tr class="${me && r === me ? 'me' : ''}"><td class="pos">${r.pos}</td><td><i class="mp-dot" style="background:${r.color}"></i>${esc(r.name)}${r.human ? ' 📱' : ''}${r.pen ? ' <span class="tag">NO PIT STOP</span>' : ''}</td><td class="muted">${r.best && isFinite(r.best) ? fmtTime(r.best) : '—'}</td></tr>`).join('')}</tbody></table>
+    <p class="muted small" style="margin-top:12px">Stay here: when the host starts the next race, it starts on this phone too.</p>
+    <button class="btn ghost" data-act="mp-phone-quit">Leave</button></div></div>`;
+}
+
+/* ---------------- boot: phone opened from the QR code ---------------- */
+{
+  const code = new URLSearchParams(location.search).get('mp');
+  if (code && /^[A-Za-z0-9]{5}$/.test(code)) renderMpPhone(code.toUpperCase());
 }
 
 </script>
