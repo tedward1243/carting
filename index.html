@@ -1194,9 +1194,14 @@ class View3D {
     cv.className = 'race-3d';
     eng.canvas.parentNode.insertBefore(cv, eng.canvas);
     this.canvas = cv;
-    const R = this.renderer = new THREE.WebGLRenderer({ canvas: cv, antialias: true, powerPreference: 'high-performance' });
+    // phones get a lighter renderer: long races at full quality can run them out of graphics memory,
+    // which freezes the picture and then makes the browser reload the page
+    const lite = this.lite = typeof IS_TOUCH !== 'undefined' && IS_TOUCH;
     const dpr = window.devicePixelRatio || 1;
-    R.setPixelRatio(Math.min(dpr, 1.5));
+    const R = this.renderer = new THREE.WebGLRenderer({ canvas: cv, antialias: !lite || dpr < 2, powerPreference: lite ? 'default' : 'high-performance' });
+    R.setPixelRatio(Math.min(dpr, lite ? 1.25 : 1.5));
+    // if the phone drops the 3D view anyway, keep racing in the top-down view instead of freezing
+    cv.addEventListener('webglcontextlost', ev => { ev.preventDefault(); if (eng.on3DLost) eng.on3DLost(); }, false);
     R.outputEncoding = THREE.sRGBEncoding;
     R.toneMapping = THREE.ACESFilmicToneMapping;
     R.toneMappingExposure = 0.92;
@@ -1219,7 +1224,7 @@ class View3D {
     const sun = this.sun = new THREE.DirectionalLight(L3(0xfff0d8), 2.3);
     this.sunDir = new THREE.Vector3(0.5, 0.62, 0.32).normalize();
     sun.castShadow = true;
-    const big = Math.min(R.capabilities.maxTextureSize, 2048);
+    const big = Math.min(R.capabilities.maxTextureSize, lite ? 1024 : 2048);
     sun.shadow.mapSize.set(big, big);
     const sc = sun.shadow.camera;
     sc.left = -340; sc.right = 340; sc.top = 340; sc.bottom = -340; sc.near = 10; sc.far = 1800;
@@ -1986,12 +1991,17 @@ class View3D {
     // rolling hills
     const hillM = this.std(this.kart ? 0x4c7d3c : 0x4a7840, { roughness: 1, flatShading: true });
     const hg = new THREE.IcosahedronGeometry(1, 2);
-    for (let i = 0; i < 16; i++) {
+    // every hill must stay well clear of the circuit (stretched tracks reach far from the centre)
+    const clearOf = (x, z, rad) => { const m2 = rad * rad; for (let j = 0; j < tr.n; j += 3) { const p = tr.pts[j], dx = p.x - x, dz = p.y - z; if (dx * dx + dz * dz < m2) return false; } return true; };
+    for (let i = 0, placed = 0; i < 80 && placed < 16; i++) {
       const a = rng() * TAU, d = R0 + 1300 + rng() * 2300, r = 500 + rng() * 900;
+      const sy = 0.18 + rng() * 0.22, sz = 0.7 + rng() * 0.6, ry = rng() * TAU;
+      const x = cx + Math.cos(a) * d, z = cz + Math.sin(a) * d;
+      if (!clearOf(x, z, r * Math.max(1, sz) + half + 420)) continue;
       const h = new THREE.Mesh(hg, hillM);
-      h.scale.set(r, r * (0.18 + rng() * 0.22), r * (0.7 + rng() * 0.6));
-      h.position.set(cx + Math.cos(a) * d, -r * 0.05, cz + Math.sin(a) * d); h.rotation.y = rng() * TAU;
-      h.receiveShadow = true; this.scene.add(h);
+      h.scale.set(r, r * sy, r * sz);
+      h.position.set(x, -r * 0.05, z); h.rotation.y = ry;
+      h.receiveShadow = true; this.scene.add(h); placed++;
     }
     // grass tufts
     const tuftTex = this.tex(64, 64, (g, w, h) => {
@@ -2014,7 +2024,7 @@ class View3D {
     tgeo.setAttribute('normal', new THREE.Float32BufferAttribute(new Array(tpos.length / 3).fill([0, 1, 0]).flat(), 3));
     const tmat = this.std(0xffffff, { map: tuftTex, alphaTest: 0.5, side: THREE.DoubleSide, roughness: 1 });
     this.tuftMat = tmat;
-    const N = 3200, tufts = new THREE.InstancedMesh(tgeo, tmat, N);
+    const N = this.lite ? 1600 : 3200, tufts = new THREE.InstancedMesh(tgeo, tmat, N);
     const M = new THREE.Matrix4(), Q = new THREE.Quaternion(), P = new THREE.Vector3(), S = new THREE.Vector3(), Y = new THREE.Vector3(0, 1, 0);
     let k = 0, tries = 0;
     const sc = this.kart ? 1 : 0.7;
@@ -2867,7 +2877,16 @@ class RaceEngine {
     this.canvas.width = this.w * dpr; this.canvas.height = this.h * dpr;
     if (this.v3) this.v3.resize();
   }
+  // the phone dropped the 3D view (out of graphics memory): carry on in the top-down view
+  on3DLost() {
+    if (this.lost3d) return;
+    this.lost3d = true;
+    if (this.v3) this.v3.setVisible(false);
+    this.viewMode = 'top';
+    this.flash('3D VIEW OFF - LOW MEMORY', '#ffd166', 2.5, 30);
+  }
   setView(mode) {
+    if (this.lost3d) mode = 'top';
     this.viewMode = mode;
     if (mode === 'cockpit' && !this.v3 && typeof THREE !== 'undefined' && typeof document !== 'undefined' && document.body) {
       try { this.v3 = new View3D(this); } catch (err) { console.warn('3D view unavailable', err); this.v3 = null; this.viewMode = 'top'; }
@@ -5740,6 +5759,7 @@ ACTIONS['retire-now'] = () => confirmModal('Retire from racing?', 'Your career e
    Racing
    ============================================================ */
 function hideRace() {
+  try { sessionStorage.removeItem('k2c.inrace'); } catch (e) { }
   $('#race-screen').classList.add('hidden'); $('#pause-menu').classList.add('hidden');
   if (IS_TOUCH) try { if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(() => { }); } catch (e) { }
 }
@@ -5793,6 +5813,8 @@ function startSession(kind) {
   phoneRaceMode();
   const hand = applyHand();
   if (UI.resetPedal) UI.resetPedal();
+  // remember a race is running: if the phone's browser reloads the page mid-race, reopen this career
+  try { sessionStorage.setItem('k2c.inrace', String(SLOT)); } catch (e) { }
   const track = buildTrack(cfg.trackName, cfg.tier);
   const racers = quali ? [Object.assign({}, cfg.racers.find(r => r.isPlayer), { compound: cfg.weather.start > 0.3 ? 'W' : 'S' })]
     : UI.grid.map(r => Object.assign({}, r, { compound: r.isPlayer ? (UI.compound || 'M') : aiCompound(r, cfg.weather) }));
@@ -6208,7 +6230,17 @@ function showHelp(welcome) {
 }
 
 /* ---------- boot ---------- */
-renderTitle();
+(function boot() {
+  let slot = null;
+  try { slot = sessionStorage.getItem('k2c.inrace'); sessionStorage.removeItem('k2c.inrace'); } catch (e) { }
+  if (slot != null && !/[?&](mp|pad)=/i.test(location.href) && loadSave(+slot)) {
+    UI.tab = 'home';
+    S.seasonOver && S.offers ? renderSeasonEnd() : renderHub();
+    toast('The browser reloaded the game during the race, so that session was not counted. You can start it again.', 'bad');
+    return;
+  }
+  renderTitle();
+})();
 
 </script>
   <script>
