@@ -459,6 +459,8 @@ html.mp-hostplay .mp-ov-btn { display: block; }
 
 .slot-card { display: flex; align-items: center; gap: 12px; }
 .slot-card.empty { border-style: dashed; }
+/* game controller focus */
+.pad-focus { outline: 3px solid #ffd166 !important; outline-offset: 3px; box-shadow: 0 0 0 6px rgba(255,209,102,0.25) !important; }
 
 </style>
 </head>
@@ -2844,16 +2846,47 @@ class RaceEngine {
     this.touch[key] = on;
     this.sfx.init();
   }
+  // game controllers (Xbox / PlayStation / Steam Deck, standard mapping): read once per frame
+  pollPad() {
+    const pads = (typeof navigator !== 'undefined' && navigator.getGamepads) ? navigator.getGamepads() : [];
+    let gp = null;
+    for (const g of pads || []) if (g && g.connected) { gp = g; break; }
+    if (!gp) { this.pad = null; return; }
+    const b = i => !!(gp.buttons[i] && gp.buttons[i].pressed), v = i => (gp.buttons[i] ? gp.buttons[i].value : 0);
+    const ax = gp.axes[0] || 0, dz = 0.12;
+    let steer = Math.abs(ax) < dz ? 0 : Math.sign(ax) * Math.pow((Math.abs(ax) - dz) / (1 - dz), 1.4);
+    if (b(14)) steer = -1; if (b(15)) steer = 1;
+    const thr = Math.max(v(7), b(0) ? 1 : 0), brk = Math.max(v(6), b(1) ? 1 : 0);
+    const prev = this.padPrev || {}, now = {};
+    for (const i of [0, 1, 2, 3, 5, 8, 9]) now[i] = b(i);
+    const hit = i => now[i] && !prev[i];
+    this.padPrev = now;
+    this.pad = { steer, thr, brk };
+    if (thr > 0.1 || brk > 0.1 || steer) this.sfx.init();
+    if (hit(9) && !this.done) this.togglePause();
+    if (this.paused) return;
+    if (this.player && this.player.pitSeq && this.o.onPit) {
+      // choosing tyres in the pit: A / B / X / Y = 1 / 2 / 3 / 4 (soft, medium, hard, wet)
+      const pick = [0, 1, 2, 3].find(hit);
+      if (pick != null) { this.choosePitTyre('SMHW'[pick]); return; }
+    }
+    if (hit(3)) this.requestPit('box');
+    if (hit(8)) this.toggleView();
+    if (hit(5) && this.state === 'race') this.resetToTrack(this.player);
+  }
   playerInput() {
-    const k = this.keys, t = this.touch;
+    const k = this.keys, t = this.touch, gp = this.pad;
     let steer = 0;
     if (k.ArrowLeft || k.KeyA || t.left) steer -= 1;
     if (k.ArrowRight || k.KeyD || t.right) steer += 1;
+    if (steer === 0 && gp && gp.steer) steer = gp.steer; // analog stick
     if (steer === 0 && this.tilt && this.tilt.on) steer = this.tilt.steer; // analog phone tilt
     // a phone connected as a controller (stale input = let go)
     if (this.remoteAt && performance.now() - this.remoteAt > 600) { this.remoteAt = 0; this.remoteSteer = 0; this.touch.pedal = 0; }
     if (steer === 0 && this.remoteSteer) steer = this.remoteSteer;
-    const pd = t.pedal || 0, keyThr = !!(k.ArrowUp || k.KeyW || t.thr), keyBrk = !!(k.ArrowDown || k.KeyS || t.brk);
+    let pd = t.pedal || 0;
+    if (gp && !pd && (gp.thr > 0.05 || gp.brk > 0.05)) pd = gp.brk > 0.05 ? -(0.08 + gp.brk * 0.8) : 0.08 + gp.thr * 0.8;
+    const keyThr = !!(k.ArrowUp || k.KeyW || t.thr), keyBrk = !!(k.ArrowDown || k.KeyS || t.brk);
     return {
       thr: keyThr || pd > 0.08,
       brk: !keyThr && (keyBrk || pd < -0.08),
@@ -2911,6 +2944,7 @@ class RaceEngine {
   loop(now) {
     if (this.done) return;
     this.raf = requestAnimationFrame(this.loop);
+    if (!this.client || this.o.padOk) this.pollPad();
     let dt = Math.min(0.05, (now - this.last) / 1000);
     this.last = now;
     if (!this.paused || this.mpHost) {
@@ -6216,6 +6250,7 @@ function showHelp(welcome) {
       <li>Sit right behind someone for a <b>slipstream</b> speed boost.</li>
       <li><b>Rocket start:</b> press gas just as the five red lights go out. Hold it too early and you will bog down.</li>
       ${IS_TOUCH ? '' : `<li><kbd>R</kbd> resets you onto the track, <kbd>Esc</kbd> pauses. <b>Best on a phone:</b> tilt to steer with a thumb slider for gas and brake.</li>`}
+      ${IS_TOUCH ? '' : `<li><b>Controller:</b> left stick steers, right trigger is gas, left trigger is brake. <kbd>Y</kbd> boxes for a pit stop and <kbd>A</kbd> <kbd>B</kbd> <kbd>X</kbd> <kbd>Y</kbd> pick soft, medium, hard or wet tyres in the pit. <kbd>RB</kbd> resets you onto the track, <kbd>View</kbd> changes camera, <kbd>Start</kbd> pauses. In menus: d-pad to move, <kbd>A</kbd> to select, <kbd>B</kbd> to go back.</li>`}
     </ul>
     <h3>Career</h3>
     <ul>
@@ -6241,6 +6276,83 @@ function showHelp(welcome) {
   }
   renderTitle();
 })();
+
+/* ---------- game controller menu navigation (d-pad / stick to move, A to press, B to go back) ---------- */
+const PADNAV = { prev: {}, el: null, repeatAt: 0, dir: null };
+function padNavTargets() {
+  const all = document.querySelectorAll('button, [data-act], input, select, a[href]');
+  const out = [];
+  for (const el of all) {
+    if (el.disabled || el.closest('.hidden')) continue;
+    const r = el.getBoundingClientRect();
+    if (r.width < 2 || r.height < 2 || r.bottom < 0 || r.top > innerHeight * 3) continue;
+    const cs = getComputedStyle(el); if (cs.visibility === 'hidden' || cs.display === 'none') continue;
+    out.push(el);
+  }
+  // a modal or the pause menu takes over: only its buttons can be reached
+  const modal = out.find(e => e.closest('#modal, #pause-menu'));
+  return modal ? out.filter(e => e.closest('#modal, #pause-menu')) : out;
+}
+function padNavFocus(el) {
+  if (PADNAV.el) PADNAV.el.classList.remove('pad-focus');
+  PADNAV.el = el;
+  if (!el) return;
+  el.classList.add('pad-focus');
+  try { el.focus({ preventScroll: true }); } catch (e) { }
+  el.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+}
+function padNavMove(dx, dy) {
+  const list = padNavTargets();
+  if (!list.length) return;
+  const cur = PADNAV.el && list.includes(PADNAV.el) ? PADNAV.el : null;
+  if (!cur) { padNavFocus(list.find(e => e.classList.contains('primary')) || list[0]); return; }
+  const a = cur.getBoundingClientRect(), ax = a.left + a.width / 2, ay = a.top + a.height / 2;
+  let best = null, bs = Infinity;
+  for (const el of list) {
+    if (el === cur) continue;
+    const r = el.getBoundingClientRect(), x = r.left + r.width / 2, y = r.top + r.height / 2;
+    const along = (x - ax) * dx + (y - ay) * dy, side = Math.abs((x - ax) * dy) + Math.abs((y - ay) * dx);
+    if (along <= 4) continue;
+    const sc = along + side * 2.5;
+    if (sc < bs) { bs = sc; best = el; }
+  }
+  if (best) padNavFocus(best);
+}
+function padNavBack() {
+  const sel = ['[data-act="race-resume"]', '[data-act="modal-close"]', '[data-act="menu"]', '[data-act="weekend-back"]'];
+  const list = padNavTargets();
+  for (const q of sel) { const el = list.find(e => e.matches(q)); if (el) { el.click(); return; } }
+  const back = list.find(e => /^\s*(←|Back|Cancel|Close)/i.test(e.textContent || ''));
+  if (back) back.click();
+}
+function padNavLoop() {
+  requestAnimationFrame(padNavLoop);
+  const pads = navigator.getGamepads ? navigator.getGamepads() : [];
+  let gp = null; for (const g of pads || []) if (g && g.connected) { gp = g; break; }
+  if (!gp) return;
+  const racing = UI.engine && !UI.engine.done && !UI.engine.paused;
+  const b = i => !!(gp.buttons[i] && gp.buttons[i].pressed);
+  const now = { a: b(0), b: b(1) }, prev = PADNAV.prev; PADNAV.prev = now;
+  if (racing) { PADNAV.dir = null; return; }
+  const ax = gp.axes[0] || 0, ay = gp.axes[1] || 0;
+  let dir = b(12) || ay < -0.6 ? 'u' : b(13) || ay > 0.6 ? 'd' : b(14) || ax < -0.6 ? 'l' : b(15) || ax > 0.6 ? 'r' : null;
+  const t = performance.now();
+  if (dir && (dir !== PADNAV.dir || t > PADNAV.repeatAt)) {
+    PADNAV.repeatAt = t + (dir !== PADNAV.dir ? 380 : 140);
+    const [dx, dy] = { u: [0, -1], d: [0, 1], l: [-1, 0], r: [1, 0] }[dir];
+    padNavMove(dx, dy);
+  }
+  PADNAV.dir = dir;
+  if (now.a && !prev.a) {
+    const list = padNavTargets();
+    if (PADNAV.el && list.includes(PADNAV.el)) PADNAV.el.click(); else padNavMove(0, 1);
+  }
+  if (now.b && !prev.b) padNavBack();
+  // right stick scrolls long pages
+  const ry = gp.axes[3] || 0; if (Math.abs(ry) > 0.2) window.scrollBy(0, ry * 18);
+}
+window.addEventListener('gamepadconnected', () => toast('Controller connected. D-pad to move, A to select, B to go back.', 'good'));
+requestAnimationFrame(padNavLoop);
 
 </script>
   <script>
