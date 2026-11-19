@@ -2483,7 +2483,7 @@ class View3D {
       m.position.set(c.x, 0, c.y);
       m.rotation.y = -c.h;
       const far = (c.x - p.x) * (c.x - p.x) + (c.y - p.y) * (c.y - p.y) > 1600 * 1600; // far cars are tiny specks: skip them
-      m.visible = (!c.isPlayer || !!c.pitSeq) && (!far || !!p.pitSeq);
+      m.visible = (!c.isPlayer || !!c.pitSeq || e.viewMode === 'chase') && (!far || !!p.pitSeq);
       m.position.y = c.isPlayer && this.lift ? this.lift : 0;
       m.userData.shield.visible = c.shield > 0;
       const sp = c.vx * Math.cos(c.h) + c.vy * Math.sin(c.h);
@@ -2513,7 +2513,8 @@ class View3D {
     for (const [i, f] of (this.flags || []).entries()) f.rotation.y = Math.sin(e.clock * 3 + i) * 0.35 + 0.2 * Math.sin(e.clock * 7.3 + i);
     if (this.lensflare) this.lensflare.visible = e.rain < 0.35;
     const cine = !!p.pitSeq && !!this.pit;
-    this.cockpit.visible = !cine;
+    const chase = e.viewMode === 'chase';
+    this.cockpit.visible = !cine && !chase;
     if (cine !== this.wasCine) { this.wasCine = cine; const rs = document.getElementById('race-screen'); if (rs) rs.classList.toggle('race-cine', cine); }
     if (!cine) this.cineInit = false;
 
@@ -2527,7 +2528,17 @@ class View3D {
     const spd = Math.hypot(p.vx, p.vy);
     const bump = spd > 30 ? Math.sin(e.clock * 38) * (p.offroad ? 0.6 : 0.12) : 0;
     if (cine) this.pitCamera(dt);
-    else {
+    else if (chase) {
+      // chase camera: behind and above the car, looking down the road
+      const back = this.kart ? 96 : 112, up = this.kart ? 36 : 38;
+      cam.position.set(p.x - ch * back + jx, up + jy, p.y - sh * back);
+      cam.up.set(0, 1, 0);
+      cam.lookAt(p.x + ch * 90, this.kart ? 6 : 7, p.y + sh * 90);
+      const speedF = clamp(spd / e.tier.baseSpeed, 0, 1.4);
+      const hfov = (80 + speedF * 8) * Math.PI / 180;
+      cam.fov = clamp(2 * Math.atan(Math.tan(hfov / 2) / cam.aspect) * 180 / Math.PI, 45, 85);
+      cam.updateProjectionMatrix();
+    } else {
       cam.position.set(p.x + ch * fwd + jx, eye + jy + bump, p.y + sh * fwd);
       cam.up.set(0, 1, 0);
       cam.lookAt(cam.position.x + ch * 100, eye - 5 + bump, cam.position.z + sh * 100);
@@ -2753,7 +2764,7 @@ class RaceEngine {
     this.cam.z = this.targetZoom(0);
     this.throttlePressAt = -10;
     this.steerVis = 0;
-    this.viewMode = opts.view === 'top' ? 'top' : 'cockpit';
+    this.viewMode = opts.view === 'top' || opts.view === 'chase' ? opts.view : 'cockpit';
     this.v3 = null;
     this.quali = !!opts.qualifying;
     this.wx = opts.weather || { start: 0, to: 0, at: 1, windDir: 0, wind: 0 };
@@ -2921,13 +2932,16 @@ class RaceEngine {
   setView(mode) {
     if (this.lost3d) mode = 'top';
     this.viewMode = mode;
-    if (mode === 'cockpit' && !this.v3 && typeof THREE !== 'undefined' && typeof document !== 'undefined' && document.body) {
+    const want3d = mode === 'cockpit' || mode === 'chase';
+    if (want3d && !this.v3 && typeof THREE !== 'undefined' && typeof document !== 'undefined' && document.body) {
       try { this.v3 = new View3D(this); } catch (err) { console.warn('3D view unavailable', err); this.v3 = null; this.viewMode = 'top'; }
-    } else if (mode === 'cockpit' && !this.v3) this.viewMode = 'top';
-    if (this.v3) this.v3.setVisible(this.viewMode === 'cockpit');
+    } else if (want3d && !this.v3) this.viewMode = 'top';
+    if (this.v3) this.v3.setVisible(this.is3D());
   }
+  is3D() { return this.viewMode === 'cockpit' || this.viewMode === 'chase'; }
   toggleView() {
-    this.setView(this.viewMode === 'cockpit' ? 'top' : 'cockpit');
+    // cockpit -> chase camera -> top-down -> cockpit
+    this.setView(this.viewMode === 'cockpit' ? 'chase' : this.viewMode === 'chase' ? 'top' : 'cockpit');
     if (this.o.onView) this.o.onView(this.viewMode);
   }
   destroy() {
@@ -4020,11 +4034,11 @@ class RaceEngine {
     ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
     const now = this.clock, rdt = clamp(now - (this.lastRender == null ? now : this.lastRender), 0, 0.1);
     this.lastRender = now;
-    if (this.v3 && this.viewMode === 'cockpit') {
+    if (this.v3 && this.is3D()) {
       this.v3.render(rdt || 1 / 60);
       ctx.clearRect(0, 0, w, h);
       this.v3.labels(ctx, w, h);
-      this.drawCockpit(ctx, w, h);
+      if (this.viewMode === 'cockpit') this.drawCockpit(ctx, w, h);
       if (this.stormFlash > 0) { ctx.fillStyle = `rgba(200,160,255,${this.stormFlash * 0.35})`; ctx.fillRect(0, 0, w, h); }
       this.drawHUD(ctx, w, h);
       return;
@@ -4324,7 +4338,7 @@ class RaceEngine {
   }
 
   drawHUD(ctx, w, h) {
-    const cockpit = !!(this.v3 && this.viewMode === 'cockpit');
+    const cockpit = !!(this.v3 && this.is3D());
     const ps = this.player.pitSeq;
     if (ps && cockpit) {
       const bar = Math.round(h * 0.1);
