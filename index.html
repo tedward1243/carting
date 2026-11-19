@@ -521,7 +521,7 @@ const TIERS = [
     view: 620, kmh: 0.30, items: true, prize: 300, fansBase: 8, upgradeMult: 1,
     color: '#7bd88f',
     desc: 'Weekend club races at the local track. Everyone starts somewhere.',
-    tracks: ['Maple Lane Kartway', 'Rusty Pines Circuit', 'Harbor Lot Speedway', 'Cornfield Ring', 'Duckpond Raceway', 'Willow Creek Karts', 'Pebble Bay Kartway', 'Brickyard Junior Track', 'Hilltop Kart Club', 'Orchard Lane Circuit']
+    tracks: ['Maple Lane Kartway', 'Rusty Pines Circuit', 'Harbor Lot Speedway', 'Cornfield Ring', 'Duckpond Raceway', 'Willow Creek Karts', 'Pebble Bay Kartway', 'Brickfield Junior Track', 'Hilltop Kart Club', 'Orchard Lane Circuit']
   },
   {
     id: 1, name: 'Regional Kart Series', short: 'REG', vehicle: 'kart', cls: '100cc Junior',
@@ -539,7 +539,7 @@ const TIERS = [
     view: 700, kmh: 0.31, items: true, prize: 1500, fansBase: 45, upgradeMult: 2.4,
     color: '#ffd166',
     desc: 'The best karters in the country. Win here and the formula teams call.',
-    tracks: ['Thunder Valley', 'Coastline Kart Center', 'Ironwood Raceway', 'Silver Creek', 'Desert Bloom Kartplex', 'Blackrock Bowl', 'Redline Kart Complex', 'Northpoint Raceway', 'Highmoor Kart Circuit', 'Saltmarsh Speedway', 'Pinecrest Kartdrome', 'Eagle Ridge Karting']
+    tracks: ['Thunder Gorge', 'Coastline Kart Center', 'Ironwood Raceway', 'Silver Creek', 'Desert Bloom Kartplex', 'Blackrock Bowl', 'Redline Kart Complex', 'Northpoint Raceway', 'Highmoor Kart Circuit', 'Saltmarsh Speedway', 'Pinecrest Kartdrome', 'Eagle Ridge Karting']
   },
   {
     id: 3, name: 'Formula Junior', short: 'FJR', vehicle: 'formula', cls: 'Single-seater',
@@ -651,7 +651,7 @@ const KART_PARTS = [
   { id: 'tire', name: 'Tyres', desc: 'More grip and sharper turn-in.' }
 ];
 
-const SPONSOR_NAMES = ['VoltCharge Energy', 'Nimbus Telecom', 'Crispy Crunch Snacks', 'Atlas Tools', 'Polar Fizz', 'Stellar Bank', 'Rocket Pizza', 'Quantum Gear', 'Blaze Watches', 'Harbor Insurance', 'Pixel Arcade', 'Summit Outdoors'];
+const SPONSOR_NAMES = ['VoltCharge Energy', 'Nimbus Telecom', 'Comet Crunch Snacks', 'Atlas Tools', 'Polar Fizz', 'Stellar Bank', 'Rocket Pizza', 'Quantum Gear', 'Blaze Watches', 'Harbor Insurance', 'Pixel Arcade', 'Summit Outdoors'];
 
 /* Story events. {rival} and {name} are replaced. cond(state) decides eligibility. */
 const EVENTS = [
@@ -4647,9 +4647,17 @@ function simQualiLap(tier, track, racer, difficulty, weather) {
 const SAVE_KEY = 'kartToCrown.save.v1';
 const HOF_KEY = 'kartToCrown.hof.v1';
 const Store = {
-  load(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } },
-  save(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } },
-  del(k) { try { localStorage.removeItem(k); } catch (e) { } }
+  // the desktop (Steam) version keeps saves as files so Steam Cloud can sync them; the browser uses localStorage
+  load(k) {
+    try { const D = window.k2cDesktop; if (D) { const t = D.load(k); if (t) return JSON.parse(t); } } catch (e) { }
+    try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; }
+  },
+  save(k, v) {
+    const t = JSON.stringify(v);
+    try { const D = window.k2cDesktop; if (D) D.save(k, t); } catch (e) { }
+    try { localStorage.setItem(k, t); return true; } catch (e) { return !!window.k2cDesktop; }
+  },
+  del(k) { try { const D = window.k2cDesktop; if (D) D.del(k); } catch (e) { } try { localStorage.removeItem(k); } catch (e) { } }
 };
 
 let S = null; // the live career
@@ -4676,7 +4684,23 @@ const MAX_SLOTS = 5;
 const slotKey = i => i === 0 ? SAVE_KEY : SAVE_KEY + '.slot' + i;
 let SLOT = 0;
 function save() { if (S) { S.savedAt = Date.now(); Store.save(slotKey(SLOT), S); } }
-function loadSave(i = SLOT) { const s = Store.load(slotKey(i)); if (s && s.v === 1 && s.driver) { S = s; SLOT = i; return true; } return false; }
+function loadSave(i = SLOT) { const s = Store.load(slotKey(i)); if (s && s.v === 1 && s.driver) { S = s; SLOT = i; checkAchievements(); return true; } return false; }
+
+/* ---------- Steam achievements (desktop version only; does nothing in the browser) ---------- */
+function achieve(id) { try { if (window.k2cDesktop) window.k2cDesktop.achieve(id); } catch (e) { } }
+function checkAchievements() {
+  if (!S || !S.totals) return;
+  const t = S.totals;
+  if (t.podiums >= 1) achieve('FIRST_PODIUM');
+  if (t.wins >= 1) achieve('FIRST_WIN');
+  if (t.wins >= 10) achieve('WINS_10');
+  if (t.wins >= 50) achieve('WINS_50');
+  if (t.poles >= 1) achieve('FIRST_POLE');
+  if (t.fastest >= 1) achieve('FASTEST_LAP');
+  if (S.tier >= 3) achieve('FORMULA_DEBUT');
+  if (S.tier >= 6) achieve('APEX_DEBUT');
+  for (const tr of S.trophies || []) if (tr.tier != null) achieve('TITLE_' + tr.tier);
+}
 function listSlots() {
   const out = [];
   for (let i = 0; i < MAX_SLOTS; i++) {
@@ -4966,6 +4990,9 @@ function applyRaceResult(out) {
   if (podium) S.totals.podiums++;
   if (gotFL) S.totals.fastest++;
   if (me.grid === 1) S.totals.poles++;
+  if (won && me.grid >= 8) achieve('WIN_FROM_BACK');
+  if (!dnf) achieve('FIRST_FINISH');
+  checkAchievements();
 
   // buffs/flags expire
   S.buffs.forEach(b => b.races--);
@@ -5031,6 +5058,7 @@ function prepareSeasonEnd() {
   if (champ) {
     S.trophies.push({ name: T.name + ' Champion', season: S.season, tier: S.tier });
     S.totals.titles++;
+    achieve('TITLE_' + S.tier);
     S.driver.fans += T.fansBase * 60;
     S.driver.rep = clamp(S.driver.rep + 15, 0, 100);
     addNews(`CHAMPION! ${S.driver.name} wins the ${T.name} title!`, 'win');
@@ -5081,6 +5109,7 @@ function acceptOffer(i) {
   if (o.type === 'retire') return 'retire';
   const prevTier = S.tier;
   S.tier = o.tier;
+  checkAchievements();
   if (o.team) {
     S.team = { name: o.team.name, color: o.team.color, car: o.team.car, salary: o.salary };
     const list = (S.pendingTeams || {})[o.tier];
