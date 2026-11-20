@@ -2521,7 +2521,7 @@ class View3D {
     // driver's-eye camera
     this.camH += angDiff(p.h, this.camH) * Math.min(1, dt * 16);
     const ch = Math.cos(this.camH), sh = Math.sin(this.camH);
-    const eye = this.kart ? 13.5 : 9.5;
+    const eye = this.kart ? 13.5 : 14; // formula eye raised so the fast cars don't feel glued to the ground
     const fwd = this.kart ? -1 : 1;
     const shk = e.shake * 2.5;
     const jx = (Math.random() - 0.5) * shk, jy = (Math.random() - 0.5) * shk;
@@ -2530,10 +2530,10 @@ class View3D {
     if (cine) this.pitCamera(dt);
     else if (chase) {
       // chase camera: behind and above the car, looking down the road
-      const back = this.kart ? 96 : 112, up = this.kart ? 36 : 38;
+      const back = this.kart ? 96 : 118, up = this.kart ? 36 : 50;
       cam.position.set(p.x - ch * back + jx, up + jy, p.y - sh * back);
       cam.up.set(0, 1, 0);
-      cam.lookAt(p.x + ch * 90, this.kart ? 6 : 7, p.y + sh * 90);
+      cam.lookAt(p.x + ch * 90, this.kart ? 6 : 9, p.y + sh * 90);
       const speedF = clamp(spd / e.tier.baseSpeed, 0, 1.4);
       const hfov = (80 + speedF * 8) * Math.PI / 180;
       cam.fov = clamp(2 * Math.atan(Math.tan(hfov / 2) / cam.aspect) * 180 / Math.PI, 45, 85);
@@ -4701,6 +4701,24 @@ function checkAchievements() {
   if (S.tier >= 6) achieve('APEX_DEBUT');
   for (const tr of S.trophies || []) if (tr.tier != null) achieve('TITLE_' + tr.tier);
 }
+/* ---------- Steam shop (desktop version only). Each pack can be bought again and again; the reward is given at once. ---------- */
+// Prices here are only the labels on the buttons. The real prices are in shop-server/worker.js; keep them the same.
+const PACKS = [
+  { id: 'SPONSOR_BOOST', name: 'Sponsor Boost', icon: '💰', price: '$4.99', races: 12, sp: 0, desc: 'Prize money worth 12 race wins at your current level.' },
+  { id: 'TRAINING_CAMP', name: 'Training Camp', icon: '🏋️', price: '$4.99', races: 0, sp: 15, desc: '15 skill points to spend on your driver.' },
+  { id: 'CROWN_BUNDLE', name: 'Crown Bundle', icon: '👑', price: '$19.99', races: 30, sp: 30, desc: 'Prize money worth 30 race wins at your current level, plus 30 skill points.' }
+];
+function shopInfo() { try { const D = window.k2cDesktop; if (D && D.shopInfo) return D.shopInfo(); } catch (e) { } return { steam: false }; }
+const packMoney = p => p.races * tier().prize;
+// called only after Steam confirms the payment
+function grantPack(id) {
+  const p = PACKS.find(x => x.id === id);
+  if (!S || !p) return false;
+  S.money += packMoney(p); S.driver.skillPts += p.sp;
+  S.purchases = S.purchases || [];
+  S.purchases.push({ id, at: Date.now() });
+  save(); return true;
+}
 function listSlots() {
   const out = [];
   for (let i = 0; i < MAX_SLOTS; i++) {
@@ -5486,10 +5504,11 @@ ACTIONS['c-start'] = () => {
 /* ============================================================
    Hub
    ============================================================ */
-const TAB_LIST = [['home', 'Home'], ['driver', 'Driver'], ['garage', 'Garage'], ['standings', 'Standings'], ['career', 'Career'], ['settings', 'Settings']];
+const TAB_LIST = [['home', 'Home'], ['driver', 'Driver'], ['garage', 'Garage'], ['standings', 'Standings'], ['career', 'Career'], ['shop', 'Shop'], ['settings', 'Settings']];
 function renderHub() {
   hideRace();
-  const fns = { home: tabHome, driver: tabDriver, garage: tabGarage, standings: tabStandings, career: tabCareer, settings: tabSettings };
+  const fns = { home: tabHome, driver: tabDriver, garage: tabGarage, standings: tabStandings, career: tabCareer, shop: tabShop, settings: tabSettings };
+  if (UI.tab === 'shop' && !shopInfo().steam) UI.tab = 'home';
   appEl.innerHTML = topbar() + `<main class="page">${fns[UI.tab]()}</main>`;
   drawPreviews();
   const kp = $('#garage-preview');
@@ -5516,7 +5535,7 @@ function topbar() {
         <div class="tstat"><b>${Math.round(d.morale)}</b><small>Morale</small>${meter(d.morale, 'var(--blue)')}</div>
       </div>
     </div>
-    <nav class="tabs">${TAB_LIST.map(([id, nm]) => `<button class="tab ${UI.tab === id ? 'active' : ''}" data-act="tab" data-arg="${id}">${nm}${dots[id] ? '<span class="dot"></span>' : ''}</button>`).join('')}</nav>
+    <nav class="tabs">${TAB_LIST.filter(([id]) => id !== 'shop' || shopInfo().steam).map(([id, nm]) => `<button class="tab ${UI.tab === id ? 'active' : ''}" data-act="tab" data-arg="${id}">${nm}${dots[id] ? '<span class="dot"></span>' : ''}</button>`).join('')}</nav>
   </div>`;
 }
 
@@ -5801,6 +5820,34 @@ function tabCareer() {
 }
 
 /* ---------- Settings ---------- */
+/* ---------- Shop (desktop + Steam only) ---------- */
+let shopBusy = false;
+function tabShop() {
+  const card = p => {
+    const gives = [p.races ? fmtMoney(packMoney(p)) : '', p.sp ? p.sp + ' skill points' : ''].filter(Boolean).join(' + ');
+    const n = (S.purchases || []).filter(x => x.id === p.id).length;
+    return `<div class="card"><div class="card-title"><h3>${p.icon} ${p.name}</h3>${n ? `<span class="good small">BOUGHT ×${n}</span>` : ''}</div>
+      <p class="muted">${p.desc}</p><p>You get: <b class="gold">${gives}</b></p>
+      <button class="btn gold" data-act="pack-buy" data-arg="${p.id}" ${shopBusy ? 'disabled' : ''}>${shopBusy ? 'Waiting for Steam…' : 'Buy • ' + p.price}</button></div>`;
+  };
+  return `<div class="card"><div class="card-title"><h3>Shop</h3></div>
+      <p class="muted small" style="margin:0">Pay through Steam and the reward goes straight into this career. You can buy any pack as many times as you like. Money scales with the series you race in.</p></div>
+    <div class="grid3" style="margin-top:12px">${PACKS.map(card).join('')}</div>`;
+}
+ACTIONS['pack-buy'] = async id => {
+  const p = PACKS.find(x => x.id === id);
+  if (!p || shopBusy) return;
+  shopBusy = true; renderHub();
+  toast('Approve the purchase in the Steam window.');
+  let r = { ok: false };
+  try { r = await window.k2cDesktop.shopBuy(id); } catch (e) { }
+  shopBusy = false;
+  if (r && r.ok && grantPack(id)) toast(`${p.name} added to your career!`, 'good');
+  else if (r && r.cancelled) toast('Purchase cancelled. You were not charged.');
+  else toast((r && r.error) || 'The purchase could not be completed.', 'bad');
+  if (UI.tab === 'shop' && document.getElementById('race-screen').classList.contains('hidden')) renderHub();
+};
+
 function tabSettings() {
   const s = S.settings;
   return `<div class="grid2"><div class="card">
